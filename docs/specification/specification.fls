@@ -1,0 +1,31 @@
+PWD C:/Users/marce/PycharmProjects/gan-encryption/docs/specification
+INPUT c:/Program Files/texlive/2017/texmf.cnf
+INPUT c:/Program Files/texlive/2017/texmf-dist/web2c/texmf.cnf
+INPUT c:/Program Files/texlive/2017/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT ./specification.tex
+OUTPUT specification.log
+INPUT c:/Program Files/texlive/2017/texmf-dist/tex/latex/base/article.cls
+INPUT c:/Program Files/texlive/2017/texmf-dist/tex/latex/base/article.cls
+INPUT c:/Program Files/texlive/2017/texmf-dist/tex/latex/base/size12.clo
+INPUT c:/Program Files/texlive/2017/texmf-dist/tex/latex/base/size12.clo
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/map/fontname/texfonts.map
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
+INPUT specification.aux
+INPUT specification.aux
+OUTPUT specification.aux
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmr17.tfm
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmr17.tfm
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
+OUTPUT specification.pdf
+INPUT c:/Program Files/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
+INPUT specification.toc
+INPUT specification.toc
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
+OUTPUT specification.toc
+INPUT specification.aux
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb
+INPUT c:/Program Files/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb
