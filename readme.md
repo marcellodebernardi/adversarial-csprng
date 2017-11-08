@@ -82,12 +82,36 @@ This work is mostly concerned with cryptanalytic attacks.
 
 
 ## 4 - Testing CSPRNGs
-This section will outline the basics of how CSPRNGs are tested for security,
-including both standard methodology and tools.
+Andrew Yao showed that a sequence is random if, and only if, every probabilistic
+polynomial-time algorithm fails to predict the next bit of the sequence with a
+significant probability. However, using the universal quantifier (every
+algorithm) confines the next bit test to being merely theoretical, rather than
+a practical test.
 
-If a CSPRNG passes the next-bit test, it will pass all statistical tests. Thus
-performing statistical tests explicitly is not necessary if you can correctly
-perform the next-bit test.
+### SADEGHIYAN-MOHAJERI TEST
+Sadeghiyan and Mohajeri presented a test that measures the randomness of a
+sequence based on the predictability of the next bit of an underlying sequence,
+given the former bits.
+
+The test algorithm takes advantage of a tree structure, which stores information
+on the patterns of subsequences in the overall sequence.
+
+![Pattern Tree](./img/pattern_tree.png)
+
+In the pattern tree, each node in depth `l` represents the number of
+occurrences of a binary pattern of length `l` in the underlying sequence.
+Each edge connecting two nodes denotes the ratio of the number of child patterns
+located in the next later to the number of their parent patterns in the previous
+layer that is, a conditional probability `P(child | parent)`. For a large enough
+random sequence, it is expected that all the ratios corresponding to the edges
+of the pattern tree to be approximately equal to 1/2.
+
+The algorithm for the test is as follows:
+
+``` java
+// threshold for whether we consider sequence random
+double decision_threshold = (1 + Math.sqrt((x^2)/n)) / 2;
+```
 
 
 ## 5 - Architecture of this Project
