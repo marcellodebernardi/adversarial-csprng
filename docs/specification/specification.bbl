@@ -1,0 +1,39 @@
+\begin{thebibliography}{1}
+
+\bibitem{abadi2016learning}
+Mart{\'\i}n Abadi and David~G Andersen.
+\newblock Learning to protect communications with adversarial neural
+  cryptography.
+\newblock {\em arXiv preprint arXiv:1610.06918}, 2016.
+
+\bibitem{desai2011pseudo}
+VV~Desai, VB~Deshmukh, and DH~Rao.
+\newblock Pseudo random number generator using elman neural network.
+\newblock In {\em Recent Advances in Intelligent Computational Systems (RAICS),
+  2011 IEEE}, pages 251--254. IEEE, 2011.
+
+\bibitem{ferguson2011cryptography}
+Niels Ferguson, Bruce Schneier, and Tadayoshi Kohno.
+\newblock {\em Cryptography engineering: design principles and practical
+  applications}.
+\newblock John Wiley \& Sons, 2011.
+
+\bibitem{goodfellow2016nips}
+Ian Goodfellow.
+\newblock Nips 2016 tutorial: Generative adversarial networks.
+\newblock {\em arXiv preprint arXiv:1701.00160}, 2016.
+
+\bibitem{goodfellow2014generative}
+Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley,
+  Sherjil Ozair, Aaron Courville, and Yoshua Bengio.
+\newblock Generative adversarial nets.
+\newblock In {\em Advances in neural information processing systems}, pages
+  2672--2680, 2014.
+
+\bibitem{tirdad2010hopfield}
+Kayvan Tirdad and Alireza Sadeghian.
+\newblock Hopfield neural networks as pseudo random number generators.
+\newblock In {\em Fuzzy Information Processing Society (NAFIPS), 2010 Annual
+  Meeting of the North American}, pages 1--6. IEEE, 2010.
+
+\end{thebibliography}
