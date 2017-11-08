@@ -19,9 +19,19 @@ make reference to the previous link.
 
 
 ## 3 - Cryptographically Secure Pseudo Random Number Generators
-A cryptographically secure pseudo-random number generator (CSPRNG) or
-cryptographic pseudo-random number generator (CPRNG) is a pseudo-random number
-generator (PRNG) with properties that make it suitable for use in cryptography.
+A PRNG is a cryptographic algorithm used to generate numbers that must appear
+random. A PRNG has a secret state, *S*. Upon request, it must generate outputs
+that are indistinguishable from random numbers to an attacker who doesn't know
+and cannot guess *S*. Additionally, a PRNG must be able to alter its secret
+state by processing input values that may be unpredictable to an attacker. These
+are values typically collected from physical processes with sufficient entropy.
+
+Note that in principle, any method of distinguishing between PRNG outputs and
+random outputs is an attack; in practice, we care much more about the ability
+to learn the values of PRNG outputs not seen by the attacker, and to predict
+or control future outputs.
+
+![PRNG](./img/prng_blackbox.png)
 
 ### Applications of Random Number Generators
 Many aspects of cryptography require random numbers, including key generation,
@@ -38,8 +48,8 @@ attacker.
 1.  Every CSPRNG should satisfy the **next-bit test**. That is, given the first
     k bits of a random sequence, there is no polynomial-time algorithm that can
     predict the (k+1)th bit with probability of success non-negligibly better
-    than 50%. Andrew Yao proved in 1982 that a generator passing the next-bit
-    test will pass all other polynomial-time statistical tests for randomness.
+    than 50%. Andrew Yao proved in 1982 that **a generator passing the next-bit
+    test will pass all other polynomial-time statistical tests for randomness.**
 2.  Every CSPRNG should withstand "**state compromise extensions**". In the event
     that part or all of its state has been revealed (or guessed correctly),
     it should be impossible to reconstruct the stream of random numbers prior
@@ -82,13 +92,22 @@ This work is mostly concerned with cryptanalytic attacks.
 
 
 ## 4 - Testing CSPRNGs
-Andrew Yao showed that a sequence is random if, and only if, every probabilistic
-polynomial-time algorithm fails to predict the next bit of the sequence with a
-significant probability. However, using the universal quantifier (every
-algorithm) confines the next bit test to being merely theoretical, rather than
-a practical test.
+Several standard statistical tests exist for the randomness of a random number
+sequence. These include the **chi-squared test**, the **Kolmogorov-Smirnov
+test**, **Spearman's Rank Correlation Coefficient test**, the **Runs test**,
+and the **Spectral test**. Simpler, "empirical" tests are also used,
+such as the **equidistribution test**, the **serial test**, and the **gap
+test**.
 
-### SADEGHIYAN-MOHAJERI TEST
+As mentioned above, Yao showed that passing the next-bit test is equivalent to passing all other polynomial-time statistical tests for randomness. However,
+using the universal quantifier (every algorithm) confines the next bit test to being merely theoretical, rather than a practical test.
+
+This work relies on a paper by Lavasani and Eghlidos, in which a **Practical
+Next Bit Test** is developed on the base of the **Sadeghiyan-Mohajeri test**.
+This section summarizes both tests, and how the former is derived from the
+latter.
+
+### Sadeghiyan-Mohajeri Test
 Sadeghiyan and Mohajeri presented a test that measures the randomness of a
 sequence based on the predictability of the next bit of an underlying sequence,
 given the former bits.
@@ -115,6 +134,9 @@ The algorithm for the test is as follows (in Python-style pseudo-code):
 The test does not prescribe any specific criteria for global judgement about
 the randomness of a sequence.
 
+### Extended Next-Bit Test
+Lavasani and Eghlidos provide a formal definition of an *Extended Next Bit
+Test*, and a proof of its equivalence to the Next Bit Test.
 
 ## 5 - Architecture of this Project
 This section will outline the overall architecture of the implementation.
