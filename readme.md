@@ -9,8 +9,7 @@ with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 
 ## 1 - Generative Models
 This section will provide some background on generative models in general,
-making reference to [NIPS 2016 Tutorial: Generative Adversarial Networks]
-(https://arxiv.org/abs/1701.00160).
+making reference to [NIPS 2016 Tutorial: Generative Adversarial Networks](https://arxiv.org/abs/1701.00160).
 
 
 ## 2 - Generative Adversarial Networks
@@ -29,20 +28,19 @@ Many aspects of cryptography require random numbers, including key generation,
 nonces, one-time pads, and salts in certain signature schemes.
 
 ### Security Requirements of CSPRNGs
-This section draws on this Wikipedia [page]
-(https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Requirements).
+This section draws on this Wikipedia [page](https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Requirements).
 
 CSPRNG requirements fall into two groups: first, that they pass statistical
 randomness tests; and secondly, that they hold up well under serious attack,
 even when part of their initial or running state becomes available to an
 attacker.
 
-1.  Every CSPRNG should satisfy the *next-bit test*. That is, given the first k
-    bits of a random sequence, there is no polynomial-time algorithm that can
+1.  Every CSPRNG should satisfy the **next-bit test**. That is, given the first
+    k bits of a random sequence, there is no polynomial-time algorithm that can
     predict the (k+1)th bit with probability of success non-negligibly better
     than 50%. Andrew Yao proved in 1982 that a generator passing the next-bit
     test will pass all other polynomial-time statistical tests for randomness.
-2.  Every CSPRNG should withstand "*state compromise extensions*". In the event
+2.  Every CSPRNG should withstand "**state compromise extensions**". In the event
     that part or all of its state has been revealed (or guessed correctly),
     it should be impossible to reconstruct the stream of random numbers prior
     to the revelation. Additionally, if there is an entropy input while running,
@@ -58,24 +56,23 @@ cryptographically secure; an attacker who determines which bit of pi
 all preceding bits as well.
 
 ### Random Number Generator Attacks
-This section draws on this Wikipedia [page]
-(https://en.wikipedia.org/wiki/Random_number_generator_attack).
+This section draws on this Wikipedia [page](https://en.wikipedia.org/wiki/Random_number_generator_attack).
 
 Lack of quality in a PRNG generally provides attack vulnerabilities and so
-leads to lack of security, even to *complete compromise*, in cryptographic
+leads to lack of security, even to **complete compromise**, in cryptographic
 systems. The RNG process is particularly attractive to attackers because it is
-typically a *single isolated hardware or software component* easy to locate.
+typically a **single isolated hardware or software component** easy to locate.
 
-For *software RNGs*, which this work is concerned with, we can identify these
+For **software RNGs**, which this work is concerned with, we can identify these
 major types of attacks:
 
-1.  *Direct cryptanalytic attacks*: when an attacker obtains part of the stream
+1.  **Direct cryptanalytic attacks**: when an attacker obtains part of the stream
     of random bits and uses this to distinguish the RNG output from a truly
     random stream (i.e. to predict future bits).
-2.  *Input-based attacks*: when an attacker manages to modify the input to the
+2.  **Input-based attacks**: when an attacker manages to modify the input to the
     RNG to attack it, for example by "flushing" existing entropy and putting
     the RNG in a known state.
-3.  *State compromise extension attacks*: when the internal secret state of the
+3.  **State compromise extension attacks**: when the internal secret state of the
     RNG is known at some time, it can be used to predict future output or to
     recover previous output. This can happen when a generator starts up and has
     little or no entropy, so the attacker may be able to guess the initial
