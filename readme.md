@@ -106,12 +106,14 @@ layer that is, a conditional probability `P(child | parent)`. For a large enough
 random sequence, it is expected that all the ratios corresponding to the edges
 of the pattern tree to be approximately equal to 1/2.
 
-The algorithm for the test is as follows:
+The algorithm for the test is as follows (in Python-style pseudo-code):
 
-``` java
-// threshold for whether we consider sequence random
-double decision_threshold = (1 + Math.sqrt((x^2)/n)) / 2;
+```python
+# todo code goes here
 ```
+
+The test does not prescribe any specific criteria for global judgement about
+the randomness of a sequence.
 
 
 ## 5 - Architecture of this Project
