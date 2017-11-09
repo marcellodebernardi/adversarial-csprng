@@ -12,12 +12,16 @@
 # =================================================================
 
 # libraries
-import tensorflow
+import tensorflow as tf
+import os
 
 
 # training parameters
 SEED_LENGTH = 256
 USE_ORACLES = [False, False]
+
+# logging and housekeeping
+PRINT_FREQUENCY = 200
 
 
 # todo step 1: create model

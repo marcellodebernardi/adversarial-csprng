@@ -24,6 +24,8 @@ Discussion points for weekly meeting with supervisors.
 
 1.  Output of generator will be string of booleans, because in the field of
     PRNGs, binary sequences are the standard.
+2.  **Simultaneous gradient descent for both networks**: Ian Goodfellow
+    considers this the best approach.
 
 
 ## 3 - RESEARCH DETAILS
