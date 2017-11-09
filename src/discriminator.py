@@ -1,5 +1,7 @@
 # Marcello De Bernardi, Queen Mary University of London
 # =================================================================
+import tensorflow as tf
+
 
 class Discriminator
     """Defines the discriminator neural network model, 'Eve'."""
