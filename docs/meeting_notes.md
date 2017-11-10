@@ -26,6 +26,8 @@ Discussion points for weekly meeting with supervisors.
     PRNGs, binary sequences are the standard.
 2.  **Simultaneous gradient descent for both networks**: Ian Goodfellow
     considers this the best approach.
+3.  Multiple training steps for discriminator for each one training step of
+    generator -> because generator learns better with optimal discriminator
 
 
 ## 3 - RESEARCH DETAILS
