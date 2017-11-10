@@ -158,8 +158,6 @@ At a high level, the system consists of two adversarially trained neural
 networks: a **generator**, hereby referred to as Jerry, and a **discriminator**,
 hereby referred to as Eve.
 
-
-
 ### Architecture of Generator (Jerry)
 
 ### Architecture of Discriminator (Eve)
