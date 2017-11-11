@@ -46,7 +46,7 @@ random outputs is an attack; in practice, we care much more about the ability
 to learn the values of PRNG outputs not seen by the attacker, and to predict
 or control future outputs.
 
-![PRNG](./img/prng_blackbox.png)
+![PRNG](docs/img/prng_blackbox.png)
 
 ### Applications of Random Number Generators
 Many aspects of cryptography require random numbers, including key generation,
@@ -114,8 +114,9 @@ and the **Spectral test**. Simpler, "empirical" tests are also used,
 such as the **equidistribution test**, the **serial test**, and the **gap
 test**.
 
-As mentioned above, Yao showed that passing the next-bit test is equivalent to passing all other polynomial-time statistical tests for randomness. However,
-using the universal quantifier (every algorithm) confines the next bit test to being merely theoretical, rather than a practical test.
+As mentioned above, Yao showed that passing the next-bit test is equivalent to passing all other polynomial-time 
+statistical tests for randomness. However, using the universal quantifier (every algorithm) confines the next bit test 
+to being merely theoretical, rather than a practical test.
 
 This work relies on a paper by Lavasani and Eghlidos, in which a **Practical
 Next Bit Test** is developed on the base of the **Sadeghiyan-Mohajeri test**.
@@ -130,7 +131,7 @@ given the former bits.
 The test algorithm takes advantage of a tree structure, which stores information
 on the patterns of subsequences in the overall sequence.
 
-![Pattern Tree](./img/pattern_tree.png)
+![Pattern Tree](docs/img/pattern_tree.png)
 
 In the pattern tree, each node in depth `l` represents the number of
 occurrences of a binary pattern of length `l` in the underlying sequence.
