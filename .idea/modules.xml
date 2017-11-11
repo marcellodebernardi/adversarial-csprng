@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/gan-encryption.iml" filepath="$PROJECT_DIR$/.idea/gan-encryption.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/adversarial-csprng.iml" filepath="$PROJECT_DIR$/.idea/adversarial-csprng.iml" />
     </modules>
   </component>
 </project>
