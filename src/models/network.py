@@ -1,22 +1,20 @@
 # Marcello De Bernardi, Queen Mary University of London
 # =================================================================
 
-import tensorflow as tf
+from keras.models import Model
+from keras.layers import Input, Dense, Reshape
 
 
 class Network:
     """Defines the common attributes and behavior of both the
     generator and discriminator neural nets."""
 
-    def __init__(self, session=None):
-        self.session = session
-        self.optimizer = tf.train.AdamOptimizer
+    def __init__(self):
+        self.inputs = None
+        self.operations = None
+        self.model = None
+        self.optimizer = None
         self.loss_function = None
-
-    def with_session(self, session):
-        """Sets the TensorFlow session for the network."""
-        self.session = session
-        return self
 
     def with_optimizer(self, optimizer):
         """Sets a new optimizer for the network."""
@@ -28,19 +26,23 @@ class Network:
         self.loss_function = loss_function
         return self
 
-    def model(self):
-        pass
-
-    def optimize(self):
-        """Runs the optimizer on the network. Returns after
-        printing a warning if session has not yet been set."""
-        if self.session is None:
-            print("Session is None")
-            return
-        self.session.run(self.optimizer)
+    def with_inputs(self, input_tensor):
+        self.inputs = input_tensor
         return self
 
-    def evaluate(self):
-        """Computes the loss function of the network."""
-        # todo
-        return
+    def add_layer(self, new_layer):
+        """Adds a layer to the Keras model"""
+        if self.operations is None and self.inputs is not None:
+            self.operations = new_layer(self.inputs)
+        else:
+            self.operations = new_layer(self.operations)
+        return self
+
+    def compile(self):
+        """Compiles the Keras model for the network"""
+        self.model = Model(self.inputs, self.operations)
+        self.model.compile(self.optimizer, self.loss_function)
+        return self
+
+    def get_model(self) -> Model:
+        return self.model

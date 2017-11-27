@@ -114,8 +114,9 @@ and the **Spectral test**. Simpler, "empirical" tests are also used,
 such as the **equidistribution test**, the **serial test**, and the **gap
 test**.
 
-As mentioned above, Yao showed that passing the next-bit test is equivalent to passing all other polynomial-time 
-statistical tests for randomness. However, using the universal quantifier (every algorithm) confines the next bit test 
+As mentioned above, Yao showed that passing the next-bit test is equivalent to 
+passing all other polynomial-time statistical tests for randomness. However, 
+using the universal quantifier (every algorithm) confines the next bit test 
 to being merely theoretical, rather than a practical test.
 
 This work relies on a paper by Lavasani and Eghlidos, in which a **Practical

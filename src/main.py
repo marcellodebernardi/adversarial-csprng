@@ -11,42 +11,50 @@
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
 
-
-# libraries
-import tensorflow as tf
-from models.discriminator import Discriminator
+import os
+import utils
+import numpy as np
+from keras.layers import Input, Dense, SimpleRNN, LSTM
+from keras.losses import mean_absolute_error
+from keras.activations import linear
+from models.activations import modular_activation
 from models.generator import Generator
 
 
-# training parameters
-SEED_LENGTH = 256
+SEED_LENGTH = 32
+OUTPUT_LENGTH = 256
 USE_ORACLES = [False, False]
 MAX_TRAINING_CYCLES = 10000
 ITERS_PER_ACTOR = 1
 DISCRIMINATOR_MULTIPLIER = 2
-# logging and housekeeping
-PRINT_FREQUENCY = 200
+# logging
+print_frequency = 200
 
 
 def main():
     """Run the full training and evaluation loop"""
+    #  create nets
+    gen = create_generator()
+    print(utils.get_random_seed(SEED_LENGTH))
+    # train
+    gen.get_model().fit(utils.get_random_seed(SEED_LENGTH), utils.get_random_seed(OUTPUT_LENGTH), epochs=1000)
+    print(gen.get_model().predict(utils.get_random_seed(SEED_LENGTH)))
 
-    generator = Generator(SEED_LENGTH)
-    discriminator = Discriminator()
-    init = tf.global_variables_initializer()
 
-    with tf.Session() as session:
-        session.run(init)
+def create_generator():
+    gen = Generator()\
+        .with_optimizer('adagrad')\
+        .with_loss_function(mean_absolute_error)\
+        .with_inputs(Input(shape=(SEED_LENGTH,)))
+    gen.add_layer(Dense(10, activation=linear))
+    gen.add_layer(Dense(10, activation=linear))
+    gen.add_layer(Dense(OUTPUT_LENGTH, activation=linear))
+    gen.compile()
+    return gen
 
-        for i in range(MAX_TRAINING_CYCLES):
-            for j in range(ITERS_PER_ACTOR):
-                generator.with_session(session).optimize()
-            for j in range(ITERS_PER_ACTOR * DISCRIMINATOR_MULTIPLIER):
-                discriminator.with_session(session).optimize()
 
-            if i % PRINT_FREQUENCY == 0:
-                generator_loss = generator.evaluate()
-                discriminator_loss = discriminator.evaluate()
+def create_discriminator():
+    pass
 
 
 if __name__ == "__main__":
