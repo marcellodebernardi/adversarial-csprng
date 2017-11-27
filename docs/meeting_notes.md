@@ -18,6 +18,9 @@ Discussion points for weekly meeting with supervisors.
 4.  If the model passes the PNT, then it should pass all the tests in the NIST
     test suite. The NIST test suite can be used as the final validation tool.
     Alternatively we could use **ent** or other such tools.
+5.  **Hopfield Neural Networks** as used in the paper I read don't fit the GAN
+    model very well, the idea there is to produce unpredictable behavior by
+    preventing convergence.
 
 
 ## 2 - DESIGN DETAILS

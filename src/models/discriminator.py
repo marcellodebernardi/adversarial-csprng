@@ -7,8 +7,6 @@ from models.network import Network
 class Discriminator(Network):
     """Defines the discriminator neural network model, 'Eve'."""
 
-    def __init__(self, with_oracle = False):
+    def __init__(self, use_oracle):
         super().__init__()
-        # todo set specific optimizer (i.e. Adam.minimize.something)
-        self.session = None
-        self.optimizer = tf.train.AdamOptimizer
+        self.use_oracle = use_oracle
