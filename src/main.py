@@ -11,44 +11,40 @@
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
 
-import os
 import utils
 import numpy as np
 from keras.layers import Input, Dense, SimpleRNN, LSTM
-from keras.losses import mean_absolute_error
 from keras.activations import linear
-from models.activations import modular_activation
 from models.generator import Generator
+from models.activations import modular_activation
+from models.losses import loss_pnb
 
 
 SEED_LENGTH = 32
 OUTPUT_LENGTH = 256
-USE_ORACLES = [False, False]
-MAX_TRAINING_CYCLES = 10000
-ITERS_PER_ACTOR = 1
-DISCRIMINATOR_MULTIPLIER = 2
-# logging
-print_frequency = 200
+EPOCHS = 1000
+USE_ORACLE = False
 
 
 def main():
     """Run the full training and evaluation loop"""
     #  create nets
     gen = create_generator()
-    print(utils.get_random_seed(SEED_LENGTH))
+    seed = np.array([utils.get_random_seed(SEED_LENGTH)])
+    dummy_output = np.array([utils.get_random_seed(OUTPUT_LENGTH)])
+
     # train
-    gen.get_model().fit(utils.get_random_seed(SEED_LENGTH), utils.get_random_seed(OUTPUT_LENGTH), epochs=1000)
-    print(gen.get_model().predict(utils.get_random_seed(SEED_LENGTH)))
+    gen.get_model().fit(seed, dummy_output, epochs=EPOCHS)
 
 
 def create_generator():
     gen = Generator()\
         .with_optimizer('adagrad')\
-        .with_loss_function(mean_absolute_error)\
+        .with_loss_function(loss_pnb)\
         .with_inputs(Input(shape=(SEED_LENGTH,)))
-    gen.add_layer(Dense(10, activation=linear))
-    gen.add_layer(Dense(10, activation=linear))
-    gen.add_layer(Dense(OUTPUT_LENGTH, activation=linear))
+    gen.add_layer(Dense(OUTPUT_LENGTH, activation=modular_activation(2)))
+    gen.add_layer(Dense(OUTPUT_LENGTH, activation=modular_activation(2)))
+    gen.add_layer(Dense(OUTPUT_LENGTH, activation=modular_activation(2)))
     gen.compile()
     return gen
 
