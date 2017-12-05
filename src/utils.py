@@ -1,4 +1,5 @@
 import secrets
+import tensorflow as tf
 
 
 def get_random_seed(seed_size: int) -> list:
@@ -10,3 +11,9 @@ def get_random_seed(seed_size: int) -> list:
         bitfield.insert(i, 0)
 
     return bitfield
+
+
+def log(x, base) -> tf.Tensor:
+    numerator = tf.log(x)
+    denominator = tf.log(tf.constant(base, dtype=numerator.dtype))
+    return numerator / denominator
