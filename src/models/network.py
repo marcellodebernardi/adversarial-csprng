@@ -2,7 +2,6 @@
 # =================================================================
 
 from keras.models import Model
-from keras.layers import Input, Dense, Reshape
 
 
 class Network:
@@ -39,10 +38,21 @@ class Network:
         return self
 
     def compile(self):
-        """Compiles the Keras model for the network"""
+        """Compiles the Keras model for the network."""
         self.model = Model(self.inputs, self.operations)
         self.model.compile(self.optimizer, self.loss_function)
         return self
 
     def get_model(self) -> Model:
+        """Returns the underlying Keras model."""
         return self.model
+
+    def get_input_tensor(self):
+        """Returns the Tensor representing the input to the Network
+        model."""
+        return self.inputs
+
+    def summary(self):
+        """Prints a summary of the Network model."""
+        self.model.summary()
+        return
