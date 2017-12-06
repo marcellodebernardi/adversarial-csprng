@@ -37,7 +37,6 @@ def loss_pnb(output_size):
 
 def loss_ent(true, pred):
     """Computes the loss function for an output using ent"""
-
     def loss_pnb(output_size, decision_threshold=0.55):
         def loss_pnb_closure(true, pred):
             """Computes the loss function for an output using the
@@ -75,7 +74,7 @@ def loss_ent(true, pred):
 
 def loss_disc(true, pred):
     """Loss function for the discriminator network."""
-    pass
+    return tf.subtract(true, true)
 
 
 def loss_gan(true, pred):
