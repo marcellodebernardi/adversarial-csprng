@@ -43,6 +43,15 @@ class Network:
         self.model.compile(self.optimizer, self.loss_function)
         return self
 
+    def trainable(self, trainable=True):
+        """Sets the trainability of the underlying Keras model.
+        By default calling the method with no arguments sets the
+        model to be trainable."""
+        self.model.trainable = trainable
+        for layer in self.model.layers:
+            layer.trainable = trainable
+        return self
+
     def get_model(self) -> Model:
         """Returns the underlying Keras model."""
         return self.model

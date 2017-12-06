@@ -74,7 +74,15 @@ def loss_ent(true, pred):
 
 
 def loss_disc(true, pred):
-    return pred
+    """Loss function for the discriminator network."""
+    pass
+
+
+def loss_gan(true, pred):
+    """Loss function for the GAN training phase. Precisely this is
+    the loss function for the generator, but the Keras model trains
+    the generator as a part of the larger GAN model."""
+    return tf.subtract(true, pred)
 
 
 class Node:
