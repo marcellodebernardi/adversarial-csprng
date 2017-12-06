@@ -3,14 +3,14 @@ import numpy as np
 from models.network import Network
 
 
-def train_gan(gan: Network, gen: Network, disc: Network, seed, batch_size, epochs=500):
+def train_gan(gan: Network, gen: Network, disc: Network, seed, batch_size, output_length, epochs=500):
     """Performs end-to-end training of the GAN model."""
     seed_batch = utils.form_seed_batch(seed, batch_size)
     for e in range(epochs):
         # todo train discriminator, aim is to get discriminator to discern better
 
         # todo train generator, aim is to compute loss on generated inputs
-        print(gan.get_model().train_on_batch(seed_batch, generate_correct_nb(gen, seed, 32)))
+        print(gan.get_model().train_on_batch(seed_batch, generate_correct_nb(gen, seed, 32, output_length)))
 
 
 def train_disc(disc: Network, input_data, output_data, epochs=500):

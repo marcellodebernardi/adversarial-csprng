@@ -16,7 +16,6 @@ import train
 import numpy as np
 from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
 from models.activations import modular_activation
-from models.losses import loss_pnb, loss_disc, loss_gan
 from models.operations import drop_last_bit
 from models.network import Network
 
@@ -44,7 +43,9 @@ def main():
         train.generate_correct_nb(gen, seed, 32, OUTPUT_LENGTH)))
 
     # train
-    train.train_gan(gan, gen, disc, seed)
+    # train.train_gan(gan, gen, disc, seed, BATCH_SIZE, OUTPUT_LENGTH)
+    gan.get_model().save_weights('../saved_models/placeholder.h5', overwrite=True)
+    gan.get_model().save('../saved_models/placeholder.h5', overwrite=True)
     # save model with model.to_json, model.save, model.save_weights
 
 
@@ -89,13 +90,6 @@ def connect_models(generator: Network, discriminator: Network) -> Network:
         .add_layer(Lambda(drop_last_bit(original_size=OUTPUT_LENGTH, batch_size=BATCH_SIZE)))\
         .add_layer(discriminator.get_model())\
         .compile()
-
-
-def generate_noise(batch_size=32, length=255):
-    noise = np.empty(shape=(batch_size, length), dtype=np.int32)
-    for i in range(batch_size):
-        for j in range(length):
-            noise[i, j] = 0
 
 
 if __name__ == "__main__":
