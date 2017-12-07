@@ -3,30 +3,43 @@ import numpy as np
 from models.network import Network
 
 
-def train_gan(gan: Network, gen: Network, disc: Network, seed, batch_size, output_length, epochs=500):
-    """Performs end-to-end training of the GAN model."""
+def train_gan(gan, gen, disc, seed, batch_size, output_length, epochs=500) -> dict:
+    """Performs end-to-end training of the GAN model. Returns a dictionary
+    containing two lists with the loss function values for each epoch. The
+    dictionary entries are labeled 'generator' and 'discriminator'."""
+    losses = {
+        'generator': [],
+        'discriminator': []
+    }
     seed_batch = utils.form_seed_batch(seed, batch_size)
     for e in range(epochs):
-        # todo train discriminator, aim is to get discriminator to discern better
+        # train discriminator
+        disc.trainable(True)
+        input_data, output_data = generate_disc_io_pairs(gen, seed, batch_size, output_length)
+        dl = disc.get_model().train_on_batch(input_data, output_data)
+        losses['discriminator'].append(dl)
 
-        # todo train generator, aim is to compute loss on generated inputs
-        print(gan.get_model().train_on_batch(seed_batch, generate_correct_nb(gen, seed, 32, output_length)))
+        # train generator, aim is to compute loss on generated inputs
+        disc.trainable(False)
+        gl = gan.get_model().train_on_batch(seed_batch, generate_disc_io_pairs(gen, seed, batch_size, output_length)[1])
+        # gl = gan.get_model().evaluate(seed_batch, generate_correct_next(gen, seed, 32, output_length))
+        losses['generator'].append(gl)
+    return losses
 
 
-def train_disc(disc: Network, input_data, output_data, epochs=500):
-    """Used to perform pre-training on the discriminator only."""
-    # todo decide on batch size
-    # todo decide how to pre-train
-    disc.trainable().get_model().fit(input_data, output_data, epochs)
-
-
-def generate_correct_nb(gen: Network, seed, batch_size, output_length):
-    """Generates a batch of final sequence bits from the generator.
-    These are used as the 'correct' values that the discriminator
-    should be outputting during training."""
+def generate_disc_io_pairs(gen: Network, seed, batch_size, output_length):
+    """Generates two batches to be used as input-output pairs for training
+    the discriminator model. The first value returned represents input data
+    for the discriminator, while the second values represents the correct
+    output data that the discriminator should output."""
     # todo prediction will probably affect state of RNN layers
-    final_bit_array = np.empty((batch_size, 1))
+    disc_input_array = np.empty((batch_size, output_length - 1))
+    disc_output_array = np.empty((batch_size, 1))
     seed = np.array([seed])
-    for i in range(len(final_bit_array)):
-        np.append(final_bit_array, gen.get_model().predict(seed)[0][output_length - 1])
-    return final_bit_array
+
+    for i in range(len(disc_output_array)):
+        gen_out = gen.get_model().predict(seed)
+        np.append(disc_input_array, gen_out[0][0:output_length-1])
+        np.append(disc_output_array, gen_out[0][output_length - 1])
+
+    return disc_input_array, disc_output_array
