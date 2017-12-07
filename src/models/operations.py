@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def drop_last_bit(original_size, batch_size):
+def drop_last_value(original_size, batch_size):
     """Returns a closure that operates on Tensors. It is
     used to connect the GAN's generator to the discriminator,
     as the discriminator receives the generator's output
