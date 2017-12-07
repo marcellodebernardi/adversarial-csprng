@@ -3,7 +3,7 @@ import numpy as np
 from models.network import Network
 
 
-def train_gan(gan, gen, disc, seed, batch_size, output_length, epochs=500) -> dict:
+def train_gan(gan: Network, gen: Network, disc: Network, seed, batch_size, output_length, epochs=500) -> dict:
     """Performs end-to-end training of the GAN model. Returns a dictionary
     containing two lists with the loss function values for each epoch. The
     dictionary entries are labeled 'generator' and 'discriminator'."""
@@ -17,6 +17,7 @@ def train_gan(gan, gen, disc, seed, batch_size, output_length, epochs=500) -> di
         disc.trainable(True)
         input_data, output_data = generate_disc_io_pairs(gen, seed, batch_size, output_length)
         dl = disc.get_model().train_on_batch(input_data, output_data)
+        print(gan.get_model().get_weights())
         losses['discriminator'].append(dl)
 
         # train generator, aim is to compute loss on generated inputs
