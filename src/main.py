@@ -13,19 +13,19 @@
 
 import utils
 import train
+from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
 from keras.optimizers import sgd
 from models.activations import modular_activation
 from models.operations import drop_last_value
-from models.losses import loss_disc, loss_gan
-from models.network import Network
+from models.losses import loss_disc, loss_gan, loss_pnb
 
 
 SEED_LENGTH = 1             # the number of individual values in the seed
 MAX_SEED_VAL = 10           # the max bound for each value in the seed
 OUTPUT_LENGTH = 2           # the number of values outputted by the generator
 BATCH_SIZE = 1              # the number of inputs in one batch
-EPOCHS = 10000              # epochs for training
+EPOCHS = 100                # epochs for training
 USE_ORACLE = False
 
 
@@ -36,10 +36,7 @@ def main():
     print("Generated seed " + str(seed[0]) + " ...")
 
     #  create nets
-    gen = create_generator()
-    disc = create_discriminator()
-    gan = connect_models(gen, disc)
-    print("Compiled networks:")
+    gen, disc, gan = define_networks()
     gan.summary()
 
     # train
@@ -51,49 +48,33 @@ def main():
     utils.plot_loss(losses['generator'], losses['discriminator'])
 
     # save configuration
-    gan.get_model().save_weights('../saved_models/placeholder.h5', overwrite=True)
+    gan.save_weights('../saved_models/placeholder.h5', overwrite=True)
     # gan.get_model().save('../saved_models/placeholder.h5', overwrite=True)
     # save model with model.to_json, model.save, model.save_weights
 
 
-def create_generator() -> Network:
-    """Returns a Network object encapsulating a compiled Keras model
-    that represents the generator component of the GAN."""
-    return Network()\
-        .with_optimizer('adagrad')\
-        .with_loss_function('binary_crossentropy')\
-        .with_inputs(Input(shape=(SEED_LENGTH,)))\
-        .add_layer(Dense(OUTPUT_LENGTH, activation=modular_activation(50)))\
-        .compile()
+def define_networks() -> (Model, Model, Model):
+    """Returns the Keras models defining the generative adversarial network.
+    The first model returned is the generator, the second is the discriminator,
+    and the third is the connected GAN."""
+    inputs_gen = Input(shape=(SEED_LENGTH,))
+    operations_gen = Dense(OUTPUT_LENGTH, activation=modular_activation(50))(inputs_gen)
+    gen = Model(inputs_gen, operations_gen)
+    gen.compile(optimizer=sgd(lr=0.0001, clipvalue=0.5), loss=loss_pnb(OUTPUT_LENGTH))
 
+    inputs_disc = Input(shape=(OUTPUT_LENGTH - 1,))
+    operations_disc = Dense(OUTPUT_LENGTH, activation=modular_activation(50))(inputs_disc)
+    operations_disc = Dense(1, )(operations_disc)
+    disc = Model(inputs_disc, operations_disc)
+    disc.compile(sgd(lr=0.0001, clipvalue=0.5), loss=loss_disc)
 
-def create_discriminator() -> Network:
-    """Returns a Network object encapsulating a compiled Keras model
-    that represents the discriminator component of the GAN"""
-    # optimizer = 'rmsprop',
-    # loss = 'binary_crossentropy',
-    # metrics = ['accuracy']
-    return Network()\
-        .with_optimizer(sgd(lr=0.0001, clipvalue=0.5))\
-        .with_loss_function(loss_disc)\
-        .with_inputs(Input(shape=(OUTPUT_LENGTH - 1,)))\
-        .add_layer(Dense(OUTPUT_LENGTH, activation=modular_activation(50)))\
-        .add_layer(Dense(1,))\
-        .compile()
+    operations_gan = gen(inputs_gen)
+    operations_gan = Lambda(drop_last_value(original_size=OUTPUT_LENGTH, batch_size=BATCH_SIZE))(operations_gan)
+    operations_gan = disc(operations_gan)
+    gan = Model(inputs_gen, operations_gan)
+    gan.compile(optimizer=sgd(lr=0.0001, clipvalue=0.5), loss=loss_gan)
 
-
-def connect_models(generator: Network, discriminator: Network) -> Network:
-    """Connects the generator and discriminator models into a new Keras
-    model by adding an intermediate layer between them that removes the
-    last element from the output produced by the generator."""
-    return Network()\
-        .with_optimizer(sgd(lr=0.0001, clipvalue=0.5))\
-        .with_loss_function(loss_gan)\
-        .with_inputs(generator.get_input_tensor())\
-        .add_layer(generator.get_model())\
-        .add_layer(Lambda(drop_last_value(original_size=OUTPUT_LENGTH, batch_size=BATCH_SIZE)))\
-        .add_layer(discriminator.get_model())\
-        .compile()
+    return gen, disc, gan
 
 
 if __name__ == "__main__":

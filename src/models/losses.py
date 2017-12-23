@@ -7,7 +7,11 @@ def loss_nist(true, pred):
     pass
 
 
-def loss_pnb(output_size):
+def loss_pnb(output_length: int):
+    """Returns a loss compatible with the Keras specification, that
+    computes the loss of the generator based on the practical next
+    bit test."""
+
     def loss_pnb_closure(true, pred):
         """Loss function that computes the practical next bit test on
         an output tensor representing the sequence produced by the
@@ -15,18 +19,20 @@ def loss_pnb(output_size):
         # NOTE: the loss function must be purely symbolic and operate on
         # tensors.
 
-        data = tf.reshape(tf.cast(pred, dtype=tf.float32), [output_size])
+        print(tf.shape(pred))
+
+        data = tf.reshape(tf.cast(pred, dtype=tf.float32), [output_length])
         onb = tf.Variable([0], dtype=tf.float32)
 
         # compute length of patterns as log_2(output_size) - 2
         start_length = tf.subtract(
-            utils.log(tf.Variable(output_size, dtype=tf.float32), 2),
+            utils.log(tf.Variable(output_length, dtype=tf.float32), 2),
             tf.constant(2, dtype=data.dtype))
 
         # todo append first start_length values to end of list
         # todo tf.concat([data, tf.slice(data, tf.constant(0), tf.cast(start_length, tf.int32))], 0)
 
-        pattern_list = tf.zeros([output_size, 2], tf.float32)
+        pattern_list = tf.zeros([output_length, 2], tf.float32)
 
         # todo
 
@@ -74,14 +80,14 @@ def loss_ent(true, pred):
 
 def loss_disc(true, pred):
     """Loss function for the discriminator network."""
-    return tf.abs(tf.reduce_mean(pred))
+    return tf.subtract(true, pred)
 
 
 def loss_gan(true, pred):
     """Loss function for the GAN training phase. Precisely this is
     the loss function for the generator, but the Keras model trains
     the generator as a part of the larger GAN model."""
-    return tf.abs(tf.reduce_mean(pred))
+    return tf.negative(tf.subtract(true, pred))
 
 
 class Node:
