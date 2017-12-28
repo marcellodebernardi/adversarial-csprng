@@ -1,5 +1,7 @@
 import utils
 import tensorflow as tf
+import numpy as np
+from keras import Model
 
 
 def loss_nist(true, pred):
@@ -78,16 +80,17 @@ def loss_ent(true, pred):
     pass
 
 
+def loss_adv(predictor_loss_function):
+    """Loss function for the adversarial network, used to train the
+        generator."""
+    def loss(true, pred):
+        return tf.negative(predictor_loss_function(true, pred))
+    return loss
+
+
 def loss_disc(true, pred):
     """Loss function for the discriminator network."""
-    return tf.subtract(true, pred)
-
-
-def loss_gan(true, pred):
-    """Loss function for the GAN training phase. Precisely this is
-    the loss function for the generator, but the Keras model trains
-    the generator as a part of the larger GAN model."""
-    return tf.negative(tf.subtract(true, pred))
+    return tf.abs(tf.subtract(true, pred))
 
 
 class Node:

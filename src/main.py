@@ -18,63 +18,63 @@ from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
 from keras.optimizers import sgd
 from models.activations import modular_activation
 from models.operations import drop_last_value
-from models.losses import loss_disc, loss_gan, loss_pnb
+from models.losses import loss_disc, loss_adv, loss_pnb
 
 
 SEED_LENGTH = 1             # the number of individual values in the seed
-MAX_SEED_VAL = 10           # the max bound for each value in the seed
-OUTPUT_LENGTH = 2           # the number of values outputted by the generator
-BATCH_SIZE = 1              # the number of inputs in one batch
+DATASET_SIZE = 10           # number of seeds to train with
+MAX_VAL = 100               # the max bound for each value in the seed
+SEQ_LENGTH = 10             # the number of values outputted by the generator
+BATCH_SIZE = 10             # the number of inputs in one batch
 EPOCHS = 100                # epochs for training
-USE_ORACLE = False
+NET_CV = 0.5                # clip value for networks
+NET_LR = 0.0008             # learning rate for networks
 
 
 def main():
     """Instantiates neural networks and runs the training procedure. The results
     are plotted visually."""
-    seed = utils.get_seed_decimal(MAX_SEED_VAL, SEED_LENGTH)
-    print("Generated seed " + str(seed[0]) + " ...")
+    seed_dataset = utils.get_seed_dataset(MAX_VAL, SEED_LENGTH, DATASET_SIZE)
 
-    #  create nets
-    gen, disc, gan = define_networks()
-    gan.summary()
+    # define neural nets
+    predictor, generator, adversarial = define_networks()
+    utils.plot_network_graphs(generator, predictor, adversarial)
 
-    # train
-    losses = train.train_gan(gan, gen, disc, seed, BATCH_SIZE, OUTPUT_LENGTH, EPOCHS)
-    # print("Training losses: ")
-    # print(losses)
+    # train nets
+    # losses = train.train_gan(gan, generator, predictor, seed, BATCH_SIZE, SEQ_LENGTH, EPOCHS)
+    losses = train.train_gan(generator, predictor, adversarial, seed_dataset, BATCH_SIZE, EPOCHS)
 
     # plot results
-    utils.plot_loss(losses['generator'], losses['discriminator'])
+    utils.plot_loss(losses['generator'], losses['predictor'])
 
     # save configuration
-    gan.save_weights('../saved_models/placeholder.h5', overwrite=True)
+    # gan.save_weights('../saved_models/placeholder.h5', overwrite=True)
     # gan.get_model().save('../saved_models/placeholder.h5', overwrite=True)
     # save model with model.to_json, model.save, model.save_weights
 
 
-def define_networks() -> (Model, Model, Model):
+def define_networks() -> (Model, Model):
     """Returns the Keras models defining the generative adversarial network.
     The first model returned is the generator, the second is the discriminator,
     and the third is the connected GAN."""
-    inputs_gen = Input(shape=(SEED_LENGTH,))
-    operations_gen = Dense(OUTPUT_LENGTH, activation=modular_activation(50))(inputs_gen)
-    gen = Model(inputs_gen, operations_gen)
-    gen.compile(optimizer=sgd(lr=0.0001, clipvalue=0.5), loss=loss_pnb(OUTPUT_LENGTH))
+    inputs_gen = Input(shape=(SEED_LENGTH,), name='generator_input')
+    operations_gen = Dense(SEQ_LENGTH, activation=modular_activation(MAX_VAL), name='generator_output')(inputs_gen)
+    generator = Model(inputs_gen, operations_gen, name='generator')
+    generator.compile(optimizer=sgd(lr=NET_LR, clipvalue=NET_CV), loss='binary_crossentropy')
 
-    inputs_disc = Input(shape=(OUTPUT_LENGTH - 1,))
-    operations_disc = Dense(OUTPUT_LENGTH, activation=modular_activation(50))(inputs_disc)
-    operations_disc = Dense(1, )(operations_disc)
-    disc = Model(inputs_disc, operations_disc)
-    disc.compile(sgd(lr=0.0001, clipvalue=0.5), loss=loss_disc)
+    inputs_predictor = Input(shape=(SEQ_LENGTH - 1,), name='predictor_input')
+    operations_predictor = Dense(SEQ_LENGTH, activation=modular_activation(MAX_VAL), name='predictor_hidden_dense1')(inputs_predictor)
+    operations_predictor = Dense(1, activation=modular_activation(MAX_VAL), name='predictor_output')(operations_predictor)
+    predictor = Model(inputs_predictor, operations_predictor, name='predictor')
+    predictor.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_disc)
 
-    operations_gan = gen(inputs_gen)
-    operations_gan = Lambda(drop_last_value(original_size=OUTPUT_LENGTH, batch_size=BATCH_SIZE))(operations_gan)
-    operations_gan = disc(operations_gan)
-    gan = Model(inputs_gen, operations_gan)
-    gan.compile(optimizer=sgd(lr=0.0001, clipvalue=0.5), loss=loss_gan)
+    operations_adv = generator(inputs_gen)
+    operations_adv = Lambda(drop_last_value(SEQ_LENGTH, BATCH_SIZE), name='adversarial_drop_last_value')(operations_adv)
+    operations_adv = predictor(operations_adv)
+    adversarial = Model(inputs_gen, operations_adv, name='adversarial')
+    adversarial.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_adv(loss_disc))
 
-    return gen, disc, gan
+    return predictor, generator, adversarial
 
 
 if __name__ == "__main__":
