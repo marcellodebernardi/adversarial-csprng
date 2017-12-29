@@ -3,26 +3,43 @@ import numpy as np
 from keras import Model
 
 
-def train_gan(generator: Model, predictor: Model, adversarial: Model, seed_dataset, batch_size, epochs):
-    losses = {
-        'generator': [],
-        'predictor': []
+def train_gan(generator: Model, predictor: Model, adversarial: Model, seed_dataset, epochs):
+    metrics = {
+        'generator_loss': [],
+        'predictor_loss': [],
+        'generator_outputs': [],
+        'generator_max_weight': [],
+        'generator_min_weight': [],
+        'generator_avg_weight': [],
+        'predictor_max_weight': [],
+        'predictor_min_weight': [],
+        'predictor_avg_weight': [],
+        'generator_final_weights': [],
+        'predictor_final_weights': []
     }
 
     for epoch in range(epochs):
-        for seed in seed_dataset:
-            generator_input = utils.form_seed_batch(seed, batch_size)
-            generator_output = generator.predict(generator_input)
-            predictor_input, predictor_output = utils.split_generator_output(generator_output, batch_size, 1)
+        if epoch % 100 == 0:
+            print('Epoch: ' + str(epoch))
+            # todo progress reporting
 
-            print(generator_output.shape)
-            print(predictor_input.shape)
-            print(predictor_output.shape)
+        # todo obtain loss for whole epoch, not for each seed to eliminate plot jitter
+        for generator_input in seed_dataset:
+            generator_output = generator.predict_on_batch(generator_input)
+            metrics['generator_outputs'].append(generator_output)
+            # todo splitting probably doesn't account for batch dimension
+            predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
 
+            # train predictor todo train multiple times
             utils.set_trainable(predictor)
-            losses['predictor'].append(predictor.train_on_batch(predictor_input, predictor_output))
+            metrics['predictor_loss'].append(predictor.train_on_batch(predictor_input, predictor_output))
 
+            # train generator
             utils.set_trainable(predictor, False)
-            losses['generator'].append(adversarial.train_on_batch(generator_input, predictor_output))
+            metrics['generator_loss'].append(adversarial.train_on_batch(generator_input, predictor_output))
 
-    return losses
+            # extract metrics todo
+            generator_weights = generator.get_weights()
+            predictor_weights = predictor.get_weights()
+
+    return metrics

@@ -82,9 +82,9 @@ def loss_ent(true, pred):
 
 def loss_adv(predictor_loss_function):
     """Loss function for the adversarial network, used to train the
-        generator."""
+    generator."""
     def loss(true, pred):
-        return tf.negative(predictor_loss_function(true, pred))
+        return tf.subtract(tf.ones(tf.shape(pred)), predictor_loss_function(true, pred))
     return loss
 
 
