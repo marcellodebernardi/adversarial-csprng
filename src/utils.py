@@ -1,8 +1,6 @@
 import random
 import tensorflow as tf
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from keras import Model
 from keras.utils import plot_model
 
@@ -53,42 +51,7 @@ def log(x, base) -> tf.Tensor:
     return numerator / denominator
 
 
-def plot_loss(generator_loss, predictor_loss):
-    """Plots the generator and predictor loss values into a line
-    chart.
-    """
-    ax = pd.DataFrame(
-        {
-            'Generative Loss': generator_loss,
-            'Predictive Loss': predictor_loss,
-        }
-    ).plot(title='Training loss')
-    ax.set_xlabel("Epochs")
-    ax.set_ylabel("Loss")
-    plt.show()
-
-
-def plot_generator_outputs(outputs, data_range):
-    """Plots the output values of the generator into a histogram
-    to visualize the output value distribution.
-    """
-    plt.hist(outputs, bins=data_range * 3)
-    plt.title('Generator Output Distribution')
-    plt.xlabel('Output')
-    plt.ylabel('Frequency')
-    plt.show()
-
-
-def plot_model_weights(generator_avg_weights, predictor_avg_weights):
-    plt.plot(generator_avg_weights)
-    plt.ylabel('Average Generator Weight')
-    plt.xlabel('Gradient Update Iteration')
-    plt.show()
-
-
 def plot_network_graphs(gen: Model, pred: Model, adv: Model):
     plot_model(gen, to_file='../model_graphs/generator.png', show_shapes=True)
     plot_model(pred, to_file='../model_graphs/predictor.png', show_shapes=True)
     plot_model(adv, to_file='../model_graphs/adversarial.png', show_shapes=True)
-
-
