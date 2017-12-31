@@ -35,15 +35,15 @@ from models.metrics import Metrics
 # simplify the code.
 
 SEED_LENGTH = 2                 # the number of individual values in the seed
-UNIQUE_SEEDS = 10               # number of unique seeds to train with
+UNIQUE_SEEDS = 100              # number of unique seeds to train with
 SEED_REPETITIONS = 1            # how many times each unique seed is repeated in dataset
 BATCH_MODE = True               # train in batch mode or online mode
 BATCH_SIZE = UNIQUE_SEEDS/2     # size of batch when batch training
 MAX_VAL = 100                   # the max bound for each value in the seed
 SEQ_LENGTH = 40                 # the number of values outputted by the generator
-EPOCHS = 10000                  # epochs for training
+EPOCHS = 1000                   # epochs for training
 NET_CV = 0.5                    # clip value for networks
-NET_LR = 0.1                    # learning rate for networks
+NET_LR = 0.00008                # learning rate for networks
 
 
 def main():
