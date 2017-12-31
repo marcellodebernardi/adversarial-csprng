@@ -16,7 +16,7 @@ import numpy as np
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
 from keras.activations import relu
-from keras.optimizers import sgd
+from keras.optimizers import sgd, adagrad
 from models.activations import modulo
 from models.operations import drop_last_value
 from models.losses import loss_predictor, loss_adv, loss_pnb
@@ -35,16 +35,16 @@ from models.metrics import Metrics
 # simplify the code.
 
 # training settings
-UNIQUE_SEEDS = 32               # number of unique seeds to train with
-SEED_REPETITIONS = 100          # how many times each unique seed is repeated in dataset
+UNIQUE_SEEDS = 2                # number of unique seeds to train with
+SEED_REPETITIONS = 1            # how many times each unique seed is repeated in dataset
 BATCH_MODE = True               # train in batch mode or online mode
 BATCH_SIZE = UNIQUE_SEEDS       # size of batch when batch training
 # input/output parameters
 MAX_VAL = 100                   # the max bound for each value in the seed
-SEED_LENGTH = 2                 # the number of individual values in the seed
+SEED_LENGTH = 5                 # the number of individual values in the seed
 SEQ_LENGTH = 40                 # the number of values outputted by the generator
 # training parameters
-EPOCHS = 1000                   # epochs for training
+EPOCHS = 100                    # epochs for training
 NET_CV = 0.5                    # clip value for networks
 NET_LR = 0.00008                # learning rate for networks
 
@@ -100,7 +100,7 @@ def define_networks() -> (Model, Model):
         activation=modulo(MAX_VAL),
         name='generator_output')(operations_gen)
     generator = Model(inputs_gen, operations_gen, name='generator')
-    generator.compile(optimizer=sgd(lr=NET_LR, clipvalue=NET_CV), loss='binary_crossentropy')
+    generator.compile(optimizer=adagrad(lr=NET_LR, clipvalue=NET_CV), loss='binary_crossentropy')
 
     # define predictor
     inputs_predictor = Input(shape=(SEQ_LENGTH - 1,), name='predictor_input')
@@ -113,7 +113,7 @@ def define_networks() -> (Model, Model):
         activation=modulo(MAX_VAL),
         name='predictor_output')(operations_predictor)
     predictor = Model(inputs_predictor, operations_predictor, name='predictor')
-    predictor.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_predictor(MAX_VAL))
+    predictor.compile(adagrad(lr=NET_LR, clipvalue=NET_CV), loss=loss_predictor(MAX_VAL))
 
     # define adversarial model
     operations_adv = generator(inputs_gen)
@@ -122,7 +122,7 @@ def define_networks() -> (Model, Model):
         name='adversarial_drop_last_value')(operations_adv)
     operations_adv = predictor(operations_adv)
     adversarial = Model(inputs_gen, operations_adv, name='adversarial')
-    adversarial.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_adv(loss_predictor(MAX_VAL)))
+    adversarial.compile(adagrad(lr=NET_LR, clipvalue=NET_CV), loss=loss_adv(loss_predictor(MAX_VAL)))
 
     return predictor, generator, adversarial
 
