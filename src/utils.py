@@ -1,5 +1,4 @@
 import random
-import sys
 import tensorflow as tf
 import numpy as np
 from keras import Model
@@ -21,7 +20,10 @@ def get_seed_dataset(max_seed: int, seed_size: int, unique_seeds: int, repetitio
     # expand to include repetition of unique seeds
     seeds = np.array([seed for seed in seeds for i in range(repetitions)], dtype=np.float64)
     # split into batches
-    return np.array(np.split(seeds, int(len(seeds) / batch_size)), dtype=np.float64)
+    if unique_seeds == 1 and repetitions == 1:
+        return np.expand_dims(seeds, 0)
+    else:
+        return np.array(np.split(seeds, int(len(seeds) / batch_size)), dtype=np.float64)
 
 
 def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):

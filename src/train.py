@@ -12,7 +12,7 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
     including 1, allowing for online training, batch training, and mini-batch training.
     """
     if len(np.shape(seed_dataset)) != 3:
-        raise ValueError('Seed dataset has length ' + str(len(np.shape(seed_dataset))) + ', should be 3')
+        raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
 
     # each epoch train on entire dataset
     for epoch in tqdm(range(epochs), desc='Training: '):
