@@ -8,6 +8,8 @@ def plot_metrics(metrics: Metrics, data_range: int):
     """Plots all metrics """
     plot_loss(metrics.generator_loss(), metrics.predictor_loss())
     plot_generator_outputs(metrics.generator_outputs(), data_range)
+    plot_generator_eval_outputs(metrics.generator_eval_outputs(), data_range)
+    plot_generator_average_outputs(metrics.generator_avg_outputs())
 
 
 def plot_loss(generator_loss, predictor_loss):
@@ -25,7 +27,7 @@ def plot_loss(generator_loss, predictor_loss):
     plt.show()
 
 
-def plot_generator_outputs(outputs: np.ndarray, data_range):
+def plot_generator_outputs(outputs, data_range):
     """Plots the output values of the generator into a histogram
     to visualize the output value distribution.
     """
@@ -33,6 +35,21 @@ def plot_generator_outputs(outputs: np.ndarray, data_range):
     plt.title('Generator Output Distribution')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
+    plt.show()
+
+
+def plot_generator_eval_outputs(outputs, data_range):
+    plt.hist(outputs, bins=data_range * 3)
+    plt.title('Generator Output Distribution (Evaluation)')
+    plt.xlabel('Output')
+    plt.ylabel('Frequency')
+    plt.show()
+
+
+def plot_generator_average_outputs(outputs):
+    plt.plot(outputs)
+    plt.ylabel('Average output per batch')
+    plt.xlabel('Batch training iteration')
     plt.show()
 
 

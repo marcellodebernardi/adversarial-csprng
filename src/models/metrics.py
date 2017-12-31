@@ -7,7 +7,8 @@ class Metrics:
         self.__generator_loss = []
         self.__predictor_loss = []
         self.__generator_outputs = []
-        self.__generator_final_outputs = []
+        self.__generator_avg_outputs = []
+        self.__generator_eval_outputs = []
         self.__generator_max_weight = []
         self.__generator_min_weight = []
         self.__generator_avg_weight = []
@@ -26,5 +27,8 @@ class Metrics:
     def generator_outputs(self) -> list:
         return self.__generator_outputs
 
-    def generator_final_outputs(self) -> list:
-        return self.__generator_final_outputs
+    def generator_eval_outputs(self) -> list:
+        return self.__generator_eval_outputs
+
+    def generator_avg_outputs(self) -> list:
+        return self.__generator_avg_outputs
