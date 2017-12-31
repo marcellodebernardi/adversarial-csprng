@@ -88,9 +88,14 @@ def loss_adv(predictor_loss_function):
     return loss
 
 
-def loss_disc(true, pred):
-    """Loss function for the discriminator network."""
-    return tf.abs(tf.subtract(true, pred))
+def loss_predictor(max_value):
+    """Returns a loss function for the discriminator network.
+    The maximum value parameter is used to normalize the distance
+    between the predictor's output and the correct output.
+    """
+    def loss(true, pred):
+        return tf.div(tf.abs(tf.subtract(true, pred)), max_value)
+    return loss
 
 
 class Node:

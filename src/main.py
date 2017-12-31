@@ -19,7 +19,7 @@ from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
 from keras.optimizers import sgd
 from models.activations import modular_activation
 from models.operations import drop_last_value
-from models.losses import loss_disc, loss_adv, loss_pnb
+from models.losses import loss_predictor, loss_adv, loss_pnb
 
 # the 'dataset' for training is a 2D matrix, where each value in
 # dimension 0 is a seed, and each value in dimension 1 is a number
@@ -34,8 +34,8 @@ from models.losses import loss_disc, loss_adv, loss_pnb
 
 BATCH_MODE = True           # train in batch mode or online mode
 SEED_LENGTH = 1             # the number of individual values in the seed
-UNIQUE_SEEDS = 10           # number of unique seeds to train with
-SEED_REPETITIONS = 50       # how many times each unique seed is repeated in dataset
+UNIQUE_SEEDS = 1            # number of unique seeds to train with
+SEED_REPETITIONS = 1        # how many times each unique seed is repeated in dataset
 MAX_VAL = 100               # the max bound for each value in the seed
 SEQ_LENGTH = 20             # the number of values outputted by the generator
 EPOCHS = 10                 # epochs for training
@@ -84,7 +84,7 @@ def define_networks() -> (Model, Model):
     operations_predictor = Dense(SEQ_LENGTH, activation=modular_activation(MAX_VAL), name='predictor_hidden_dense1')(inputs_predictor)
     operations_predictor = Dense(1, activation=modular_activation(MAX_VAL), name='predictor_output')(operations_predictor)
     predictor = Model(inputs_predictor, operations_predictor, name='predictor')
-    predictor.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_disc)
+    predictor.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_predictor(MAX_VAL))
 
     # define adversarial model
     operations_adv = generator(inputs_gen)
@@ -93,7 +93,7 @@ def define_networks() -> (Model, Model):
         name='adversarial_drop_last_value')(operations_adv)
     operations_adv = predictor(operations_adv)
     adversarial = Model(inputs_gen, operations_adv, name='adversarial')
-    adversarial.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_adv(loss_disc))
+    adversarial.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_adv(loss_predictor(MAX_VAL)))
 
     return predictor, generator, adversarial
 
