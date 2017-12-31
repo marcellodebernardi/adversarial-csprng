@@ -21,24 +21,26 @@ from models.activations import modular_activation
 from models.operations import drop_last_value
 from models.losses import loss_predictor, loss_adv, loss_pnb
 
-# the 'dataset' for training is a 2D matrix, where each value in
-# dimension 0 is a seed, and each value in dimension 1 is a number
-# that is part of the seed. The size of dimension 0 is given by
-# n = UNIQUE_SEEDS * SEED_REPETITIONS. Each epoch the adversarial
-# model thus receives n inputs.
+# the 'dataset' for training is a 3D matrix, where each value in
+# dimension 0 is a "batch", each value in dimension 1 is a seed,
+# and each value in dimension 2 is a real number that is part of
+# the seed.
 #
-# In batch training, the networks are trained each epoch with
-# SEED_REPETITIONS batches, each batch of size UNIQUE_SEEDS. In
-# online training, the networks are trained with the same seeds
-# but gradient updates are performed for each seed.
+# Each epoch the model is trained on each "batch", where the batch
+# may be of any size n > 0. A batch size of 1 results in online
+# training, while any batch size n > 1 results in mini-batch or
+# batch training. The dataset is split into "batches" regardless of
+# whether online training or batch training is carried out, to
+# simplify the code.
 
-BATCH_MODE = True           # train in batch mode or online mode
 SEED_LENGTH = 1             # the number of individual values in the seed
 UNIQUE_SEEDS = 1            # number of unique seeds to train with
 SEED_REPETITIONS = 1        # how many times each unique seed is repeated in dataset
+BATCH_MODE = True           # train in batch mode or online mode
+BATCH_SIZE = UNIQUE_SEEDS   # size of batch when batch training
 MAX_VAL = 100               # the max bound for each value in the seed
 SEQ_LENGTH = 20             # the number of values outputted by the generator
-EPOCHS = 10                 # epochs for training
+EPOCHS = 100                # epochs for training
 NET_CV = 0.5                # clip value for networks
 NET_LR = 0.0008             # learning rate for networks
 
@@ -46,9 +48,12 @@ NET_LR = 0.0008             # learning rate for networks
 def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
-    seed_dataset = utils.split_into_batches(
-        utils.get_seed_dataset(MAX_VAL, SEED_LENGTH, UNIQUE_SEEDS, SEED_REPETITIONS),
-        UNIQUE_SEEDS if BATCH_MODE else 1
+    seed_dataset = utils.get_seed_dataset(
+        MAX_VAL,
+        SEED_LENGTH,
+        UNIQUE_SEEDS,
+        SEED_REPETITIONS,
+        BATCH_SIZE if BATCH_MODE else 1
     )
 
     # define neural nets
@@ -56,7 +61,7 @@ def main():
     utils.plot_network_graphs(generator, predictor, adversarial)
 
     # train nets
-    metrics = train.train_gan(generator, predictor, adversarial, seed_dataset, EPOCHS)
+    metrics = train.train(generator, predictor, adversarial, seed_dataset, EPOCHS)
 
     # plot results
     utils.plot_loss(metrics['generator_loss'], metrics['predictor_loss'])
