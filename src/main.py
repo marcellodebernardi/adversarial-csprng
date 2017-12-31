@@ -11,8 +11,7 @@
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
 
-import utils
-import train
+import utils, vis_utils, train
 import numpy as np
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
@@ -35,12 +34,12 @@ from models.losses import loss_predictor, loss_adv, loss_pnb
 # simplify the code.
 
 SEED_LENGTH = 1             # the number of individual values in the seed
-UNIQUE_SEEDS = 1            # number of unique seeds to train with
+UNIQUE_SEEDS = 10           # number of unique seeds to train with
 SEED_REPETITIONS = 1        # how many times each unique seed is repeated in dataset
 BATCH_MODE = True           # train in batch mode or online mode
 BATCH_SIZE = UNIQUE_SEEDS   # size of batch when batch training
 MAX_VAL = 100               # the max bound for each value in the seed
-SEQ_LENGTH = 20             # the number of values outputted by the generator
+SEQ_LENGTH = 40             # the number of values outputted by the generator
 EPOCHS = 100                # epochs for training
 NET_CV = 0.5                # clip value for networks
 NET_LR = 0.008              # learning rate for networks
@@ -65,8 +64,7 @@ def main():
     metrics = train.train(generator, predictor, adversarial, seed_dataset, EPOCHS)
 
     # plot results
-    utils.plot_loss(metrics['generator_loss'], metrics['predictor_loss'])
-    utils.plot_generator_outputs(np.array(metrics['generator_outputs']).flatten(), MAX_VAL)
+    vis_utils.plot_metrics(metrics, MAX_VAL)
 
     # save configuration
     # gan.save_weights('../saved_models/placeholder.h5', overwrite=True)
