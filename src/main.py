@@ -16,6 +16,7 @@ import train
 import numpy as np
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
+from keras.activations import relu
 from keras.optimizers import sgd
 from models.activations import modular_activation
 from models.operations import drop_last_value
@@ -42,7 +43,7 @@ MAX_VAL = 100               # the max bound for each value in the seed
 SEQ_LENGTH = 20             # the number of values outputted by the generator
 EPOCHS = 100                # epochs for training
 NET_CV = 0.5                # clip value for networks
-NET_LR = 0.0008             # learning rate for networks
+NET_LR = 0.008              # learning rate for networks
 
 
 def main():
@@ -79,15 +80,27 @@ def define_networks() -> (Model, Model):
     and the third is the connected GAN."""
     # define generator
     inputs_gen = Input(shape=(SEED_LENGTH,), name='generator_input')
-    operations_gen = Dense(SEQ_LENGTH, activation=modular_activation(MAX_VAL), name='generator_hidden_dense1')(inputs_gen)
-    operations_gen = Dense(SEQ_LENGTH, activation=modular_activation(MAX_VAL), name='generator_output')(operations_gen)
+    operations_gen = Dense(
+        SEQ_LENGTH,
+        activation=modular_activation(relu, MAX_VAL),
+        name='generator_hidden_dense1')(inputs_gen)
+    operations_gen = Dense(
+        SEQ_LENGTH,
+        activation=modular_activation(relu, MAX_VAL),
+        name='generator_output')(operations_gen)
     generator = Model(inputs_gen, operations_gen, name='generator')
     generator.compile(optimizer=sgd(lr=NET_LR, clipvalue=NET_CV), loss='binary_crossentropy')
 
     # define predictor
     inputs_predictor = Input(shape=(SEQ_LENGTH - 1,), name='predictor_input')
-    operations_predictor = Dense(SEQ_LENGTH, activation=modular_activation(MAX_VAL), name='predictor_hidden_dense1')(inputs_predictor)
-    operations_predictor = Dense(1, activation=modular_activation(MAX_VAL), name='predictor_output')(operations_predictor)
+    operations_predictor = Dense(
+        SEQ_LENGTH,
+        activation=modular_activation(relu, MAX_VAL),
+        name='predictor_hidden_dense1')(inputs_predictor)
+    operations_predictor = Dense(
+        1,
+        activation=modular_activation(relu, MAX_VAL),
+        name='predictor_output')(operations_predictor)
     predictor = Model(inputs_predictor, operations_predictor, name='predictor')
     predictor.compile(sgd(lr=NET_LR, clipvalue=NET_CV), loss=loss_predictor(MAX_VAL))
 
