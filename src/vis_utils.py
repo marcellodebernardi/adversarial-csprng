@@ -1,55 +1,39 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from models.metrics import Metrics
 
 
 def plot_metrics(metrics: Metrics, data_range: int):
-    """Plots all metrics """
-    plot_loss(metrics.generator_loss(), metrics.predictor_loss())
-    plot_generator_outputs(metrics.generator_outputs(), data_range)
-    plot_generator_eval_outputs(metrics.generator_eval_outputs(), data_range)
-    plot_generator_average_outputs(metrics.generator_avg_outputs())
+    """Draws visual plots of all available data using matplotlib."""
 
-
-def plot_loss(generator_loss, predictor_loss):
-    """Plots the generator and predictor loss values into a line
-    chart.
-    """
-    ax = pd.DataFrame(
-        {
-            'Generative Loss': generator_loss,
-            'Predictive Loss': predictor_loss,
-        }
-    ).plot(title='Training loss')
-    ax.set_xlabel("Epochs")
-    ax.set_ylabel("Loss")
-    plt.show()
-
-
-def plot_generator_outputs(outputs, data_range):
-    """Plots the output values of the generator into a histogram
-    to visualize the output value distribution.
-    """
-    plt.hist(outputs, bins=data_range * 3)
-    plt.title('Generator Output Distribution')
+    # generative/discriminative loss over epochs
+    f = plt.figure(1)
+    plt.plot(metrics.generator_loss(), metrics.predictor_loss())
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.xlabel('Gradient Update Iteration')
+    plt.legend()
+    f.show()
+    # distribution of generated values during training
+    g = plt.figure(2)
+    plt.hist(metrics.generator_outputs(), bins=data_range * 3)
+    plt.title('Generator Output Distribution (Training)')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
-    plt.show()
-
-
-def plot_generator_eval_outputs(outputs, data_range):
-    plt.hist(outputs, bins=data_range * 3)
+    g.show()
+    # distribution of generated values during evaluation
+    h = plt.figure(3)
+    plt.hist(metrics.generator_eval_outputs(), bins=data_range * 3)
     plt.title('Generator Output Distribution (Evaluation)')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
-    plt.show()
-
-
-def plot_generator_average_outputs(outputs):
-    plt.plot(outputs)
+    h.show()
+    # Average output per batch during training
+    i = plt.figure(4)
+    plt.plot(metrics.generator_avg_outputs())
     plt.ylabel('Average output per batch')
     plt.xlabel('Batch training iteration')
+    i.show()
+
     plt.show()
 
 
@@ -57,4 +41,3 @@ def plot_model_weights(generator_avg_weights, predictor_avg_weights):
     plt.plot(generator_avg_weights)
     plt.ylabel('Average Generator Weight')
     plt.xlabel('Gradient Update Iteration')
-    plt.show()
