@@ -4,7 +4,7 @@ from keras import Model
 from models.metrics import Metrics
 
 
-def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, epochs):
+def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, epochs, metrics: Metrics):
     """Trains the adversarial model on the given dataset of seed values, for the
     specified number of epochs. The seed dataset must be 3-dimensional, of the form
     [batch, seed, seed_component]. Each 'batch' in the dataset can be of any size,
@@ -12,8 +12,6 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
     """
     if len(np.shape(seed_dataset)) != 3:
         raise ValueError('Seed dataset has length ' + str(len(np.shape(seed_dataset))) + ', should be 3')
-
-    metrics = Metrics()
 
     # each epoch train on entire dataset
     for epoch in range(epochs):
@@ -27,7 +25,7 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
         for generator_input in seed_dataset:
             generator_output = generator.predict_on_batch(generator_input)
             metrics.generator_outputs().extend(generator_output.flatten())
-            print(str(generator_input) + ' -> ' + str(generator_output))
+            metrics.generator_avg_outputs().append(np.mean(generator_output.flatten()))
 
             predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
 
@@ -43,3 +41,8 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
             generator_weights = generator.get_weights()
             predictor_weights = predictor.get_weights()
     return metrics
+
+
+def evaluate(generator: Model, seed_dataset, metrics: Metrics):
+    for batch in seed_dataset:
+        metrics.generator_eval_outputs().extend(generator.predict_on_batch(batch).flatten())

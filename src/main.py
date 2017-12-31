@@ -20,6 +20,7 @@ from keras.optimizers import sgd
 from models.activations import modular_activation
 from models.operations import drop_last_value
 from models.losses import loss_predictor, loss_adv, loss_pnb
+from models.metrics import Metrics
 
 # the 'dataset' for training is a 3D matrix, where each value in
 # dimension 0 is a "batch", each value in dimension 1 is a seed,
@@ -33,22 +34,29 @@ from models.losses import loss_predictor, loss_adv, loss_pnb
 # whether online training or batch training is carried out, to
 # simplify the code.
 
-SEED_LENGTH = 1             # the number of individual values in the seed
-UNIQUE_SEEDS = 10           # number of unique seeds to train with
-SEED_REPETITIONS = 1        # how many times each unique seed is repeated in dataset
-BATCH_MODE = True           # train in batch mode or online mode
-BATCH_SIZE = UNIQUE_SEEDS   # size of batch when batch training
-MAX_VAL = 100               # the max bound for each value in the seed
-SEQ_LENGTH = 40             # the number of values outputted by the generator
-EPOCHS = 100                # epochs for training
-NET_CV = 0.5                # clip value for networks
-NET_LR = 0.008              # learning rate for networks
+SEED_LENGTH = 2                 # the number of individual values in the seed
+UNIQUE_SEEDS = 10               # number of unique seeds to train with
+SEED_REPETITIONS = 1            # how many times each unique seed is repeated in dataset
+BATCH_MODE = True               # train in batch mode or online mode
+BATCH_SIZE = UNIQUE_SEEDS/2     # size of batch when batch training
+MAX_VAL = 100                   # the max bound for each value in the seed
+SEQ_LENGTH = 40                 # the number of values outputted by the generator
+EPOCHS = 10000                  # epochs for training
+NET_CV = 0.5                    # clip value for networks
+NET_LR = 0.1                    # learning rate for networks
 
 
 def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
-    seed_dataset = utils.get_seed_dataset(
+    train_seed_dataset = utils.get_seed_dataset(
+        MAX_VAL,
+        SEED_LENGTH,
+        UNIQUE_SEEDS,
+        SEED_REPETITIONS,
+        BATCH_SIZE if BATCH_MODE else 1
+    )
+    eval_seed_dataset = utils.get_seed_dataset(
         MAX_VAL,
         SEED_LENGTH,
         UNIQUE_SEEDS,
@@ -60,8 +68,10 @@ def main():
     predictor, generator, adversarial = define_networks()
     utils.plot_network_graphs(generator, predictor, adversarial)
 
-    # train nets
-    metrics = train.train(generator, predictor, adversarial, seed_dataset, EPOCHS)
+    # perform training and evaluation
+    metrics = Metrics()
+    train.train(generator, predictor, adversarial, train_seed_dataset, EPOCHS, metrics)
+    train.evaluate(generator, eval_seed_dataset, metrics)
 
     # plot results
     vis_utils.plot_metrics(metrics, MAX_VAL)
