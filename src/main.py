@@ -62,8 +62,8 @@ def main():
     eval_seed_dataset = utils.get_seed_dataset(
         MAX_VAL,
         SEED_LENGTH,
-        UNIQUE_SEEDS,
-        SEED_REPETITIONS,
+        UNIQUE_SEEDS * 10,
+        SEED_REPETITIONS * 10,
         BATCH_SIZE if BATCH_MODE else 1
     )
 
@@ -74,7 +74,7 @@ def main():
     # perform training and evaluation
     metrics = Metrics()
     train.train(generator, predictor, adversarial, train_seed_dataset, EPOCHS, metrics)
-    train.evaluate(generator, eval_seed_dataset, metrics)
+    train.evaluate(generator, adversarial, eval_seed_dataset, metrics)
 
     # plot results
     vis_utils.plot_metrics(metrics, MAX_VAL)

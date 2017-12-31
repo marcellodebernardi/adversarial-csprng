@@ -16,9 +16,10 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
 
     # each epoch train on entire dataset
     for epoch in tqdm(range(epochs), desc='Training: '):
-        # todo progress reporting
         # todo obtain loss for entire epoch to eliminate plot jitter
 
+        epoch_gen_losses = []
+        epoch_pred_losses = []
         # the length of generator input determines whether training
         # is effectively batch training, mini-batch training or
         # online training. This is a property of the dataset
@@ -32,18 +33,23 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
 
             # train predictor todo train multiple times
             utils.set_trainable(predictor)
-            metrics.predictor_loss().append(predictor.train_on_batch(predictor_input, predictor_output))
+            epoch_pred_losses.append(predictor.train_on_batch(predictor_input, predictor_output))
 
             # train generator
             utils.set_trainable(predictor, False)
-            metrics.generator_loss().append(adversarial.train_on_batch(generator_input, predictor_output))
+            epoch_gen_losses.append(adversarial.train_on_batch(generator_input, predictor_output))
 
             # extract metrics todo
             generator_weights = generator.get_weights()
             predictor_weights = predictor.get_weights()
+
+        metrics.generator_loss().append(np.mean(epoch_gen_losses))
+        metrics.predictor_loss().append(np.mean(epoch_pred_losses))
+
     return metrics
 
 
-def evaluate(generator: Model, seed_dataset, metrics: Metrics):
-    for batch in tqdm(seed_dataset, desc='Evaluating: '):
-        metrics.generator_eval_outputs().extend(generator.predict_on_batch(batch).flatten())
+def evaluate(generator: Model, adversarial: Model, seed_dataset, metrics: Metrics):
+    for generator_input in tqdm(seed_dataset, desc='Evaluating: '):
+        generator_output = generator.predict_on_batch(generator_input)
+        metrics.generator_eval_outputs().extend(generator_output.flatten())
