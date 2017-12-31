@@ -1,6 +1,7 @@
 import utils
 import numpy as np
 from keras import Model
+from tqdm import tqdm
 from models.metrics import Metrics
 
 
@@ -14,7 +15,7 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
         raise ValueError('Seed dataset has length ' + str(len(np.shape(seed_dataset))) + ', should be 3')
 
     # each epoch train on entire dataset
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs), desc='Training: '):
         # todo progress reporting
         # todo obtain loss for entire epoch to eliminate plot jitter
 
@@ -44,5 +45,5 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
 
 
 def evaluate(generator: Model, seed_dataset, metrics: Metrics):
-    for batch in seed_dataset:
+    for batch in tqdm(seed_dataset, desc='Evaluating: '):
         metrics.generator_eval_outputs().extend(generator.predict_on_batch(batch).flatten())
