@@ -64,10 +64,17 @@ def plot_loss(gen_loss, disc_loss):
 
 
 def plot_generator_outputs(outputs, data_range):
-    plt.hist(outputs, bins=data_range * 2)
+    plt.hist(outputs, bins=data_range * 3)
     plt.title('Generator Output Distribution')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
+    plt.show()
+
+
+def plot_model_weights(generator_avg_weights, predictor_avg_weights):
+    plt.plot(generator_avg_weights)
+    plt.ylabel('Average Generator Weight')
+    plt.xlabel('Gradient Update Iteration')
     plt.show()
 
 
