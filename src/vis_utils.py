@@ -5,34 +5,36 @@ from models.metrics import Metrics
 def plot_metrics(metrics: Metrics, data_range: int):
     """Draws visual plots of all available data using matplotlib."""
 
-    # generative/discriminative loss over epochs
-    f = plt.figure(1)
-    plt.plot(metrics.generator_loss(), metrics.predictor_loss())
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    plt.xlabel('Gradient Update Iteration')
-    plt.legend()
-    f.show()
+    # output distribution plot
+    fig1 = plt.figure(1)
     # distribution of generated values during training
-    g = plt.figure(2)
+    plt.subplot(211)
     plt.hist(metrics.generator_outputs(), bins=data_range * 3)
     plt.title('Generator Output Distribution (Training)')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
-    g.show()
     # distribution of generated values during evaluation
-    h = plt.figure(3)
+    plt.subplot(212)
     plt.hist(metrics.generator_eval_outputs(), bins=data_range * 3)
     plt.title('Generator Output Distribution (Evaluation)')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
-    h.show()
+    fig1.show()
+
+    # loss value charts
+    fig2 = plt.figure(2)
+    plt.subplot(211)
+    plt.plot(metrics.generator_loss())
+    plt.plot(metrics.predictor_loss())
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Generative loss', 'Predictive loss'])
     # Average output per batch during training
-    i = plt.figure(4)
+    plt.subplot(212)
     plt.plot(metrics.generator_avg_outputs())
     plt.ylabel('Average output per batch')
     plt.xlabel('Batch training iteration')
-    i.show()
+    fig2.show()
 
     plt.show()
 
