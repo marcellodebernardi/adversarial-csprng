@@ -5,7 +5,13 @@ from tqdm import tqdm
 from models.metrics import Metrics
 
 
-def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, epochs, metrics: Metrics):
+def pretrain_predictor():
+    """Pre-trains the predictor network on its own. Used before the
+    adversarial training of both models is started."""
+    pass
+
+
+def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, epochs, pred_mult, metrics: Metrics):
     """Trains the adversarial model on the given dataset of seed values, for the
     specified number of epochs. The seed dataset must be 3-dimensional, of the form
     [batch, seed, seed_component]. Each 'batch' in the dataset can be of any size,
@@ -34,7 +40,8 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
 
             # train predictor todo train multiple times
             utils.set_trainable(predictor)
-            epoch_pred_losses.append(predictor.train_on_batch(predictor_input, predictor_output))
+            for i in range(pred_mult):
+                epoch_pred_losses.append(predictor.train_on_batch(predictor_input, predictor_output))
 
             # train generator
             utils.set_trainable(predictor, False)
