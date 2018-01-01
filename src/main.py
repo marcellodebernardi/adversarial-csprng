@@ -44,9 +44,10 @@ MAX_VAL = 100                   # the max bound for each value in the seed
 SEED_LENGTH = 1                 # the number of individual values in the seed
 SEQ_LENGTH = 200                # the number of values outputted by the generator
 # training parameters
-EPOCHS = 100                    # epochs for training
-NET_CV = 0.5                    # clip value for networks
-NET_LR = 0.00008                # learning rate for networks
+EPOCHS = 10                     # epochs for training
+PRED_MULTIPLIER = 1             # predictor is trained more than generator
+NET_CV = 1                     # clip value for networks
+NET_LR = 0.0008                    # learning rate for networks
 
 
 def main():
@@ -73,7 +74,7 @@ def main():
 
     # perform training and evaluation
     metrics = Metrics()
-    train.train(generator, predictor, adversarial, train_seed_dataset, EPOCHS, metrics)
+    train.train(generator, predictor, adversarial, train_seed_dataset, EPOCHS, PRED_MULTIPLIER, metrics)
     train.evaluate(generator, adversarial, eval_seed_dataset, metrics)
 
     # plot results
