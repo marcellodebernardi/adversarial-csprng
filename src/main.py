@@ -17,7 +17,7 @@ from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, LSTM, Lambda
 from keras.activations import relu
 from keras.optimizers import sgd, adagrad
-from models.activations import modulo
+from models.activations import modulo, absolute
 from models.operations import drop_last_value
 from models.losses import loss_predictor, loss_adv, loss_pnb
 from models.metrics import Metrics
@@ -35,14 +35,14 @@ from models.metrics import Metrics
 # simplify the code.
 
 # training settings
-UNIQUE_SEEDS = 2                # number of unique seeds to train with
+UNIQUE_SEEDS = 400              # number of unique seeds to train with
 SEED_REPETITIONS = 1            # how many times each unique seed is repeated in dataset
 BATCH_MODE = True               # train in batch mode or online mode
-BATCH_SIZE = UNIQUE_SEEDS       # size of batch when batch training
+BATCH_SIZE = 40                  # size of batch when batch training
 # input/output parameters
 MAX_VAL = 100                   # the max bound for each value in the seed
-SEED_LENGTH = 5                 # the number of individual values in the seed
-SEQ_LENGTH = 40                 # the number of values outputted by the generator
+SEED_LENGTH = 1                 # the number of individual values in the seed
+SEQ_LENGTH = 200                # the number of values outputted by the generator
 # training parameters
 EPOCHS = 100                    # epochs for training
 NET_CV = 0.5                    # clip value for networks
@@ -106,11 +106,11 @@ def define_networks() -> (Model, Model):
     inputs_predictor = Input(shape=(SEQ_LENGTH - 1,), name='predictor_input')
     operations_predictor = Dense(
         SEQ_LENGTH,
-        activation=modulo(MAX_VAL),
+        activation=absolute,
         name='predictor_hidden_dense1')(inputs_predictor)
     operations_predictor = Dense(
         1,
-        activation=modulo(MAX_VAL),
+        activation=absolute,
         name='predictor_output')(operations_predictor)
     predictor = Model(inputs_predictor, operations_predictor, name='predictor')
     predictor.compile(adagrad(lr=NET_LR, clipvalue=NET_CV), loss=loss_predictor(MAX_VAL))

@@ -1,3 +1,5 @@
+import numpy as np
+
 class Metrics:
     """A data storage class for the various metrics that
     may be collected during training.
