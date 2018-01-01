@@ -6,7 +6,7 @@ def plot_metrics(metrics: Metrics, data_range: int):
     """Draws visual plots of all available data using matplotlib."""
 
     # output distribution plot
-    fig1 = plt.figure(1)
+    fig1 = plt.figure()
     # distribution of generated values during training
     plt.subplot(211)
     plt.hist(metrics.generator_outputs(), bins=data_range * 3)
@@ -22,19 +22,24 @@ def plot_metrics(metrics: Metrics, data_range: int):
     fig1.show()
 
     # loss value charts
-    fig2 = plt.figure(2)
-    plt.subplot(211)
+    fig2 = plt.figure()
     plt.plot(metrics.generator_loss())
     plt.plot(metrics.predictor_loss())
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.legend(['Generative loss', 'Predictive loss'])
+    fig2.show()
+
     # Average output per batch during training
-    plt.subplot(212)
+    fig3 = plt.figure()
     plt.plot(metrics.generator_avg_outputs())
     plt.ylabel('Average output per batch')
     plt.xlabel('Batch training iteration')
-    fig2.show()
+    fig3.show()
+
+    # distribution of weights in networks
+    fig4 = plt.figure()
+    plt.hist()
 
     plt.show()
 
