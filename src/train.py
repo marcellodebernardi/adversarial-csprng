@@ -14,10 +14,11 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
     if len(np.shape(seed_dataset)) != 3:
         raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
 
+    metrics.generator_weights_initial().extend(utils.flatten_irregular_nested_iterable(generator.get_weights()))
+    metrics.predictor_weights_initial().extend(utils.flatten_irregular_nested_iterable(predictor.get_weights()))
+
     # each epoch train on entire dataset
     for epoch in tqdm(range(epochs), desc='Training: '):
-        # todo obtain loss for entire epoch to eliminate plot jitter
-
         epoch_gen_losses = []
         epoch_pred_losses = []
         # the length of generator input determines whether training
@@ -39,13 +40,11 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
             utils.set_trainable(predictor, False)
             epoch_gen_losses.append(adversarial.train_on_batch(generator_input, predictor_output))
 
-            # extract metrics todo
-            generator_weights = generator.get_weights()
-            predictor_weights = predictor.get_weights()
-
         metrics.generator_loss().append(np.mean(epoch_gen_losses))
         metrics.predictor_loss().append(np.mean(epoch_pred_losses))
 
+    metrics.generator_weights_final().extend(utils.flatten_irregular_nested_iterable(generator.get_weights()))
+    metrics.predictor_weights_final().extend(utils.flatten_irregular_nested_iterable(predictor.get_weights()))
     return metrics
 
 

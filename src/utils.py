@@ -54,7 +54,24 @@ def log(x, base) -> tf.Tensor:
     return numerator / denominator
 
 
+def flatten_irregular_nested_iterable(weight_matrix) -> list:
+    """Allows flattening a matrix of iterables where the specific type
+    and shape of each iterable is not necessarily the same. Returns
+    the individual elements of the original nested iterable in a single
+    flat list.
+    """
+    flattened_list = []
+    try:
+        for element in weight_matrix:
+            flattened_list.extend(flatten_irregular_nested_iterable(element))
+        return flattened_list
+    except TypeError:
+        return weight_matrix
+
+
 def plot_network_graphs(gen: Model, pred: Model, adv: Model):
+    """Draws visualizations of the network structure as well as the
+    shape of each layer."""
     plot_model(gen, to_file='../model_graphs/generator.png', show_shapes=True)
     plot_model(pred, to_file='../model_graphs/predictor.png', show_shapes=True)
     plot_model(adv, to_file='../model_graphs/adversarial.png', show_shapes=True)

@@ -37,9 +37,33 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.xlabel('Batch training iteration')
     fig3.show()
 
-    # distribution of weights in networks
+    # distribution of weights in generator
     fig4 = plt.figure()
-    plt.hist()
+    plt.subplot(211)
+    plt.hist(metrics.generator_weights_initial(), bins=300)
+    plt.title('Initial Generator Weight Distribution')
+    plt.ylabel('Frequency')
+    plt.xlabel('Weight')
+    plt.subplot(212)
+    plt.hist(metrics.generator_weights_final(), bins=300)
+    plt.title('Final Generator Weight Distribution')
+    plt.ylabel('Frequency')
+    plt.xlabel('Weight')
+    fig4.show()
+
+    # distribution of weights in predictor
+    fig5 = plt.figure()
+    plt.subplot(211)
+    plt.hist(metrics.predictor_weights_initial(), bins=300)
+    plt.title('Initial Predictor Weight Distribution')
+    plt.ylabel('Frequency')
+    plt.xlabel('Weight')
+    plt.subplot(212)
+    plt.hist(metrics.predictor_weights_final(), bins=300)
+    plt.title('Final Predictor Weight Distribution')
+    plt.ylabel('Frequency')
+    plt.xlabel('Weight')
+    fig5.show()
 
     plt.show()
 
