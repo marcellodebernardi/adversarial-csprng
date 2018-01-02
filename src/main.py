@@ -38,21 +38,29 @@ from models.metrics import Metrics
 UNIQUE_SEEDS = 400              # number of unique seeds to train with
 SEED_REPETITIONS = 1            # how many times each unique seed is repeated in dataset
 BATCH_MODE = True               # train in batch mode or online mode
-BATCH_SIZE = 40                  # size of batch when batch training
+BATCH_SIZE = 40                 # size of batch when batch training
 # input/output parameters
 MAX_VAL = 100                   # the max bound for each value in the seed
 SEED_LENGTH = 1                 # the number of individual values in the seed
 SEQ_LENGTH = 200                # the number of values outputted by the generator
 # training parameters
 EPOCHS = 10                     # epochs for training
+PRETRAIN_EPOCHS = 10            # epochs for pre-training of the predictor
 PRED_MULTIPLIER = 1             # predictor is trained more than generator
-NET_CV = 1                     # clip value for networks
-NET_LR = 0.0008                    # learning rate for networks
+NET_CV = 1                      # clip value for networks
+NET_LR = 0.0008                 # learning rate for networks
 
 
 def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
+    pretrain_seed_dataset = utils.get_seed_dataset(
+        MAX_VAL,
+        SEED_LENGTH,
+        UNIQUE_SEEDS,
+        SEED_REPETITIONS,
+        BATCH_SIZE if BATCH_MODE else 1
+    )
     train_seed_dataset = utils.get_seed_dataset(
         MAX_VAL,
         SEED_LENGTH,
@@ -74,6 +82,7 @@ def main():
 
     # perform training and evaluation
     metrics = Metrics()
+    train.pretrain_predictor(generator, predictor, pretrain_seed_dataset, PRETRAIN_EPOCHS, metrics)
     train.train(generator, predictor, adversarial, train_seed_dataset, EPOCHS, PRED_MULTIPLIER, metrics)
     train.evaluate(generator, adversarial, eval_seed_dataset, metrics)
 

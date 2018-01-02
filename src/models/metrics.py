@@ -8,6 +8,7 @@ class Metrics:
     def __init__(self):
         self.__generator_loss = []
         self.__predictor_loss = []
+        self.__predictor_pretrain_loss = []
         self.__generator_outputs = []
         self.__generator_avg_outputs = []
         self.__generator_eval_outputs = []
@@ -27,6 +28,12 @@ class Metrics:
         the time series of the predictor's loss function.
         """
         return self.__predictor_loss
+
+    def predictor_pretrain_loss(self) -> list:
+        """Returns reference to the list that is supposed to hold
+        the time series of the predictor's loss function for the
+        pre-training period."""
+        return self.__predictor_pretrain_loss
 
     def generator_outputs(self) -> list:
         """Returns reference to the list that is supposed to hold
