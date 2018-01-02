@@ -5,10 +5,16 @@ from tqdm import tqdm
 from models.metrics import Metrics
 
 
-def pretrain_predictor():
+def pretrain_predictor(generator: Model, predictor: Model, seed_dataset, epochs, metrics: Metrics):
     """Pre-trains the predictor network on its own. Used before the
     adversarial training of both models is started."""
-    pass
+    for epoch in range(epochs):
+        epoch_pretrain_loss = []
+        for generator_input in seed_dataset:
+            generator_output = generator.predict_on_batch(generator_input)
+            predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
+            epoch_pretrain_loss.append(predictor.train_on_batch(predictor_input, predictor_output))
+        metrics.predictor_pretrain_loss().append(np.mean(epoch_pretrain_loss))
 
 
 def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, epochs, pred_mult, metrics: Metrics):
@@ -24,13 +30,14 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
     metrics.predictor_weights_initial().extend(utils.flatten_irregular_nested_iterable(predictor.get_weights()))
 
     # each epoch train on entire dataset
-    for epoch in tqdm(range(epochs), desc='Training: '):
+    for epoch in tqdm(range(epochs), desc='Train: '):
         epoch_gen_losses = []
         epoch_pred_losses = []
         # the length of generator input determines whether training
         # is effectively batch training, mini-batch training or
         # online training. This is a property of the dataset
         # todo should not be a property of the dataset
+        # todo split into separate procedures
         for generator_input in seed_dataset:
             generator_output = generator.predict_on_batch(generator_input)
             metrics.generator_outputs().extend(generator_output.flatten())
@@ -38,7 +45,7 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
 
             predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
 
-            # train predictor todo train multiple times
+            # train predictor
             utils.set_trainable(predictor)
             for i in range(pred_mult):
                 epoch_pred_losses.append(predictor.train_on_batch(predictor_input, predictor_output))
@@ -56,6 +63,9 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
 
 
 def evaluate(generator: Model, adversarial: Model, seed_dataset, metrics: Metrics):
-    for generator_input in tqdm(seed_dataset, desc='Evaluating: '):
+    """Performs evaluation of the generator/adversarial model and updates
+    the metrics object with the evaluation results.
+    """
+    for generator_input in tqdm(seed_dataset, desc='Eval: '):
         generator_output = generator.predict_on_batch(generator_input)
         metrics.generator_eval_outputs().extend(generator_output.flatten())
