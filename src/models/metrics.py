@@ -1,5 +1,3 @@
-import numpy as np
-
 class Metrics:
     """A data storage class for the various metrics that
     may be collected during training.
@@ -10,6 +8,7 @@ class Metrics:
         self.__predictor_loss = []
         self.__predictor_pretrain_loss = []
         self.__generator_outputs = []
+        self.__predictor_outputs = []
         self.__generator_avg_outputs = []
         self.__generator_eval_outputs = []
         self.__generator_weights_initial = []
@@ -41,6 +40,13 @@ class Metrics:
         during training.
         """
         return self.__generator_outputs
+
+    def predictor_outputs(self) -> list:
+        """Returns reference to the list that is supposed to hold
+        the collection of all values outputted by the predictor
+        during training.
+        """
+        return self.__predictor_outputs
 
     def generator_eval_outputs(self) -> list:
         """Returns reference to the list that is supposed to hold

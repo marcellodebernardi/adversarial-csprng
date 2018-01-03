@@ -1,4 +1,5 @@
-import utils
+import utils.utils as utils
+import utils.nn_utils as nn_utils
 import numpy as np
 from keras import Model
 from tqdm import tqdm
@@ -46,12 +47,12 @@ def train(generator: Model, predictor: Model, adversarial: Model, seed_dataset, 
             predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
 
             # train predictor
-            utils.set_trainable(predictor)
+            nn_utils.set_trainable(predictor)
             for i in range(pred_mult):
                 epoch_pred_losses.append(predictor.train_on_batch(predictor_input, predictor_output))
 
             # train generator
-            utils.set_trainable(predictor, False)
+            nn_utils.set_trainable(predictor, False)
             epoch_gen_losses.append(adversarial.train_on_batch(generator_input, predictor_output))
 
         metrics.generator_loss().append(np.mean(epoch_gen_losses))

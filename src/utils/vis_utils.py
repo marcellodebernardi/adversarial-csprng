@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 from models.metrics import Metrics
+from keras import Model
+from keras.utils import plot_model
 
 
 def plot_metrics(metrics: Metrics, data_range: int):
@@ -68,7 +70,9 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.show()
 
 
-def plot_model_weights(generator_avg_weights, predictor_avg_weights):
-    plt.plot(generator_avg_weights)
-    plt.ylabel('Average Generator Weight')
-    plt.xlabel('Gradient Update Iteration')
+def plot_network_graphs(gen: Model, pred: Model, adv: Model):
+    """Draws visualizations of the network structure as well as the
+    shape of each layer."""
+    plot_model(gen, to_file='../model_graphs/generator.png', show_shapes=True)
+    plot_model(pred, to_file='../model_graphs/predictor.png', show_shapes=True)
+    plot_model(adv, to_file='../model_graphs/adversarial.png', show_shapes=True)

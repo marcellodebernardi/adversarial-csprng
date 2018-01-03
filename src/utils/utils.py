@@ -1,11 +1,9 @@
 import random
+import sys
 import tensorflow as tf
 import numpy as np
-from keras import Model
-from keras.utils import plot_model
 
 
-# todo are repetitions in the dataset necessary since training has epochs anyway?
 def get_seed_dataset(max_seed: int, seed_size: int, unique_seeds: int, repetitions: int, batch_size=1) -> np.ndarray:
     """Returns a seed dataset for training. Each individual seed consists of
     n = seed_size real numbers in the range [0 - max_seed]. The dataset contains
@@ -37,14 +35,6 @@ def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.nd
     return predictor_inputs, predictor_outputs
 
 
-def set_trainable(model: Model, trainable: bool=True):
-    """Helper method that sets the trainability of all of a model's
-    parameters."""
-    model.trainable = trainable
-    for layer in model.layers:
-        layer.trainable = trainable
-
-
 def log(x, base) -> tf.Tensor:
     """Allows computing element-wise logarithms on a Tensor, in
     any base. TensorFlow itself only has a natural logarithm
@@ -69,9 +59,6 @@ def flatten_irregular_nested_iterable(weight_matrix) -> list:
         return weight_matrix
 
 
-def plot_network_graphs(gen: Model, pred: Model, adv: Model):
-    """Draws visualizations of the network structure as well as the
-    shape of each layer."""
-    plot_model(gen, to_file='../model_graphs/generator.png', show_shapes=True)
-    plot_model(pred, to_file='../model_graphs/predictor.png', show_shapes=True)
-    plot_model(adv, to_file='../model_graphs/adversarial.png', show_shapes=True)
+def eprint(*args, **kwargs):
+    # from https://stackoverflow.com/questions/5574702/how-to-print-to-stderr-in-python
+    print(*args, file=sys.stderr, **kwargs)
