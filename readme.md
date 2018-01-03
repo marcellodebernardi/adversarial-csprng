@@ -1,173 +1,63 @@
 # Cryptographically Strong Pseudo Random Number Generation using Generative Adversarial Networks
-This project seeks to assess the viability of generative adversarial networks
-(GANs) for the implementation of a cryptographically secure pseudo random
-number generator (CSPRNG). It draws inspiration from recent work on
-bootstrapping encryption schemes using GANs. [Learning to Protect Communications
+This **exploratory** project seeks to assess the viability of generative 
+adversarial networks (GANs) for the implementation of a cryptographically 
+secure pseudo random number generator (CSPRNG). It draws inspiration from recent 
+work on bootstrapping encryption schemes using GANs: [Learning to Protect Communications
 with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 
 
 
-## 1 - Neural Networks
-This section will outline the basic theoretical background of neural networks.
+## 1 - Setup
+The system targets `Python 3.6.2`, with module import requirements outlined
+in `requirements.txt`. More in-depth dependency management will be added in
+the future. A special dependency is `GraphViz`, which requires externally
+installing its binaries. These can be found on the `GraphViz` website.
 
 
-## 2 - Generative Models
-This section will provide some background on generative models in general,
-making reference to [NIPS 2016 Tutorial: Generative Adversarial Networks](https://arxiv.org/abs/1701.00160).
+## 2 - Running and Tweaking the Model
+Run `main.py` to train and evaluate the models. Parameters can be tweaked
+in the constants section at the top of the script.
 
 
-## 3 - Generative Adversarial Networks
-The basic idea of GANs is to set up a game between two players. One of them
-is called the **generator**. The generator creates samples that are intended
-to come from the same distribution as the training data. The other player is
-a **discriminator**. The discriminator examines samples to determine whether
-they are real or fake. The discriminator learns using traditional supervised learning techniques, dividing inputs into two classes.
+## 3 - Approaches to the Problem
+The system trains and evaluates three separate models. Two are variation of the
+*generative adversarial network* framework, and two are a single neural network.
+The approaches, briefly outlined, are:
 
-Formally, GANs are a structured probabilistic model containing latent
-variables *z* and observed variables *x*.
+### 3.1 - Generative Adversarial Network
+In this approach, a generator network produces output sequences that are served
+as input to a discriminator, as per the usual GAN approach. The discriminator is
+fed sequences from the generator as well as sequences obtained from a true randomness
+source, and attempts to classify sequences as belonging in either category. The
+generator attempts to maximize the error of the discriminator, and as thus should
+learn the distribution of "true" randomness source used.
 
-The two players in the game are presented by two functions, each of which is
-differentiable both with respect to its inputs and with respect to its
-parameters. The discriminator is a function *D* that takes *x* as input and
-uses *\theta^D* as parameters. The generator is defined by a function *G* that
-takes *z* as input and uses
+### 3.2 - Generative Adversarial Network with Predictor
+A generator network produces output sequences that are served as input to a predictor,
+with exception of the last value in the sequence. The predictor attempts to output
+this value, and its loss function rewards it the closer to the value it gets. The
+generator attempts to maximize the error of the predictor. The notion of unpredictability
+equating with statistical randomness comes from the universality of the next bit
+test, which states that a binary sequence passing the next bit test passes all
+polynomial-time statistical tests. It stands to reason that the principle can be applied
+to sequences of real numbers.
 
+### 3.3 - Neural Network with Statistical Test Loss Function
+A single neural network is trained with a loss function that computes some of the
+standard statistical tests for randomness. The weakness of this approach is that
+the network is trained to output sequences that pass the particular statistical
+tests used, which is not the same as passing all statistical tests for randomness.
 
-## 4 - Cryptographically Secure Pseudo Random Number Generators
-A PRNG is a cryptographic algorithm used to generate numbers that must appear
-random. A PRNG has a secret state, *S*. Upon request, it must generate outputs
-that are indistinguishable from random numbers to an attacker who doesn't know
-and cannot guess *S*. Additionally, a PRNG must be able to alter its secret
-state by processing input values that may be unpredictable to an attacker. These
-are values typically collected from physical processes with sufficient entropy.
-
-Note that in principle, any method of distinguishing between PRNG outputs and
-random outputs is an attack; in practice, we care much more about the ability
-to learn the values of PRNG outputs not seen by the attacker, and to predict
-or control future outputs.
-
-![PRNG](docs/img/prng_blackbox.png)
-
-### Applications of Random Number Generators
-Many aspects of cryptography require random numbers, including key generation,
-nonces, one-time pads, and salts in certain signature schemes.
-
-### Security Requirements of CSPRNGs
-This section draws on this Wikipedia [page](https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Requirements).
-
-CSPRNG requirements fall into two groups: first, that they pass statistical
-randomness tests; and secondly, that they hold up well under serious attack,
-even when part of their initial or running state becomes available to an
-attacker.
-
-1.  Every CSPRNG should satisfy the **next-bit test**. That is, given the first
-    k bits of a random sequence, there is no polynomial-time algorithm that can
-    predict the (k+1)th bit with probability of success non-negligibly better
-    than 50%. Andrew Yao proved in 1982 that **a generator passing the next-bit
-    test will pass all other polynomial-time statistical tests for randomness.**
-2.  Every CSPRNG should withstand "**state compromise extensions**". In the event
-    that part or all of its state has been revealed (or guessed correctly),
-    it should be impossible to reconstruct the stream of random numbers prior
-    to the revelation. Additionally, if there is an entropy input while running,
-    it should be infeasible to use knowledge of the input's state to predict
-    future conditions of the CSPRNG state.
-
-Example: If the CSPRNG under consideration produces output by computing bits
-of π in sequence, starting from some unknown point in the binary expansion,
-it may well satisfy the next-bit test and thus be statistically random,
-as π appears to be a random sequence. However, this algorithm is not
-cryptographically secure; an attacker who determines which bit of pi
-(i.e. the state of the algorithm) is currently in use will be able to calculate
-all preceding bits as well.
-
-### Random Number Generator Attacks
-This section draws on this Wikipedia [page](https://en.wikipedia.org/wiki/Random_number_generator_attack).
-
-Lack of quality in a PRNG generally provides attack vulnerabilities and so
-leads to lack of security, even to **complete compromise**, in cryptographic
-systems. The RNG process is particularly attractive to attackers because it is
-typically a **single isolated hardware or software component** easy to locate.
-
-For **software RNGs**, which this work is concerned with, we can identify these
-major types of attacks:
-
-1.  **Direct cryptanalytic attacks**: when an attacker obtains part of the stream
-    of random bits and uses this to distinguish the RNG output from a truly
-    random stream (i.e. to predict future bits).
-2.  **Input-based attacks**: when an attacker manages to modify the input to the
-    RNG to attack it, for example by "flushing" existing entropy and putting
-    the RNG in a known state.
-3.  **State compromise extension attacks**: when the internal secret state of the
-    RNG is known at some time, it can be used to predict future output or to
-    recover previous output. This can happen when a generator starts up and has
-    little or no entropy, so the attacker may be able to guess the initial
-    state.
-
-This work is mostly concerned with cryptanalytic attacks.
+### 3.4 - Neural Network with Practical Next Bit Test
+The state of this approach is to be determined.
 
 
-## 5 - Testing CSPRNGs
-Several standard statistical tests exist for the randomness of a random number
-sequence. These include the **chi-squared test**, the **Kolmogorov-Smirnov
-test**, **Spearman's Rank Correlation Coefficient test**, the **Runs test**,
-and the **Spectral test**. Simpler, "empirical" tests are also used,
-such as the **equidistribution test**, the **serial test**, and the **gap
-test**.
+## 4 - Project Structure
+The high-level functionality is in `main.py`. 
 
-As mentioned above, Yao showed that passing the next-bit test is equivalent to 
-passing all other polynomial-time statistical tests for randomness. However, 
-using the universal quantifier (every algorithm) confines the next bit test 
-to being merely theoretical, rather than a practical test.
-
-This work relies on a paper by Lavasani and Eghlidos, in which a **Practical
-Next Bit Test** is developed on the base of the **Sadeghiyan-Mohajeri test**.
-This section summarizes both tests, and how the former is derived from the
-latter.
-
-### Sadeghiyan-Mohajeri Test
-Sadeghiyan and Mohajeri presented a test that measures the randomness of a
-sequence based on the predictability of the next bit of an underlying sequence,
-given the former bits.
-
-The test algorithm takes advantage of a tree structure, which stores information
-on the patterns of subsequences in the overall sequence.
-
-![Pattern Tree](docs/img/pattern_tree.png)
-
-In the pattern tree, each node in depth `l` represents the number of
-occurrences of a binary pattern of length `l` in the underlying sequence.
-Each edge connecting two nodes denotes the ratio of the number of child patterns
-located in the next later to the number of their parent patterns in the previous
-layer that is, a conditional probability `P(child | parent)`. For a large enough
-random sequence, it is expected that all the ratios corresponding to the edges
-of the pattern tree to be approximately equal to 1/2.
-
-The algorithm for the test is as follows (in Python-style pseudo-code):
-
-```python
-# todo code goes here
-```
-The test does not prescribe any specific criteria for global judgement about
-the randomness of a sequence.
-
-### Extended Next-Bit Test
-Lavasani and Eghlidos provide a formal definition of an *Extended Next Bit
-Test*, and a proof of its equivalence to the Next Bit Test.
-
-
-## 6 - Implementation Architecture
-At a high level, the system consists of two adversarially trained neural
-networks: a **generator**, hereby referred to as Jerry, and a **discriminator**,
-hereby referred to as Eve.
-
-### Architecture of Generator (Jerry)
-
-### Architecture of Discriminator (Eve)
-
-
-## 7 - Testing Methodology
-This section will outline how the implementation is tested.
-
-
-## 8 - Evaluation
-This section will outline the results of training.
+The `models` package contains modules defining components of neural networks such 
+as loss functions, activation functions, and metrics. The `utils` package contains 
+modules either providing supporting functionality such as graph plotting or convenience 
+functions, or abstracting the details of defining and compiling the Keras models. In the 
+latter case, the functionality provided by this package is not crucial to the project 
+at the conceptual level, and serves only to provide further abstraction over the Keras API.
