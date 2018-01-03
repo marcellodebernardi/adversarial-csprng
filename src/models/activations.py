@@ -1,3 +1,9 @@
+"""The activations.py module defines activation functions that can
+be used in Keras layers. Activation functions operate on scalar
+values and thus do not need to be implemented as symbolic TensorFlow
+operations.
+"""
+
 def modulo(divisor, activation_function=None):
     """Activation function that uses the given standard activation
         function and then applies a modulo operation to its output."""

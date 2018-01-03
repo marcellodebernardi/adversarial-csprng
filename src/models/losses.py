@@ -1,7 +1,11 @@
+"""The losses.py module defines symbolic TensorFlow functions that
+can be used as custom loss functions for Keras/TensorFlow models. In
+particular, it defines appropriate loss functions for the adversarially
+trained generator, predictor, and discriminator networks.
+"""
+
 import utils
 import tensorflow as tf
-import numpy as np
-from keras import Model
 
 
 def loss_nist(true, pred):
@@ -96,6 +100,11 @@ def loss_predictor(max_value):
     def loss(true, pred):
         return tf.div(tf.abs(tf.subtract(true, pred)), max_value)
     return loss
+
+
+def loss_discriminator(true, pred):
+    """Loss function for the discriminative adversary"""
+    pass
 
 
 class Node:
