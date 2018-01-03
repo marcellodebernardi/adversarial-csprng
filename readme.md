@@ -61,3 +61,14 @@ modules either providing supporting functionality such as graph plotting or conv
 functions, or abstracting the details of defining and compiling the Keras models. In the 
 latter case, the functionality provided by this package is not crucial to the project 
 at the conceptual level, and serves only to provide further abstraction over the Keras API.
+
+
+## 5 - To-dos
+1. Implement instantiation of convolutional, recurrent, and LSTM layers in `nn_utils.py`
+2. Define GAN for approach 1
+3. Evaluation using statistical tests
+4. Evaluation using NIST
+5. Email reporting
+6. Define network for approach 3
+7. Saving and restoring models
+8. Metrics, QOL fixes, refactoring, etc
