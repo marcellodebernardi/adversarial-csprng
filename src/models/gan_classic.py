@@ -58,18 +58,10 @@ class ClassicGan(Gan):
         [batch, seed, seed_component]. Each 'batch' in the dataset can be of any size,
         including 1, allowing for online training, batch training, and mini-batch training.
         """
-
         x_disc, y_disc = self.construct_discriminator_sample()
         x_gen, y_gen = self.construct_generator_sample()
-
         # each epoch train on entire dataset
         for epoch in tqdm(range(epochs), desc='Train: '):
-            # the length of generator input determines whether training
-            # is effectively batch training, mini-batch training or
-            # online training. This is a property of the dataset
-            # todo should not be a property of the dataset
-            # todo split into separate procedures
-            # todo construct sample once outside loop
             # train discriminator
             d_loss = 0
             self.set_trainable(self.discriminator)
@@ -81,7 +73,7 @@ class ClassicGan(Gan):
             # update loss metrics
             self.metrics.predictor_loss().append(d_loss)
             self.metrics.generator_loss().append(g_loss)
-
+        # update final node weight metrics
         self.metrics.generator_weights_final().extend(
             utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
         self.metrics.predictor_weights_final().extend(
