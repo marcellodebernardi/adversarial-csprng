@@ -46,8 +46,7 @@ class Gan:
         self.dataset_size = settings['dataset_size']
         # generator attributes
         self.gen_types = generator_spec['types']
-        self.gen_depth = generator_spec['depth']
-        self.gen_activation = generator_spec['activation']
+        self.gen_activations = generator_spec['activations']
         self.gen_loss = generator_spec['loss']
         self.gen_optimizer = generator_spec['optimizer']
         self.generator_input, self.generator = self.__create_generator()
@@ -74,11 +73,13 @@ class Gan:
         the input Tensor and the generator model."""
         # inputs and first layer
         inputs_gen = Input(shape=(self.seed_len,))
-        operations_gen = self.layer(self.gen_types[0], self.out_seq_len, self.gen_activation)(inputs_gen)
-        # more layers if depth > 1
-        for layer_index in range(1, self.gen_depth):
-            type_index = layer_index if layer_index < len(self.gen_types) else len(self.gen_types) - 1
-            operations_gen = self.layer(self.gen_types[type_index], self.out_seq_len, self.gen_activation)(operations_gen)
+        operations_gen = self.layer(self.gen_types[0],
+                                    self.out_seq_len,
+                                    self.gen_activations[0])(inputs_gen)
+        for layer_index in range(1, len(self.gen_types)):
+            operations_gen = self.layer(self.gen_types[layer_index],
+                                        self.out_seq_len,
+                                        self.gen_activations[layer_index])(operations_gen)
         # compile and return
         generator = Model(inputs_gen, operations_gen, name='generator')
         generator.compile(self.gen_optimizer, self.gen_loss)
@@ -112,14 +113,8 @@ class Gan:
         """Checks whether the network definition parameters are correct, and prints
         warnings for parameters that are usable, but likely to be incorrect."""
         for specification in specifications:
-            if specification['depth'] < 1:
-                raise ValueError('Model depth must be at least 1')
             if len(specification['types']) < 1:
                 raise ValueError('Types list is empty, must contain at least one type')
-            elif len(specification['types']) > specification['depth']:
-                eprint('Warning: ' + specification['name'] + ' number of layer types exceeds network depth.')
-            elif len(specification['types']) < specification['depth']:
-                eprint('Warning: ' + specification['name'] + ' number of layer types is less than network depth.')
 
     @staticmethod
     def set_trainable(model: Model, trainable: bool = True):

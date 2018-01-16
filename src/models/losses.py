@@ -28,5 +28,4 @@ def loss_predictor(max_value):
 
 def loss_discriminator(true, pred):
     """Loss function for the discriminative adversary"""
-    # todo
-    return pred
+    return tf.abs(tf.subtract(true, pred))

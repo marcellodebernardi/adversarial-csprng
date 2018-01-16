@@ -12,12 +12,13 @@
 # =================================================================
 
 import utils.utils as utils
-from activations import modulo, absolute
-from losses import loss_predictor, loss_adv, loss_discriminator
+from models.activations import modulo, absolute
+from models.losses import loss_predictor, loss_adv
 from utils import vis_utils
 from models.gan_classic import ClassicGan
 from models.gan_predictive import PredictiveGan
-from keras.activations import linear
+from keras.losses import binary_crossentropy
+from keras.activations import linear, softmax
 from keras.optimizers import adagrad
 
 # the 'dataset' for training is a 3D matrix, where each value in
@@ -53,35 +54,33 @@ TRAIN_PARAMS = {
     'learning_rate': 0.2
 }
 # network structures
+# todo get rid of depth as it is implicit in length of types list
 GENERATOR_SPEC = {
     'name': 'generator',
     'seed_len': IO_PARAMS['seed_length'],
     'out_seq_len': IO_PARAMS['seq_length'],
-    'depth': 3,
-    'types': ['dense'],
-    'activation': modulo(IO_PARAMS['max_val']),
+    'types': ['dense', 'dense', 'dense'],
+    'activations': [modulo(IO_PARAMS['max_val']), modulo(IO_PARAMS['max_val']), modulo(IO_PARAMS['max_val'])],
     'loss': 'binary_crossentropy',
     'optimizer': 'adam'
 }
 PREDICTOR_SPEC = {
     'name': 'predictor',
-    'depth': 3,
-    'types': ['dense'],
-    'activation': absolute,
+    'types': ['dense', 'dense', 'dense'],
+    'activations': [absolute, absolute, absolute],
     'loss': loss_predictor(IO_PARAMS['max_val']),
     'optimizer': adagrad(lr=TRAIN_PARAMS['learning_rate'], clipvalue=TRAIN_PARAMS['clip_value'])
 }
 DISCRIMINATOR_SPEC = {
     'name': 'discriminator',
-    'depth': 3,
-    'types': ['dense'],
-    'activation': linear,
-    'loss': 'binary_crossentropy',
+    'types': ['dense', 'dense', 'dense'],
+    'activations': [linear, linear, softmax],
+    'loss': binary_crossentropy,
     'optimizer': adagrad(lr=TRAIN_PARAMS['learning_rate'], clipvalue=TRAIN_PARAMS['clip_value'])
 }
 ADVERSARIAL_CLASSIC_SPEC = {
     'name': 'adversarial_classic',
-    'loss': loss_adv(loss_discriminator),
+    'loss': loss_adv(binary_crossentropy),
     'optimizer': adagrad(lr=TRAIN_PARAMS['learning_rate'], clipvalue=TRAIN_PARAMS['clip_value'])
 }
 ADVERSARIAL_SPEC = {
@@ -102,6 +101,8 @@ def main():
         SETTINGS,
         IO_PARAMS,
         TRAIN_PARAMS)
+    classic_gan.get_generator().summary()
+    classic_gan.get_discriminator().summary()
     pred_gan = PredictiveGan(
         GENERATOR_SPEC,
         PREDICTOR_SPEC,
@@ -110,11 +111,13 @@ def main():
         IO_PARAMS,
         TRAIN_PARAMS
     )
+    pred_gan.get_generator().summary()
+    pred_gan.get_predictor().summary()
     vis_utils.plot_network_graphs(classic_gan, pred_gan)
 
     # train and evaluate approach 1
     classic_gan.pretrain_discriminator(TRAIN_PARAMS['pretrain_epochs'])
-    classic_gan.train(TRAIN_PARAMS['epochs'], TRAIN_PARAMS['adversary_multiplier'])
+    # classic_gan.train(TRAIN_PARAMS['epochs'], TRAIN_PARAMS['adversary_multiplier'])
     # classic_gan.evaluate()
     # train and evaluate approach 2
     # pred_gan.pretrain_predictor(None, TRAIN_PARAMS['pretrain_epochs'])
