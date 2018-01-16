@@ -4,6 +4,7 @@ values and thus do not need to be implemented as symbolic TensorFlow
 operations.
 """
 
+
 def modulo(divisor, activation_function=None):
     """Activation function that uses the given standard activation
         function and then applies a modulo operation to its output."""
@@ -16,4 +17,5 @@ def modulo(divisor, activation_function=None):
 
 
 def absolute(input_value):
+    """Returns the absolute value of the given input."""
     return abs(input_value)

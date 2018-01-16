@@ -1,0 +1,147 @@
+# Marcello De Bernardi, Queen Mary University of London
+#
+# An exploratory proof-of-concept implementation of a CSPRNG
+# (cryptographically secure pseudo-random number generator) using
+# adversarially trained neural networks. The work was inspired by
+# the findings of Abadi & Andersen, outlined in the paper
+# "Learning to Protect Communications with Adversarial
+# Networks", available at https://arxiv.org/abs/1610.06918.
+#
+# The original implementation by Abadi is available at
+# https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
+# =================================================================
+import numpy as np
+from keras import Model
+from keras.layers import Input
+from models.gan import Gan
+from data_sources import randomness_sources as rng
+from utils import utils
+from tqdm import tqdm
+
+
+class ClassicGan(Gan):
+    """Implementation of a classic generative adversarial network
+    to the statistical randomness problem (i.e. 'approach 1').
+    """
+
+    def __init__(self, generator_spec, discriminator_spec, adversarial_spec, settings, io_params, train_params):
+        """Constructs the classical GAN according to the specifications
+        provided. Each specification variable is a dictionary."""
+        # initialize common variables and generator
+        Gan.__init__(self, generator_spec, discriminator_spec, adversarial_spec, settings, io_params, train_params)
+        # discriminator attributes
+        self.disc_types = discriminator_spec['types']
+        self.disc_depth = discriminator_spec['depth']
+        self.disc_activation = discriminator_spec['activation']
+        self.disc_loss = discriminator_spec['loss']
+        self.disc_optimizer = discriminator_spec['optimizer']
+        self.discriminator = self.__create_discriminator()
+        # connect GAN
+        self.adversarial_optimizer = adversarial_spec['optimizer']
+        self.adversarial_loss = adversarial_spec['loss']
+        self.adversarial = self.__connect_gan()
+
+    def pretrain_discriminator(self):
+        """Pre-trains the discriminator for a given number of epochs."""
+        # record initial weights
+        self.metrics.generator_weights_initial() \
+            .extend(utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
+        self.metrics.predictor_weights_initial() \
+            .extend(utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
+        # fit discriminator using sample
+        x, y = self.__construct_discriminator_sample()
+        self.discriminator.fit(x, y, self.pretrain_epochs, self.batch_size)
+
+    def train(self, epochs, disc_mult):
+        """Trains the adversarial model on the given dataset of seed values, for the
+        specified number of epochs. The seed dataset must be 3-dimensional, of the form
+        [batch, seed, seed_component]. Each 'batch' in the dataset can be of any size,
+        including 1, allowing for online training, batch training, and mini-batch training.
+        """
+        # seed dataset has to be two-dimensional
+        # if len(np.shape(seed_dataset)) != 3:
+        #     raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
+
+        # each epoch train on entire dataset
+        for epoch in tqdm(range(epochs), desc='Train: '):
+            # the length of generator input determines whether training
+            # is effectively batch training, mini-batch training or
+            # online training. This is a property of the dataset
+            # todo should not be a property of the dataset
+            # todo split into separate procedures
+            # train discriminator
+            x, y = self.__construct_discriminator_sample()
+            self.__set_trainable(self.discriminator)
+            for iteration in range(disc_mult):
+                self.discriminator.train_on_batch(x, y)
+
+            # train generator
+            x, y = self.__construct_generator_sample()
+            self.__set_trainable(self.discriminator, False)
+            self.adversarial.train_on_batch(x, y)
+
+        self.metrics.generator_weights_final().extend(
+            utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
+        self.metrics.predictor_weights_final().extend(
+            utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
+        return self.metrics
+
+    def get_generator(self) -> Model:
+        """Returns a reference to the internal generator Keras model."""
+        return self.generator
+
+    def get_discriminator(self) -> Model:
+        """Returns a reference to the internal discriminator Keras model."""
+        return self.discriminator
+
+    def get_adversarial(self) -> Model:
+        """Returns a reference to the internal adversarial Keras model."""
+        return self.adversarial
+
+    def __create_discriminator(self) -> Model:
+        """Initializes and compiles the discriminator model. Returns a reference to
+        the model.
+        """
+        # inputs and first operation
+        inputs_disc = Input(shape=(self.out_seq_len,))
+        operations_disc = self.__layer(self.disc_types[0], self.out_seq_len if self.disc_depth > 1 else 1,
+                                       self.disc_activation)(inputs_disc)
+        # additional operations if depth > 1
+        for layer_index in range(1, self.disc_depth):
+            type_index = layer_index if layer_index < len(self.disc_types) else len(self.disc_types) - 1
+            operations_disc = self.__layer(self.disc_types[type_index], self.out_seq_len, self.disc_activation)(
+                operations_disc)
+        # compile and return model
+        return Model(inputs_disc, operations_disc, name='discriminator') \
+            .compile(self.disc_optimizer, self.disc_loss)
+
+    def __connect_gan(self):
+        """Performs the connection of the generator and discriminator into
+        a GAN, returning a reference to the adversarial model.
+        """
+        operations_adv = self.generator(self.generator_input)
+        operations_adv = self.discriminator(operations_adv)
+        # compile and return
+        return Model(self.generator_input, operations_adv, name='adversarial') \
+            .compile(self.adversarial_optimizer, self.adversarial_loss)
+
+    def __construct_discriminator_sample(self) -> (np.ndarray, np.ndarray):
+        """Constructs a sample batch which includes both truly random
+        sequences and sequences produced by the generator, with the
+        associated labels"""
+        # todo get rid of magic numbers
+        # generate discriminator inputs
+        true = rng.get_random_sequence(self.max_val, self.out_seq_len, self.dataset_size / 2)
+        generated = self.generator.predict(rng.get_seed_dataset(self.max_val, self.seed_len, 1, self.dataset_size / 2))
+        x = np.concatenate((true, generated))
+        # add correct labels and return
+        y = np.zeros((self.dataset_size, 2))
+        y[:self.dataset_size / 2, 1] = 1
+        y[self.dataset_size / 2:, 0] = 1
+        return x, y
+
+    def __construct_generator_sample(self) -> (np.ndarray, np.ndarray):
+        """Constructs a sample for training the generator."""
+        x = rng.get_seed_dataset(self.max_val, self.seed_len, 1, self.dataset_size)
+        y = np.zeros((self.dataset_size,))
+        return x, y
