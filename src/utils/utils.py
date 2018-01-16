@@ -4,26 +4,6 @@ import tensorflow as tf
 import numpy as np
 
 
-def get_seed_dataset(max_seed: int, seed_size: int, unique_seeds: int, repetitions: int, batch_size=1) -> np.ndarray:
-    """Returns a seed dataset for training. Each individual seed consists of
-    n = seed_size real numbers in the range [0 - max_seed]. The dataset contains
-    k = (unique_seeds * repetitions) seeds, split into batches of size batch_size.
-    The default batch size of 1 results in a dataset suitable for online training.
-    """
-    # check for bad input
-    if (unique_seeds * repetitions) % batch_size != 0:
-        raise ValueError('The product (unique_seeds * repetitions) must be a multiple of the batch size')
-    # generate unique seeds
-    seeds = [[random.uniform(0, max_seed) for i in range(seed_size)] for j in range(unique_seeds)]
-    # expand to include repetition of unique seeds
-    seeds = np.array([seed for seed in seeds for i in range(repetitions)], dtype=np.float64)
-    # split into batches
-    if unique_seeds == 1 and repetitions == 1:
-        return np.expand_dims(seeds, 0)
-    else:
-        return np.array(np.split(seeds, int(len(seeds) / batch_size)), dtype=np.float64)
-
-
 def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
     """Takes the generator output as a numpy array and splits it into two
     separate numpy arrays, the first representing the input to the predictor
