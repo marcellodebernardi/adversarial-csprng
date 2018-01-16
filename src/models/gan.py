@@ -31,7 +31,7 @@ class Gan:
     """
     def __init__(self, generator_spec, adversary_spec, adversarial_spec, settings, io_params, train_params):
         # check for back network definitions
-        self.__check_parameters([generator_spec, adversary_spec, adversarial_spec])
+        self.__check_parameters([generator_spec, adversary_spec])
         # attributes common to all GANs
         self.name = adversarial_spec['name']
         self.seed_len = generator_spec['seed_len']
@@ -74,18 +74,18 @@ class Gan:
         the input Tensor and the generator model."""
         # inputs and first layer
         inputs_gen = Input(shape=(self.seed_len,))
-        operations_gen = self.__layer(self.gen_types[0], self.out_seq_len, self.gen_activation)(inputs_gen)
+        operations_gen = self.layer(self.gen_types[0], self.out_seq_len, self.gen_activation)(inputs_gen)
         # more layers if depth > 1
         for layer_index in range(1, self.gen_depth):
             type_index = layer_index if layer_index < len(self.gen_types) else len(self.gen_types) - 1
-            operations_gen = self.__layer(self.gen_types[type_index], self.out_seq_len, self.gen_activation)(operations_gen)
+            operations_gen = self.layer(self.gen_types[type_index], self.out_seq_len, self.gen_activation)(operations_gen)
         # compile and return
         generator = Model(inputs_gen, operations_gen, name='generator')
         generator.compile(self.gen_optimizer, self.gen_loss)
         return inputs_gen, generator
 
     @staticmethod
-    def __layer(l_type, units, activation):
+    def layer(l_type, units, activation):
         """From a selection of possible layer types, uses l_type to pick a
         layer to return. The layer is defined by the given parameters."""
         if l_type == 'dense':
@@ -122,7 +122,7 @@ class Gan:
                 eprint('Warning: ' + specification['name'] + ' number of layer types is less than network depth.')
 
     @staticmethod
-    def __set_trainable(model: Model, trainable: bool = True):
+    def set_trainable(model: Model, trainable: bool = True):
         """Helper method that sets the trainability of all of a model's
         parameters."""
         model.trainable = trainable
