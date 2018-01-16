@@ -26,8 +26,7 @@ class PredictiveGan(Gan):
         Gan.__init__(self, generator_spec, predictor_spec, adversarial_spec, settings, io_params, train_params)
         # predictor attributes
         self.pred_types = predictor_spec['types']
-        self.pred_depth = predictor_spec['depth']
-        self.pred_activation = predictor_spec['activation']
+        self.pred_activations = predictor_spec['activations']
         self.pred_loss = predictor_spec['loss']
         self.pred_optimizer = predictor_spec['optimizer']
         self.predictor = self.__create_predictor()
@@ -107,14 +106,14 @@ class PredictiveGan(Gan):
         """Returns a compiled predictor model"""
         # inputs
         inputs_pred = Input(shape=(self.out_seq_len - 1,))
-        operations_pred = self.layer(self.pred_types[0], self.out_seq_len if self.pred_depth > 1 else 1,
-                                     self.pred_activation)(inputs_pred)
+        operations_pred = self.layer(self.pred_types[0],
+                                     self.out_seq_len if len(self.pred_types) > 1 else 1,
+                                     self.pred_activations[0])(inputs_pred)
         # additional layers if depth > 1
-        for layer_index in range(1, self.pred_depth):
-            type_index = layer_index if layer_index < len(self.pred_types) else len(self.pred_types) - 1
-            operations_pred = self.layer(self.pred_types[type_index],
-                                         self.out_seq_len if layer_index < self.pred_depth - 1 else 1,
-                                         self.pred_activation)(operations_pred)
+        for layer_index in range(1, len(self.pred_types)):
+            operations_pred = self.layer(self.pred_types[layer_index],
+                                         self.out_seq_len if layer_index != len(self.pred_types) - 1 else 1,
+                                         self.pred_activations[layer_index])(operations_pred)
         # compile and return model
         predictor = Model(inputs_pred, operations_pred, name='predictor')
         predictor.compile(self.pred_optimizer, self.pred_loss)

@@ -31,8 +31,7 @@ class ClassicGan(Gan):
         Gan.__init__(self, generator_spec, discriminator_spec, adversarial_spec, settings, io_params, train_params)
         # discriminator attributes
         self.disc_types = discriminator_spec['types']
-        self.disc_depth = discriminator_spec['depth']
-        self.disc_activation = discriminator_spec['activation']
+        self.disc_activations = discriminator_spec['activations']
         self.disc_loss = discriminator_spec['loss']
         self.disc_optimizer = discriminator_spec['optimizer']
         self.discriminator = self.create_discriminator()
@@ -50,7 +49,7 @@ class ClassicGan(Gan):
             .extend(utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
         # fit discriminator using sample
         x, y = self.construct_discriminator_sample()
-        self.discriminator.fit(x, y, epochs, self.batch_size)
+        print(self.discriminator.fit(x, y, epochs, self.batch_size))
 
     def train(self, epochs, disc_mult):
         """Trains the adversarial model on the given dataset of seed values, for the
@@ -98,13 +97,14 @@ class ClassicGan(Gan):
         """
         # inputs and first operation
         inputs_disc = Input(shape=(self.out_seq_len,))
-        operations_disc = self.layer(self.disc_types[0], self.out_seq_len if self.disc_depth > 1 else 1,
-                                     self.disc_activation)(inputs_disc)
+        operations_disc = self.layer(self.disc_types[0],
+                                     self.out_seq_len if len(self.gen_types) > 1 else 1,
+                                     self.disc_activations[0])(inputs_disc)
         # additional operations if depth > 1
-        for layer_index in range(1, self.disc_depth):
-            type_index = layer_index if layer_index < len(self.disc_types) else len(self.disc_types) - 1
-            operations_disc = self.layer(self.disc_types[type_index], self.out_seq_len if layer_index < len(self.disc_types) else 1, self.disc_activation)(
-                operations_disc)
+        for layer_index in range(1, len(self.gen_types)):
+            operations_disc = self.layer(self.disc_types[layer_index],
+                                         self.out_seq_len if layer_index < len(self.disc_types) - 1 else 1,
+                                         self.disc_activations[layer_index])(operations_disc)
         # compile and return model
         discriminator = Model(inputs_disc, operations_disc, name='discriminator')
         discriminator.compile(self.disc_optimizer, self.disc_loss)
