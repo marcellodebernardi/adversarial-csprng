@@ -68,8 +68,8 @@ class PredictiveGan(Gan):
         if len(np.shape(seed_dataset)) != 3:
             raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
 
-        metrics.generator_weights_initial().extend(utils.flatten_irregular_nested_iterable(generator.get_weights()))
-        metrics.predictor_weights_initial().extend(utils.flatten_irregular_nested_iterable(predictor.get_weights()))
+        self.metrics.generator_weights_initial().extend(utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
+        self.metrics.predictor_weights_initial().extend(utils.flatten_irregular_nested_iterable(self.predictor.get_weights()))
 
         # each epoch train on entire dataset
         for epoch in tqdm(range(epochs), desc='Train: '):
@@ -81,43 +81,44 @@ class PredictiveGan(Gan):
             # todo should not be a property of the dataset
             # todo split into separate procedures
             for generator_input in seed_dataset:
-                generator_output = generator.predict_on_batch(generator_input)
-                metrics.generator_outputs().extend(generator_output.flatten())
-                metrics.generator_avg_outputs().append(np.mean(generator_output.flatten()))
+                generator_output = self.generator.predict_on_batch(generator_input)
+                self.metrics.generator_outputs().extend(generator_output.flatten())
+                self.metrics.generator_avg_outputs().append(np.mean(generator_output.flatten()))
 
                 predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
 
                 # train predictor
-                self.__set_trainable(predictor)
+                self.set_trainable(self.predictor)
                 for i in range(pred_mult):
-                    epoch_pred_losses.append(predictor.train_on_batch(predictor_input, predictor_output))
+                    epoch_pred_losses.append(self.predictor.train_on_batch(predictor_input, predictor_output))
 
                 # train generator
-                self.__set_trainable(predictor, False)
-                epoch_gen_losses.append(adversarial.train_on_batch(generator_input, predictor_output))
+                self.set_trainable(self.predictor, False)
+                epoch_gen_losses.append(self.adversarial.train_on_batch(generator_input, predictor_output))
 
-            metrics.generator_loss().append(np.mean(epoch_gen_losses))
-            metrics.predictor_loss().append(np.mean(epoch_pred_losses))
+            self.metrics.generator_loss().append(np.mean(epoch_gen_losses))
+            self.metrics.predictor_loss().append(np.mean(epoch_pred_losses))
 
-        metrics.generator_weights_final().extend(utils.flatten_irregular_nested_iterable(generator.get_weights()))
-        metrics.predictor_weights_final().extend(utils.flatten_irregular_nested_iterable(predictor.get_weights()))
-        return metrics
+        self.metrics.generator_weights_final().extend(utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
+        self.metrics.predictor_weights_final().extend(utils.flatten_irregular_nested_iterable(self.predictor.get_weights()))
+        return self.metrics
 
     def __create_predictor(self):
         """Returns a compiled predictor model"""
         # inputs
         inputs_pred = Input(shape=(self.out_seq_len - 1,))
-        operations_pred = self.__layer(self.pred_types[0], self.out_seq_len if self.pred_depth > 1 else 1,
-                                       self.pred_activation)(inputs_pred)
+        operations_pred = self.layer(self.pred_types[0], self.out_seq_len if self.pred_depth > 1 else 1,
+                                     self.pred_activation)(inputs_pred)
         # additional layers if depth > 1
         for layer_index in range(1, self.pred_depth):
             type_index = layer_index if layer_index < len(self.pred_types) else len(self.pred_types) - 1
-            operations_pred = self.__layer(self.pred_types[type_index],
-                                           self.out_seq_len if layer_index < self.pred_depth - 1 else 1,
-                                           self.pred_activation)(operations_pred)
+            operations_pred = self.layer(self.pred_types[type_index],
+                                         self.out_seq_len if layer_index < self.pred_depth - 1 else 1,
+                                         self.pred_activation)(operations_pred)
         # compile and return model
-        return Model(inputs_pred, operations_pred, name='predictor')\
-            .compile(self.pred_optimizer, self.pred_loss)
+        predictor = Model(inputs_pred, operations_pred, name='predictor')
+        predictor.compile(self.pred_optimizer, self.pred_loss)
+        return predictor
 
     def __connect_gan(self):
         """Performs the connection of the generator and predictor into
@@ -130,5 +131,6 @@ class PredictiveGan(Gan):
             name='adversarial_drop_last_value')(operations_adv)
         operations_adv = self.predictor(operations_adv)
         # compile and return
-        return Model(self.generator_input, operations_adv, name='adversarial')\
-            .compile(self.adversarial_optimizer, self.adversarial_loss)
+        adversarial = Model(self.generator_input, operations_adv, name='adversarial')
+        adversarial.compile(self.adversarial_optimizer, self.adversarial_loss)
+        return adversarial

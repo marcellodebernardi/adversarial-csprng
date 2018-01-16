@@ -35,11 +35,7 @@ def get_seed_dataset(max_seed: int, seed_size: int, unique_seeds: int, repetitio
     seeds = [[rng.uniform(0, max_seed) for i in range(seed_size)] for j in range(unique_seeds)]
     # expand to include repetition of unique seeds
     seeds = np.array([seed for seed in seeds for i in range(repetitions)], dtype=np.float64)
-    # split into batches
-    if unique_seeds == 1 and repetitions == 1:
-        return np.expand_dims(seeds, 0)
-    else:
-        return np.array(np.split(seeds, int(len(seeds) / batch_size)), dtype=np.float64)
+    return seeds
 
 
 def get_random_sequence(max_val, length, seq_num, backend='random') -> np.ndarray:

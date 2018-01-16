@@ -45,17 +45,30 @@ def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
     # networks for approaches 1 and 2: generator with discriminator, generator with predictor
-    classic_gan = ClassicGan(GENERATOR_SPEC, DISCRIMINATOR_SPEC, ADVERSARIAL_CLASSIC_SPEC)
-    pred_gan = PredictiveGan(GENERATOR_SPEC, PREDICTOR_SPEC, ADVERSARIAL_SPEC)
+    classic_gan = ClassicGan(
+        GENERATOR_SPEC,
+        DISCRIMINATOR_SPEC,
+        ADVERSARIAL_CLASSIC_SPEC,
+        SETTINGS,
+        IO_PARAMS,
+        TRAIN_PARAMS)
+    pred_gan = PredictiveGan(
+        GENERATOR_SPEC,
+        PREDICTOR_SPEC,
+        ADVERSARIAL_SPEC,
+        SETTINGS,
+        IO_PARAMS,
+        TRAIN_PARAMS
+    )
     vis_utils.plot_network_graphs(classic_gan, pred_gan)
 
     # train and evaluate approach 1
-    classic_gan.pretrain_discriminator()
+    classic_gan.pretrain_discriminator(TRAIN_PARAMS['pretrain_epochs'])
     classic_gan.train(TRAIN_PARAMS['epochs'], TRAIN_PARAMS['adversary_multiplier'])
     # classic_gan.evaluate()
     # train and evaluate approach 2
-    pred_gan.pretrain_predictor(None, TRAIN_PARAMS['pretrain_epochs'])
-    pred_gan.train(None, TRAIN_PARAMS['epochs'], TRAIN_PARAMS['adversary_multiplier'])
+    # pred_gan.pretrain_predictor(None, TRAIN_PARAMS['pretrain_epochs'])
+    # pred_gan.train(None, TRAIN_PARAMS['epochs'], TRAIN_PARAMS['adversary_multiplier'])
     # pred_gan.evaluate()
 
     # plot results
