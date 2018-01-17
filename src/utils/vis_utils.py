@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from models.gan_classic import ClassicGan
 from models.gan_predictive import PredictiveGan
+from models.gan_discriminative import DiscriminativeGan
 from models.metrics import Metrics
 from keras import Model
 from keras.utils import plot_model
@@ -72,13 +72,9 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.show()
 
 
-def plot_network_graphs(classic_gan: ClassicGan, predictive_gan: PredictiveGan):
+def plot_network_graphs(gan_model: (Model, Model, Model), prefix: str):
     """Draws visualizations of the network structure as well as the
     shape of each layer."""
-    plot_model(classic_gan.get_generator(), '../model_graphs/classic_generator.png', show_shapes=True)
-    plot_model(classic_gan.get_discriminator(), '../model_graphs/classic_discriminator.png', show_shapes=True)
-    plot_model(classic_gan.get_adversarial(), '../model_graphs/classic_adversarial.png', show_shapes=True)
-
-    plot_model(predictive_gan.get_generator(), '../model_graphs/pred_generator.png', show_shapes=True)
-    plot_model(predictive_gan.get_predictor(), '../model_graphs/pred_predictor.png', show_shapes=True)
-    plot_model(predictive_gan.get_adversarial(), '../model_graphs/pred_adversarial.png', show_shapes=True)
+    plot_model(gan_model[0], '../model_graphs/' + prefix + '_generator.png', show_shapes=True)
+    plot_model(gan_model[1], '../model_graphs/' + prefix + '_adversary.png', show_shapes=True)
+    plot_model(gan_model[2], '../model_graphs/' + prefix + '_gan.png', show_shapes=True)

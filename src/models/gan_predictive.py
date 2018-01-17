@@ -10,42 +10,44 @@
 # The original implementation by Abadi is available at
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
-from models.gan import Gan
 from models.operations import drop_last_value
 from models.metrics import Metrics
+from models.losses import loss_predictor, loss_adv
+from models.activations import modulo
 from keras import Model
-from keras.layers import Input, Lambda
+from keras.layers import Input, Lambda, Dense, SimpleRNN, LSTM
+from keras.activations import linear, relu
 from tqdm import tqdm
 import utils.utils as utils
 import numpy as np
 
 
-class PredictiveGan(Gan):
-    def __init__(self, generator_spec, predictor_spec, adversarial_spec, settings, io_params, train_params):
-        # common attributes
-        Gan.__init__(self, generator_spec, predictor_spec, adversarial_spec, settings, io_params, train_params)
-        # predictor attributes
-        self.pred_types = predictor_spec['types']
-        self.pred_activations = predictor_spec['activations']
-        self.pred_loss = predictor_spec['loss']
-        self.pred_optimizer = predictor_spec['optimizer']
-        self.predictor = self.__create_predictor()
+class PredictiveGan:
+    def __init__(self, max_val=100, timesteps=5, seed_length=10, output_length=30, lr=0.1, cv=1, batch_size=1):
+        self.metrics = Metrics()
+        # generator
+        generator_inputs = Input(shape=(timesteps, seed_length))
+        generator_outputs = Dense(output_length, activation=linear)(generator_inputs)
+        generator_outputs = SimpleRNN(output_length, activation=linear)(generator_outputs)
+        generator_outputs = Dense(output_length, activation=modulo(max_val))(generator_outputs)
+        self.generator = Model(generator_inputs, generator_outputs)
+        self.generator.compile('adagrad', 'binary_crossentropy')
+        self.generator.summary()
+        # predictor
+        predictor_inputs = Input(shape=(timesteps, output_length - 1))
+        predictor_outputs = LSTM(output_length - 1, activation=linear)(predictor_inputs)
+        predictor_outputs = Dense(output_length, activation=linear)(predictor_outputs)
+        predictor_outputs = Dense(1, activation=relu)(predictor_outputs)
+        self.predictor = Model(predictor_inputs, predictor_outputs)
+        self.predictor.compile('adagrad', loss_predictor(max_val))
         # connect GAN
-        self.adversarial_optimizer = adversarial_spec['optimizer']
-        self.adversarial_loss = adversarial_spec['loss']
-        self.adversarial = self.__connect_gan()
-
-    def get_generator(self) -> Model:
-        """Returns a reference to the internal generator Keras model."""
-        return self.generator
-
-    def get_predictor(self) -> Model:
-        """Returns a reference to the internal predictor Keras model."""
-        return self.predictor
-
-    def get_adversarial(self) -> Model:
-        """Returns a reference to the internal adversarial Keras model."""
-        return self.adversarial
+        operations_adv = self.generator(generator_inputs)
+        operations_adv = Lambda(
+            drop_last_value(output_length, batch_size),
+            name='adversarial_drop_last_value')(operations_adv)
+        operations_adv = self.predictor(operations_adv)
+        self.adversarial = Model(generator_inputs, operations_adv, name='adversarial')
+        self.adversarial.compile('adagrad', loss_adv(loss_predictor(max_val)))
 
     def pretrain_predictor(self, seed_dataset, epochs):
         """Pre-trains the predictor network on its own. Used before the
@@ -102,34 +104,5 @@ class PredictiveGan(Gan):
         self.metrics.predictor_weights_final().extend(utils.flatten_irregular_nested_iterable(self.predictor.get_weights()))
         return self.metrics
 
-    def __create_predictor(self):
-        """Returns a compiled predictor model"""
-        # inputs
-        inputs_pred = Input(shape=(self.out_seq_len - 1,))
-        operations_pred = self.layer(self.pred_types[0],
-                                     self.out_seq_len if len(self.pred_types) > 1 else 1,
-                                     self.pred_activations[0])(inputs_pred)
-        # additional layers if depth > 1
-        for layer_index in range(1, len(self.pred_types)):
-            operations_pred = self.layer(self.pred_types[layer_index],
-                                         self.out_seq_len if layer_index != len(self.pred_types) - 1 else 1,
-                                         self.pred_activations[layer_index])(operations_pred)
-        # compile and return model
-        predictor = Model(inputs_pred, operations_pred, name='predictor')
-        predictor.compile(self.pred_optimizer, self.pred_loss)
-        return predictor
-
-    def __connect_gan(self):
-        """Performs the connection of the generator and predictor into
-        a GAN, returning a reference to the adversarial model.
-        """
-        # adversarial connection
-        operations_adv = self.generator(self.generator_input)
-        operations_adv = Lambda(
-            drop_last_value(self.out_seq_len, self.batch_size),
-            name='adversarial_drop_last_value')(operations_adv)
-        operations_adv = self.predictor(operations_adv)
-        # compile and return
-        adversarial = Model(self.generator_input, operations_adv, name='adversarial')
-        adversarial.compile(self.adversarial_optimizer, self.adversarial_loss)
-        return adversarial
+    def get_model(self) -> (Model, Model, Model):
+        return self.generator, self.predictor, self.adversarial

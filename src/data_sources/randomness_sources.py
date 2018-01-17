@@ -49,4 +49,3 @@ def get_random_sequence(max_val, length, seq_num, backend='random') -> np.ndarra
         return np.array([[rng.SystemRandom().uniform(0, max_val) for i in range(length)] for j in range(seq_num)], dtype=np.float64)
     elif backend == 'quantum_random':
         return np.array([[float.fromhex(val) for val in qr.hex(length)] for j in range(seq_num)], dtype=np.float64)
-
