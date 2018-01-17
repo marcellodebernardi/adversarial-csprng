@@ -1,7 +1,7 @@
-import random
 import sys
 import tensorflow as tf
 import numpy as np
+from keras import Model
 
 
 def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
@@ -13,6 +13,14 @@ def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.nd
     predictor_inputs = generator_output[0: batch_len, 0: -n_to_predict]
     predictor_outputs = generator_output[0: batch_len, seq_len - n_to_predict - 1: seq_len - n_to_predict]
     return predictor_inputs, predictor_outputs
+
+
+def set_trainable(model: Model, trainable: bool = True):
+    """Helper method that sets the trainability of all of a model's
+    parameters."""
+    model.trainable = trainable
+    for layer in model.layers:
+        layer.trainable = trainable
 
 
 def log(x, base) -> tf.Tensor:
@@ -40,5 +48,6 @@ def flatten_irregular_nested_iterable(weight_matrix) -> list:
 
 
 def eprint(*args, **kwargs):
+    """Prints to standard error."""
     # from https://stackoverflow.com/questions/5574702/how-to-print-to-stderr-in-python
     print(*args, file=sys.stderr, **kwargs)
