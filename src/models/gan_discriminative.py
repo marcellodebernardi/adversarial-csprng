@@ -13,7 +13,7 @@
 import random
 import numpy as np
 from keras import Model
-from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten
+from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D
 from keras.activations import linear, softmax
 from keras.optimizers import adagrad
 from models.activations import modulo, absolute
@@ -50,7 +50,10 @@ class DiscriminativeGan:
         # discriminator
         discriminator_inputs = Input(shape=(output_length,))
         discriminator_outputs = Dense(output_length, activation=linear)(discriminator_inputs)
-        discriminator_outputs = Dense(output_length, activation=linear)(discriminator_outputs)
+        discriminator_outputs = Reshape(target_shape=(5, 60))(discriminator_outputs)
+        discriminator_outputs = Conv1D(int(output_length / 4), 4)(discriminator_outputs)
+        discriminator_outputs = Flatten()(discriminator_outputs)
+        discriminator_outputs = Dense(int(output_length / 3), activation=linear)(discriminator_outputs)
         discriminator_outputs = Dense(1, activation=softmax)(discriminator_outputs)
         self.discriminator = Model(discriminator_inputs, discriminator_outputs)
         self.discriminator.compile(adagrad(lr=lr, clipvalue=cv), loss_discriminator)
