@@ -80,20 +80,21 @@ def main():
     disc_gan.train(SETTINGS['batch_size'],
                    SETTINGS['epochs'],
                    SETTINGS['adversary_multiplier'])
-    # disc_gan.evaluate()
+    disc_gan.evaluate()
 
     pred_gan.pretrain_predictor(SETTINGS['batch_size'],
                                 SETTINGS['pretrain_epochs'])
     pred_gan.train(SETTINGS['batch_size'],
                    SETTINGS['epochs'],
                    SETTINGS['adversary_multiplier'])
-    # pred_gan.evaluate()
+    pred_gan.evaluate()
 
     if INTERACTIVE:
         vis_utils.plot_metrics(disc_gan.get_metrics(), DATA_PARAMS['max_val'])
         vis_utils.plot_metrics(pred_gan.get_metrics(), DATA_PARAMS['max_val'])
 
-    # save configuration
+    # save configuration and sequence
+    utils.save_sequence(disc_gan.get_model())
     utils.save_configurations(disc_gan, pred_gan)
     utils.email_report()
     # save model with model.to_json, model.save, model.save_weights

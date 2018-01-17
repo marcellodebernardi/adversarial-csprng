@@ -120,6 +120,11 @@ class PredictiveGan:
         self.metrics.generator_weights_final().extend(utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
         self.metrics.predictor_weights_final().extend(utils.flatten_irregular_nested_iterable(self.predictor.get_weights()))
 
+    def evaluate(self):
+        utils.save_sequence(
+            self.generator.predict(
+                data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size))))
+
     def get_model(self) -> (Model, Model, Model):
         return self.generator, self.predictor, self.adversarial
 
