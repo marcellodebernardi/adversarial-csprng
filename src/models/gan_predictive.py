@@ -14,9 +14,11 @@ from models.operations import drop_last_value
 from models.metrics import Metrics
 from models.losses import loss_predictor, loss_adv
 from models.activations import modulo
+from data_sources import randomness_sources as data
 from keras import Model
 from keras.layers import Input, Lambda, Dense, SimpleRNN, LSTM, Reshape, Flatten
 from keras.activations import linear, relu
+from keras.optimizers import adagrad
 from tqdm import tqdm
 from utils import utils
 from utils import vis_utils
@@ -24,16 +26,18 @@ import numpy as np
 
 
 class PredictiveGan:
-    def __init__(self, dataset_size=100, max_val=100, timesteps=5, seed_length=10, output_length=300, lr=0.1, cv=1, batch_size=1):
+    def __init__(self, dataset_size=100, max_val=100, seed_length=10, unique_seeds=100, repetitions=1, output_length=300, lr=0.1, cv=1, batch_size=1):
         self.metrics = Metrics()
         self.dataset_size = dataset_size
         self.max_val = max_val
         self.seed_length = seed_length
         self.output_length = output_length
+        self.unique_seeds = unique_seeds
+        self.repetitions = repetitions
         # generator
         generator_inputs = Input(shape=(seed_length,))
         generator_outputs = Dense(output_length, activation=linear)(generator_inputs)
-        generator_outputs = Reshape(target_shape=(5, 60))(generator_outputs)
+        generator_outputs = Reshape(target_shape=(5, int(output_length/5)))(generator_outputs)
         generator_outputs = SimpleRNN(60, return_sequences=True, activation=linear)(generator_outputs)
         generator_outputs = Flatten()(generator_outputs)
         generator_outputs = Dense(output_length, activation=modulo(max_val))(generator_outputs)
@@ -43,12 +47,12 @@ class PredictiveGan:
         # predictor
         predictor_inputs = Input(shape=(output_length - 1,))
         predictor_outputs = Dense(output_length)(predictor_inputs)
-        predictor_outputs = Reshape(target_shape=(5, 60))(predictor_outputs)
-        predictor_outputs = LSTM(60, return_sequences=True, activation=linear)(predictor_outputs)
+        predictor_outputs = Reshape(target_shape=(5, int(output_length/5)))(predictor_outputs)
+        predictor_outputs = LSTM(int(output_length/5), return_sequences=True, activation=linear)(predictor_outputs)
         predictor_outputs = Flatten()(predictor_outputs)
         predictor_outputs = Dense(1, activation=relu)(predictor_outputs)
         self.predictor = Model(predictor_inputs, predictor_outputs)
-        self.predictor.compile('adagrad', loss_predictor(max_val))
+        self.predictor.compile(adagrad(lr=lr, clipvalue=cv), loss_predictor(max_val))
         vis_utils.plot_network_graphs(self.predictor, 'pred_adversary')
         # connect GAN
         operations_adv = self.generator(generator_inputs)
@@ -57,12 +61,13 @@ class PredictiveGan:
             name='adversarial_drop_last_value')(operations_adv)
         operations_adv = self.predictor(operations_adv)
         self.adversarial = Model(generator_inputs, operations_adv, name='adversarial')
-        self.adversarial.compile('adagrad', loss_adv(loss_predictor(max_val)))
+        self.adversarial.compile(adagrad(lr=lr, clipvalue=cv), loss_adv(loss_predictor(max_val)))
         vis_utils.plot_network_graphs(self.adversarial, 'pred_gan')
 
-    def pretrain_predictor(self, seed_dataset, epochs):
+    def pretrain_predictor(self, batch_size, epochs):
         """Pre-trains the predictor network on its own. Used before the
         adversarial training of both models is started."""
+        seed_dataset = data.get_seed_dataset(self.max_val, self.seed_length, self.unique_seeds, self.repetitions, batch_size)
         for epoch in range(epochs):
             epoch_pretrain_loss = []
             for generator_input in seed_dataset:
@@ -71,12 +76,13 @@ class PredictiveGan:
                 epoch_pretrain_loss.append(self.predictor.train_on_batch(predictor_input, predictor_output))
             self.metrics.predictor_pretrain_loss().append(np.mean(epoch_pretrain_loss))
 
-    def train(self, seed_dataset, epochs, pred_mult):
+    def train(self, batch_size, epochs, pred_mult):
         """Trains the adversarial model on the given dataset of seed values, for the
         specified number of epochs. The seed dataset must be 3-dimensional, of the form
         [batch, seed, seed_component]. Each 'batch' in the dataset can be of any size,
         including 1, allowing for online training, batch training, and mini-batch training.
         """
+        seed_dataset = data.get_seed_dataset(self.max_val, self.seed_length, self.unique_seeds, self.repetitions, batch_size)
         if len(np.shape(seed_dataset)) != 3:
             raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
 
@@ -100,12 +106,12 @@ class PredictiveGan:
                 predictor_input, predictor_output = utils.split_generator_output(generator_output, 1)
 
                 # train predictor
-                self.set_trainable(self.predictor)
+                utils.set_trainable(self.predictor)
                 for i in range(pred_mult):
                     epoch_pred_losses.append(self.predictor.train_on_batch(predictor_input, predictor_output))
 
                 # train generator
-                self.set_trainable(self.predictor, False)
+                utils.set_trainable(self.predictor, False)
                 epoch_gen_losses.append(self.adversarial.train_on_batch(generator_input, predictor_output))
 
             self.metrics.generator_loss().append(np.mean(epoch_gen_losses))
