@@ -34,7 +34,7 @@ from keras.optimizers import adagrad
 # simplify the code.
 
 SETTINGS = {
-    'dataset_size': 100,
+    'dataset_size': 10,
     'unique_seeds': 1,
     'seed_repetitions': 1,
     'pretrain': True,
@@ -56,15 +56,35 @@ def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
     # approach 1: adversarial network with discriminator
-    disc_gan = DiscriminativeGan()
-    pred_gan = PredictiveGan()
+    disc_gan = DiscriminativeGan(SETTINGS['dataset_size'],
+                                 DATA_PARAMS['max_val'],
+                                 DATA_PARAMS['seed_length'],
+                                 DATA_PARAMS['out_seq_length'],
+                                 SETTINGS['learning_rate'],
+                                 SETTINGS['clip_value'],
+                                 SETTINGS['batch_size'])
+    pred_gan = PredictiveGan(SETTINGS['dataset_size'],
+                             DATA_PARAMS['max_val'],
+                             DATA_PARAMS['seed_length'],
+                             SETTINGS['unique_seeds'],
+                             SETTINGS['seed_repetitions'],
+                             DATA_PARAMS['out_seq_length'],
+                             SETTINGS['learning_rate'],
+                             SETTINGS['clip_value'],
+                             SETTINGS['batch_size'])
 
-    disc_gan.pretrain_discriminator(SETTINGS['batch_size'], SETTINGS['pretrain_epochs'])
-    disc_gan.train(SETTINGS['batch_size'], SETTINGS['epochs'], SETTINGS['adversary_multiplier'])
+    disc_gan.pretrain_discriminator(SETTINGS['batch_size'],
+                                    SETTINGS['pretrain_epochs'])
+    disc_gan.train(SETTINGS['batch_size'],
+                   SETTINGS['epochs'],
+                   SETTINGS['adversary_multiplier'])
     # disc_gan.evaluate()
 
-    # pred_gan.pretrain_predictor()
-    # pred_gan.train()
+    pred_gan.pretrain_predictor(SETTINGS['batch_size'],
+                                SETTINGS['pretrain_epochs'])
+    pred_gan.train(SETTINGS['batch_size'],
+                   SETTINGS['epochs'],
+                   SETTINGS['adversary_multiplier'])
     # pred_gan.evaluate()
 
     # vis_utils.plot_metrics(classic_gan.get_metrics(), IO_PARAMS['max_val'])

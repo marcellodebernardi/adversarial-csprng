@@ -29,7 +29,7 @@ class DiscriminativeGan:
     """Implementation of a classic generative adversarial network
     to the statistical randomness problem (i.e. 'approach 1').
     """
-    def __init__(self, dataset_size=100, max_val=100, seed_length=10, output_length=300, lr=0.1, cv=1):
+    def __init__(self, dataset_size=100, max_val=100, seed_length=10, output_length=300, lr=0.1, cv=1, batch_size=1):
         """Constructs the classical GAN according to the specifications
         provided. Each specification variable is a dictionary."""
         self.metrics = Metrics()
@@ -37,11 +37,12 @@ class DiscriminativeGan:
         self.max_val = max_val
         self.seed_length = seed_length
         self.output_length = output_length
+        self.batch_size = batch_size
         # generator
         generator_inputs = Input(shape=(seed_length,))
         generator_outputs = Dense(output_length, activation=linear)(generator_inputs)
-        generator_outputs = Reshape(target_shape=(5, 60))(generator_outputs)
-        generator_outputs = SimpleRNN(60, return_sequences=True, activation=linear)(generator_outputs)
+        generator_outputs = Reshape(target_shape=(5, int(output_length/5)))(generator_outputs)
+        generator_outputs = SimpleRNN(int(output_length/5), return_sequences=True, activation=linear)(generator_outputs)
         generator_outputs = Flatten()(generator_outputs)
         generator_outputs = Dense(output_length, activation=modulo(max_val))(generator_outputs)
         self.generator = Model(generator_inputs, generator_outputs)
@@ -50,10 +51,10 @@ class DiscriminativeGan:
         # discriminator
         discriminator_inputs = Input(shape=(output_length,))
         discriminator_outputs = Dense(output_length, activation=linear)(discriminator_inputs)
-        discriminator_outputs = Reshape(target_shape=(5, 60))(discriminator_outputs)
+        discriminator_outputs = Reshape(target_shape=(5, int(output_length/5)))(discriminator_outputs)
         discriminator_outputs = Conv1D(int(output_length / 4), 4)(discriminator_outputs)
         discriminator_outputs = Flatten()(discriminator_outputs)
-        discriminator_outputs = Dense(int(output_length / 3), activation=linear)(discriminator_outputs)
+        discriminator_outputs = Dense(int(output_length / 4), activation=linear)(discriminator_outputs)
         discriminator_outputs = Dense(1, activation=softmax)(discriminator_outputs)
         self.discriminator = Model(discriminator_inputs, discriminator_outputs)
         self.discriminator.compile(adagrad(lr=lr, clipvalue=cv), loss_discriminator)
@@ -62,7 +63,7 @@ class DiscriminativeGan:
         operations_adv = self.generator(generator_inputs)
         operations_adv = self.discriminator(operations_adv)
         self.adversarial = Model(generator_inputs, operations_adv)
-        self.adversarial.compile('adagrad', loss_adv(loss_discriminator))
+        self.adversarial.compile(adagrad(lr=lr, clipvalue=cv), loss_adv(loss_discriminator))
         vis_utils.plot_network_graphs(self.adversarial, 'disc_gan')
 
     def pretrain_discriminator(self, epochs, batch_size):
