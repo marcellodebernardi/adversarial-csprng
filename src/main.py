@@ -94,7 +94,6 @@ def main():
         vis_utils.plot_metrics(pred_gan.get_metrics(), DATA_PARAMS['max_val'])
 
     # save configuration and sequence
-    utils.save_sequence(disc_gan.get_model())
     utils.save_configurations(disc_gan, pred_gan)
     utils.email_report()
     # save model with model.to_json, model.save, model.save_weights
