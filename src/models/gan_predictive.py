@@ -83,8 +83,8 @@ class PredictiveGan:
         including 1, allowing for online training, batch training, and mini-batch training.
         """
         seed_dataset = data.get_seed_dataset(self.max_val, self.seed_length, self.unique_seeds, self.repetitions, batch_size)
-        if len(np.shape(seed_dataset)) != 3:
-            raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
+        # if len(np.shape(seed_dataset)) != 3:
+        #    raise ValueError('Seed dataset has ' + str(len(np.shape(seed_dataset))) + ' dimension(s), should have 3')
 
         self.metrics.generator_weights_initial().extend(utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
         self.metrics.predictor_weights_initial().extend(utils.flatten_irregular_nested_iterable(self.predictor.get_weights()))
@@ -119,7 +119,9 @@ class PredictiveGan:
 
         self.metrics.generator_weights_final().extend(utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
         self.metrics.predictor_weights_final().extend(utils.flatten_irregular_nested_iterable(self.predictor.get_weights()))
-        return self.metrics
 
     def get_model(self) -> (Model, Model, Model):
         return self.generator, self.predictor, self.adversarial
+
+    def get_metrics(self):
+        return self.metrics

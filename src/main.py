@@ -33,6 +33,8 @@ from keras.optimizers import adagrad
 # whether online training or batch training is carried out, to
 # simplify the code.
 
+# if interactive, displays matplotlib graphs
+INTERACTIVE = False
 SETTINGS = {
     'dataset_size': 10,
     'unique_seeds': 1,
@@ -87,12 +89,13 @@ def main():
                    SETTINGS['adversary_multiplier'])
     # pred_gan.evaluate()
 
-    # vis_utils.plot_metrics(classic_gan.get_metrics(), IO_PARAMS['max_val'])
-    # vis_utils.plot_metrics(pred_gan.get_metrics(), IO_PARAMS['max_val'])
+    if INTERACTIVE:
+        vis_utils.plot_metrics(disc_gan.get_metrics(), DATA_PARAMS['max_val'])
+        vis_utils.plot_metrics(pred_gan.get_metrics(), DATA_PARAMS['max_val'])
 
     # save configuration
-    # gan.save_weights('../saved_models/placeholder.h5', overwrite=True)
-    # gan.get_model().save('../saved_models/placeholder.h5', overwrite=True)
+    utils.save_configurations(disc_gan, pred_gan)
+    utils.email_report()
     # save model with model.to_json, model.save, model.save_weights
 
 
