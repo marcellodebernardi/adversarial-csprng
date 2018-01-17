@@ -105,6 +105,11 @@ class DiscriminativeGan:
         self.metrics.predictor_weights_final().extend(
             utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
 
+    def evaluate(self):
+        utils.save_sequence(
+            self.generator.predict(
+                data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size))))
+
     def get_model(self) -> (Model, Model, Model):
         """Returns the three underlying Keras models."""
         return self.generator, self.discriminator, self.adversarial
