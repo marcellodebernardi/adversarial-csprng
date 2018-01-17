@@ -15,31 +15,41 @@ from models.metrics import Metrics
 from models.losses import loss_predictor, loss_adv
 from models.activations import modulo
 from keras import Model
-from keras.layers import Input, Lambda, Dense, SimpleRNN, LSTM
+from keras.layers import Input, Lambda, Dense, SimpleRNN, LSTM, Reshape, Flatten
 from keras.activations import linear, relu
 from tqdm import tqdm
-import utils.utils as utils
+from utils import utils
+from utils import vis_utils
 import numpy as np
 
 
 class PredictiveGan:
-    def __init__(self, max_val=100, timesteps=5, seed_length=10, output_length=30, lr=0.1, cv=1, batch_size=1):
+    def __init__(self, dataset_size=100, max_val=100, timesteps=5, seed_length=10, output_length=300, lr=0.1, cv=1, batch_size=1):
         self.metrics = Metrics()
+        self.dataset_size = dataset_size
+        self.max_val = max_val
+        self.seed_length = seed_length
+        self.output_length = output_length
         # generator
-        generator_inputs = Input(shape=(timesteps, seed_length))
+        generator_inputs = Input(shape=(seed_length,))
         generator_outputs = Dense(output_length, activation=linear)(generator_inputs)
-        generator_outputs = SimpleRNN(output_length, activation=linear)(generator_outputs)
+        generator_outputs = Reshape(target_shape=(5, 60))(generator_outputs)
+        generator_outputs = SimpleRNN(60, return_sequences=True, activation=linear)(generator_outputs)
+        generator_outputs = Flatten()(generator_outputs)
         generator_outputs = Dense(output_length, activation=modulo(max_val))(generator_outputs)
         self.generator = Model(generator_inputs, generator_outputs)
         self.generator.compile('adagrad', 'binary_crossentropy')
-        self.generator.summary()
+        vis_utils.plot_network_graphs(self.generator, 'disc_generator')
         # predictor
-        predictor_inputs = Input(shape=(timesteps, output_length - 1))
-        predictor_outputs = LSTM(output_length - 1, activation=linear)(predictor_inputs)
-        predictor_outputs = Dense(output_length, activation=linear)(predictor_outputs)
+        predictor_inputs = Input(shape=(output_length - 1,))
+        predictor_outputs = Dense(output_length)(predictor_inputs)
+        predictor_outputs = Reshape(target_shape=(5, 60))(predictor_outputs)
+        predictor_outputs = LSTM(60, return_sequences=True, activation=linear)(predictor_outputs)
+        predictor_outputs = Flatten()(predictor_outputs)
         predictor_outputs = Dense(1, activation=relu)(predictor_outputs)
         self.predictor = Model(predictor_inputs, predictor_outputs)
         self.predictor.compile('adagrad', loss_predictor(max_val))
+        vis_utils.plot_network_graphs(self.predictor, 'pred_adversary')
         # connect GAN
         operations_adv = self.generator(generator_inputs)
         operations_adv = Lambda(
@@ -48,6 +58,7 @@ class PredictiveGan:
         operations_adv = self.predictor(operations_adv)
         self.adversarial = Model(generator_inputs, operations_adv, name='adversarial')
         self.adversarial.compile('adagrad', loss_adv(loss_predictor(max_val)))
+        vis_utils.plot_network_graphs(self.adversarial, 'pred_gan')
 
     def pretrain_predictor(self, seed_dataset, epochs):
         """Pre-trains the predictor network on its own. Used before the

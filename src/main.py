@@ -57,9 +57,7 @@ def main():
     are plotted visually."""
     # approach 1: adversarial network with discriminator
     disc_gan = DiscriminativeGan()
-    # pred_gan = PredictiveGan()
-    vis_utils.plot_network_graphs(disc_gan.get_model(), 'disc')
-    # vis_utils.plot_network_graphs(pred_gan, 'pred')
+    pred_gan = PredictiveGan()
 
     disc_gan.pretrain_discriminator(SETTINGS['batch_size'], SETTINGS['pretrain_epochs'])
     disc_gan.train(SETTINGS['batch_size'], SETTINGS['epochs'], SETTINGS['adversary_multiplier'])

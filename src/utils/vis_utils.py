@@ -72,9 +72,7 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.show()
 
 
-def plot_network_graphs(gan_model: (Model, Model, Model), prefix: str):
+def plot_network_graphs(model: Model, name: str):
     """Draws visualizations of the network structure as well as the
     shape of each layer."""
-    plot_model(gan_model[0], '../model_graphs/' + prefix + '_generator.png', show_shapes=True)
-    plot_model(gan_model[1], '../model_graphs/' + prefix + '_adversary.png', show_shapes=True)
-    plot_model(gan_model[2], '../model_graphs/' + prefix + '_gan.png', show_shapes=True)
+    plot_model(model, '../model_graphs/' + name + '.png', show_shapes=True)
