@@ -104,11 +104,13 @@ class DiscriminativeGan:
             utils.flatten_irregular_nested_iterable(self.generator.get_weights()))
         self.metrics.predictor_weights_final().extend(
             utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
-        return self.metrics
 
     def get_model(self) -> (Model, Model, Model):
         """Returns the three underlying Keras models."""
         return self.generator, self.discriminator, self.adversarial
+
+    def get_metrics(self):
+        return self.metrics
 
     def construct_discriminator_sample(self) -> (np.ndarray, np.ndarray):
         """Constructs a sample batch which includes both truly random
