@@ -13,7 +13,7 @@
 import random
 import numpy as np
 from keras import Model
-from keras.layers import Input, Dense, SimpleRNN, Reshape
+from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten
 from keras.activations import linear, softmax
 from keras.optimizers import adagrad
 from models.activations import modulo, absolute
@@ -21,6 +21,7 @@ from models.losses import loss_adv, loss_discriminator
 from models.metrics import Metrics
 from data_sources import randomness_sources as data
 from utils import utils
+from utils import vis_utils
 from tqdm import tqdm
 
 
@@ -40,11 +41,12 @@ class DiscriminativeGan:
         generator_inputs = Input(shape=(seed_length,))
         generator_outputs = Dense(output_length, activation=linear)(generator_inputs)
         generator_outputs = Reshape(target_shape=(5, 60))(generator_outputs)
-        generator_outputs = SimpleRNN(output_length, activation=linear)(generator_outputs)
+        generator_outputs = SimpleRNN(60, return_sequences=True, activation=linear)(generator_outputs)
+        generator_outputs = Flatten()(generator_outputs)
         generator_outputs = Dense(output_length, activation=modulo(max_val))(generator_outputs)
         self.generator = Model(generator_inputs, generator_outputs)
         self.generator.compile('adagrad', 'binary_crossentropy')
-        self.generator.summary()
+        vis_utils.plot_network_graphs(self.generator, 'disc_generator')
         # discriminator
         discriminator_inputs = Input(shape=(output_length,))
         discriminator_outputs = Dense(output_length, activation=linear)(discriminator_inputs)
@@ -52,11 +54,13 @@ class DiscriminativeGan:
         discriminator_outputs = Dense(1, activation=softmax)(discriminator_outputs)
         self.discriminator = Model(discriminator_inputs, discriminator_outputs)
         self.discriminator.compile(adagrad(lr=lr, clipvalue=cv), loss_discriminator)
+        vis_utils.plot_network_graphs(self.discriminator, 'disc_adversary')
         # adversarial model
         operations_adv = self.generator(generator_inputs)
         operations_adv = self.discriminator(operations_adv)
         self.adversarial = Model(generator_inputs, operations_adv)
         self.adversarial.compile('adagrad', loss_adv(loss_discriminator))
+        vis_utils.plot_network_graphs(self.adversarial, 'disc_gan')
 
     def pretrain_discriminator(self, epochs, batch_size):
         """Pre-trains the discriminator for a given number of epochs."""
