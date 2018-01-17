@@ -108,7 +108,7 @@ class DiscriminativeGan:
     def evaluate(self):
         utils.save_sequence(
             self.generator.predict(
-                data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size))))
+                data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size))), 'disc_sequence')
 
     def get_model(self) -> (Model, Model, Model):
         """Returns the three underlying Keras models."""
