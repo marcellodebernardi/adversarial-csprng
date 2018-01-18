@@ -126,8 +126,6 @@ class DiscriminativeGan:
         true = data.get_random_sequence(self.max_val, self.output_length, int(self.dataset_size / 2))
         generated = self.generator.predict(
             data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size / 2)))
-        print(np.shape(true))
-        print(np.shape(generated))
         x = np.concatenate((true, generated))
         # add correct labels and return
         true_labels = np.zeros((int(self.dataset_size / 2),))

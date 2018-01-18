@@ -34,17 +34,17 @@ from keras.optimizers import adagrad
 # simplify the code.
 
 # if interactive, displays matplotlib graphs
-INTERACTIVE = False
+INTERACTIVE =False
 SETTINGS = {
-    'dataset_size': 10,
-    'unique_seeds': 1,
+    'dataset_size': 2,
+    'unique_seeds': 2,
     'seed_repetitions': 1,
     'pretrain': True,
     'batch_size': 1,
-    'epochs': 100,
-    'pretrain_epochs': 10,
-    'adversary_multiplier': 10,
-    'clip_value': 1,
+    'epochs': 10,
+    'pretrain_epochs': 5,
+    'adversary_multiplier': 2,
+    'clip_value': 0.5,
     'learning_rate': 0.2
 }
 DATA_PARAMS = {
@@ -90,7 +90,7 @@ def main():
     pred_gan.evaluate()
 
     if INTERACTIVE:
-        vis_utils.plot_metrics(disc_gan.get_metrics(), DATA_PARAMS['max_val'])
+        # vis_utils.plot_metrics(disc_gan.get_metrics(), DATA_PARAMS['max_val'])
         vis_utils.plot_metrics(pred_gan.get_metrics(), DATA_PARAMS['max_val'])
 
     # save configuration and sequence
