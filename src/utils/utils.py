@@ -75,7 +75,6 @@ def save_sequence(sequence: np.ndarray, filename: str):
     # conversion to binary from
     # https://stackoverflow.com/questions/16444726/binary-representation-of-float-in-python-bits-not-hex
     sequence = flatten_irregular_nested_iterable(sequence)
-    print(sequence)
     binary_strings = [''.join(bin(ord('c')).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', float(num))) for num in sequence]
     with open('../sequences/' + filename + '.txt', 'w') as file:
         for bin_str in binary_strings:
@@ -84,13 +83,13 @@ def save_sequence(sequence: np.ndarray, filename: str):
 
 def email_report() -> bool:
     # sender and receiver
-    fromaddr = "neural.csprng@gmail.com"
-    toaddr = "marcello1234@live.co.uk"
+    sender = "neural.csprng@gmail.com"
+    recipinent = "marcello1234@live.co.uk"
     # create message
     msg = MIMEMultipart()
     # headers
-    msg['neural.csprng@gmail.com'] = fromaddr
-    msg['marcello1234@live.co.uk'] = toaddr
+    msg['neural.csprng@gmail.com'] = sender
+    msg['marcello1234@live.co.uk'] = recipinent
     msg['Subject'] = 'Adversarial CSPRNG Training Results'
     # body
     body = "Training complete"
@@ -98,25 +97,25 @@ def email_report() -> bool:
     # attachment list
     # fixme
     attachments = [
-                   # ('disc_generator.h5', '../saved_models/'),
-                   # ('disc_adversary.h5', '../saved_models/'),
-                   # ('disc_gan.h5', '../saved_models/'),
-                   # ('pred_generator.h5', '../saved_models/'),
-                   # ('pred_adversary.h5', '../saved_models/'),
-                   # ('pred_gan.h5', '../saved_models/'),
-                   # ('disc_generator.png', '../model_graphs/'),
-                   # ('disc_adversary.png', '../model_graphs/'),
-                   # ('disc_gan.png', '../model_graphs/'),
-                   # ('pred_generator.png', '../model_graphs/'),
-                   # ('pred_adversary.png', '../model_graphs/'),
-                   # ('pred_gan.png', '../model_graphs/'),
+                   ('disc_generator.h5', '../saved_models/'),
+                   ('disc_adversary.h5', '../saved_models/'),
+                   ('disc_gan.h5', '../saved_models/'),
+                   ('pred_generator.h5', '../saved_models/'),
+                   ('pred_adversary.h5', '../saved_models/'),
+                   ('pred_gan.h5', '../saved_models/'),
+                   ('disc_generator.png', '../model_graphs/'),
+                   ('disc_adversary.png', '../model_graphs/'),
+                   ('disc_gan.png', '../model_graphs/'),
+                   ('pred_generator.png', '../model_graphs/'),
+                   ('pred_adversary.png', '../model_graphs/'),
+                   ('pred_gan.png', '../model_graphs/'),
                    ('disc_sequence.txt', '../sequences/'),
                    ('pred_sequence.txt', '../sequences/')
     ]
     # insert attachments
     for att in attachments:
         filename = att[0]
-        attachment = open(att[1] + att[0])
+        attachment = open(att[1] + att[0], 'rb')
         part = MIMEBase('application', 'octet-stream')
         part.set_payload(attachment.read())
         encoders.encode_base64(part)
@@ -125,8 +124,8 @@ def email_report() -> bool:
 
     server = SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login(fromaddr, 'neural_networks_rule_forever')
+    server.login(sender, 'neural_networks_rule_forever')
     text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
+    server.sendmail(sender, recipinent, text)
     server.quit()
     return True
