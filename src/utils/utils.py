@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import  MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from models.metrics import Metrics
 
 
 def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
@@ -81,21 +82,20 @@ def save_sequence(sequence: np.ndarray, filename: str):
             file.write(str(bin_str))
 
 
-def email_report() -> bool:
+def email_report(disc_metrics: Metrics, pred_metrics: Metrics) -> bool:
     # sender and receiver
     sender = "neural.csprng@gmail.com"
-    recipinent = "marcello1234@live.co.uk"
+    recipient = "marcello1234@live.co.uk"
     # create message
     msg = MIMEMultipart()
     # headers
     msg['neural.csprng@gmail.com'] = sender
-    msg['marcello1234@live.co.uk'] = recipinent
+    msg['marcello1234@live.co.uk'] = recipient
     msg['Subject'] = 'Adversarial CSPRNG Training Results'
     # body
     body = "Training complete"
     msg.attach(MIMEText(body, 'plain'))
     # attachment list
-    # fixme
     attachments = [
                    ('disc_generator.h5', '../saved_models/'),
                    ('disc_adversary.h5', '../saved_models/'),
@@ -126,6 +126,6 @@ def email_report() -> bool:
     server.starttls()
     server.login(sender, 'neural_networks_rule_forever')
     text = msg.as_string()
-    server.sendmail(sender, recipinent, text)
+    server.sendmail(sender, recipient, text)
     server.quit()
     return True

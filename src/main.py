@@ -11,15 +11,12 @@
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
 
-import utils.utils as utils
-from models.activations import modulo, absolute
-from models.losses import loss_predictor, loss_adv
+import tensorflow as tf
+from utils import utils
 from utils import vis_utils
 from models.gan_discriminative import DiscriminativeGan
 from models.gan_predictive import PredictiveGan
-from keras.losses import binary_crossentropy
-from keras.activations import linear, softmax
-from keras.optimizers import adagrad
+from evaluators import pnb
 
 # the 'dataset' for training is a 3D matrix, where each value in
 # dimension 0 is a "batch", each value in dimension 1 is a seed,
@@ -34,7 +31,9 @@ from keras.optimizers import adagrad
 # simplify the code.
 
 # if interactive, displays matplotlib graphs
-INTERACTIVE =False
+
+INTERACTIVE = False
+# todo why are these dictionaries if they're not passed anywhere
 SETTINGS = {
     'dataset_size': 2,
     'unique_seeds': 2,
@@ -57,6 +56,8 @@ DATA_PARAMS = {
 def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
+    tf.logging.set_verbosity(tf.logging.ERROR)
+
     # approach 1: adversarial network with discriminator
     disc_gan = DiscriminativeGan(SETTINGS['dataset_size'],
                                  DATA_PARAMS['max_val'],
@@ -80,23 +81,23 @@ def main():
     disc_gan.train(SETTINGS['batch_size'],
                    SETTINGS['epochs'],
                    SETTINGS['adversary_multiplier'])
-    disc_gan.evaluate()
 
     pred_gan.pretrain_predictor(SETTINGS['batch_size'],
                                 SETTINGS['pretrain_epochs'])
     pred_gan.train(SETTINGS['batch_size'],
                    SETTINGS['epochs'],
                    SETTINGS['adversary_multiplier'])
-    pred_gan.evaluate()
 
     if INTERACTIVE:
-        # vis_utils.plot_metrics(disc_gan.get_metrics(), DATA_PARAMS['max_val'])
+        vis_utils.plot_metrics(disc_gan.get_metrics(), DATA_PARAMS['max_val'])
         vis_utils.plot_metrics(pred_gan.get_metrics(), DATA_PARAMS['max_val'])
 
-    # save configuration and sequence
+    # generate output files, save configuration and send training report
+    disc_gan.generate_output_file()
+    pred_gan.generate_output_file()
     utils.save_configurations(disc_gan, pred_gan)
-    utils.email_report()
-    # save model with model.to_json, model.save, model.save_weights
+    utils.email_report(disc_gan.get_metrics(), pred_gan.get_metrics())
+    pnb.evaluate('../sequences/disc_sequence.txt')
 
 
 if __name__ == "__main__":

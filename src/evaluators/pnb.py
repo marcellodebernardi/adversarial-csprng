@@ -10,78 +10,64 @@
 # The original implementation by Abadi is available at
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
+
 """
 This module provides facilities for evaluating the output of a
 PRNG using the 'practical next bit test'.
 """
 
-
-def loss_pnb(output_length: int):
-    """Returns a loss compatible with the Keras specification, that
-    computes the loss of the generator based on the practical next
-    bit test."""
-
-    def loss_pnb_closure(true, pred):
-        """Loss function that computes the practical next bit test on
-        an output tensor representing the sequence produced by the
-        generator"""
-        # NOTE: the loss function must be purely symbolic and operate on
-        # tensors.
-
-        print(tf.shape(pred))
-
-        data = tf.reshape(tf.cast(pred, dtype=tf.float32), [output_length])
-        onb = tf.Variable([0], dtype=tf.float32)
-
-        # compute length of patterns as log_2(output_size) - 2
-        start_length = tf.subtract(
-            utils.log(tf.Variable(output_length, dtype=tf.float32), 2),
-            tf.constant(2, dtype=data.dtype))
-
-        # todo append first start_length values to end of list
-        # todo tf.concat([data, tf.slice(data, tf.constant(0), tf.cast(start_length, tf.int32))], 0)
-
-        pattern_list = tf.zeros([output_length, 2], tf.float32)
-
-        # todo
-
-        return data
-
-    return loss_pnb_closure
+import math
+from tqdm import tqdm
 
 
-def loss_ent(true, pred):
-    """Computes the loss function for an output using ent"""
-    def loss_pnb(output_size, decision_threshold=0.55):
-        def loss_pnb_closure(true, pred):
-            """Computes the loss function for an output using the
-            practical next bit test"""
+def evaluate(file_path: str):
+    """Evaluates a text file containing 0 and 1 ASCII characters
+    using the practical next bit test."""
+    with open(file_path, 'r') as file:
+        # sequence properties and starting layer for pattern tree
+        sequence = file.read()
+        seq_length = len(sequence)
+        start_layer = int(math.floor(math.log2(seq_length) - 2))
+        decision_threshold = 0.55
+        onb = 0
 
-            # slide window over list and count pattern observations
-            for i in range(output_size):
-                pattern = ''
-                for j in range(i, int(i + start_length)):
-                    pattern += output[j]
-                pattern = int(pattern, 2)
+        # for each layer starting at start_layer, slide window over
+        # entire sequence and count occurrences of each length-n
+        # pattern's children of length n + 1
+        for layer_index in tqdm(range(start_layer, seq_length), 'Computing PNB'):
+            window_size = layer_index
+            patterns = [PatternNode(i, layer_index) for i in range(seq_length)]
+            padded_sequence = sequence + sequence[:window_size]
 
-                if output[i + start_length + 1] is 0:
-                    node_list[pattern].zero += 1
+            for bit_index in range(seq_length):
+                next_bit = int(padded_sequence[bit_index + window_size: bit_index + window_size + 1], 2)
+                if next_bit == 1:
+                    patterns[bit_index].one += 1
                 else:
-                    node_list[pattern].one += 1
+                    patterns[bit_index].zero += 1
 
             # count ONBs
-            for i in range(len(node_list)):
-                total_occurrences = node_list[i].zero + node_list[i].one
+            for pattern in patterns:
+                total_occurrences = pattern.zero + pattern.one
 
+                # onb += 1 if pattern occurs frequently and children are unbalanced
                 if total_occurrences >= 5:
-                    zero_ratio = node_list[i].zero / total_occurrences
-
+                    zero_ratio = pattern.zero / total_occurrences
                     if zero_ratio > decision_threshold or 1 - zero_ratio > decision_threshold:
                         onb += 1
 
-            # more onbs is bad todo compute P value
-            return onb
+    # more onbs is bad todo compute P value
+    return onb
 
-        return loss_pnb_closure
 
-    pass
+class PatternNode:
+    def __init__(self, val: int, len: int):
+        """Represents a pattern in the pattern tree used for the
+        PNB algorithm. The integer val represents the value represented
+        by the binary sequence in the node, and the len represents
+        the number of bits the sequence consists of. That is, the
+        tuple (val, len) specifies a binary string. For example, the
+        tuple (3, 6) specifies the binary string 000011."""
+        self.pattern = (val, len)
+        self.zero = 0
+        self.one = 0
