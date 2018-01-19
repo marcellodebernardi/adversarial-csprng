@@ -105,7 +105,7 @@ class DiscriminativeGan:
         self.metrics.predictor_weights_final().extend(
             utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
 
-    def evaluate(self):
+    def generate_output_file(self):
         utils.save_sequence(
             self.generator.predict(
                 data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size))), 'disc_sequence')
