@@ -10,7 +10,6 @@
 # The original implementation by Abadi is available at
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
-import random
 import numpy as np
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D
@@ -31,7 +30,9 @@ class DiscriminativeGan:
     """
     def __init__(self, dataset_size=100, max_val=100, seed_length=10, output_length=300, lr=0.1, cv=1, batch_size=1):
         """Constructs the classical GAN according to the specifications
-        provided. Each specification variable is a dictionary."""
+        provided. Each specification variable is a dictionary.
+        :param dataset_size: the number of samples to be passed through the GAN at each epoch
+        """
         self.metrics = Metrics()
         self.dataset_size = dataset_size
         self.max_val = max_val
@@ -106,6 +107,9 @@ class DiscriminativeGan:
             utils.flatten_irregular_nested_iterable(self.discriminator.get_weights()))
 
     def generate_output_file(self):
+        """Produces an output text file consisting of 1s and 0s that
+        may be evaluated using tests for randomness, such as the NIST
+        test suite."""
         utils.save_sequence(
             self.generator.predict(
                 data.get_seed_dataset(self.max_val, self.seed_length, 1, int(self.dataset_size))), 'disc_sequence')

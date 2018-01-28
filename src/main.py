@@ -11,6 +11,7 @@
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
 
+import sys
 import tensorflow as tf
 from utils import utils
 from utils import vis_utils
@@ -18,38 +19,25 @@ from models.gan_discriminative import DiscriminativeGan
 from models.gan_predictive import PredictiveGan
 from evaluators import pnb
 
-# the 'dataset' for training is a 3D matrix, where each value in
-# dimension 0 is a "batch", each value in dimension 1 is a seed,
-# and each value in dimension 2 is a real number that is part of
-# the seed.
-#
-# Each epoch the model is trained on each "batch", where the batch
-# may be of any size n > 0. A batch size of 1 results in online
-# training, while any batch size n > 1 results in mini-batch or
-# batch training. The dataset is split into "batches" regardless of
-# whether online training or batch training is carried out, to
-# simplify the code.
 
-# if interactive, displays matplotlib graphs
-
-INTERACTIVE = False
-# todo why are these dictionaries if they're not passed anywhere
+INTERACTIVE = False         # if true outputs matplotlib graphs
+TESTING = True              # if true uses small parameters for rapid tests
 SETTINGS = {
-    'dataset_size': 2,
-    'unique_seeds': 2,
-    'seed_repetitions': 1,
+    'dataset_size': 4096 * 100 if not TESTING else 2,
+    'unique_seeds': 128 if not TESTING else 2,
+    'seed_repetitions': 8 if not TESTING else 1,
     'pretrain': True,
-    'batch_size': 1,
-    'epochs': 10,
-    'pretrain_epochs': 5,
+    'batch_size': 4096 if not TESTING else 1,
+    'epochs': 200000 if not TESTING else 5,
+    'pretrain_epochs': 10000 if not TESTING else 2,
     'adversary_multiplier': 2,
     'clip_value': 0.5,
     'learning_rate': 0.2
 }
 DATA_PARAMS = {
-    'max_val': 100,
+    'max_val': sys.maxsize if not TESTING else 100,
     'seed_length': 1,
-    'out_seq_length': 200
+    'out_seq_length': 5000 if not TESTING else 10
 }
 
 
@@ -57,6 +45,11 @@ def main():
     """Instantiates neural networks and runs the training procedure. Results
     are plotted visually."""
     tf.logging.set_verbosity(tf.logging.ERROR)
+    # command line arguments
+    global INTERACTIVE
+    global TESTING
+    INTERACTIVE = "-i" in sys.argv
+    TESTING = "-t" in sys.argv
 
     # approach 1: adversarial network with discriminator
     disc_gan = DiscriminativeGan(SETTINGS['dataset_size'],

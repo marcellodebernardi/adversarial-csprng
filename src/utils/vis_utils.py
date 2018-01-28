@@ -8,7 +8,6 @@ from keras.utils import plot_model
 
 def plot_metrics(metrics: Metrics, data_range: int):
     """Draws visual plots of all available data using matplotlib."""
-
     # output distribution plot
     fig1 = plt.figure()
     # distribution of generated values during training
@@ -24,7 +23,6 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.xlabel('Output')
     plt.ylabel('Frequency')
     fig1.show()
-
     # loss value charts
     fig2 = plt.figure()
     plt.plot(metrics.generator_loss())
@@ -33,14 +31,12 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.xlabel('Epoch')
     plt.legend(['Generative loss', 'Predictive loss'])
     fig2.show()
-
     # Average output per batch during training
     fig3 = plt.figure()
     plt.plot(metrics.generator_avg_outputs())
     plt.ylabel('Average output per batch')
     plt.xlabel('Batch training iteration')
     fig3.show()
-
     # distribution of weights in generator
     fig4 = plt.figure()
     plt.subplot(211)
@@ -54,7 +50,6 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.ylabel('Frequency')
     plt.xlabel('Weight')
     fig4.show()
-
     # distribution of weights in predictor
     fig5 = plt.figure()
     plt.subplot(211)
@@ -68,7 +63,7 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.ylabel('Frequency')
     plt.xlabel('Weight')
     fig5.show()
-
+    # show all plots
     plt.show()
 
 
