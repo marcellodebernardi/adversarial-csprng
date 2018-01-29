@@ -14,3 +14,7 @@ def drop_last_value(original_size, batch_size):
     def layer(x: tf.Tensor):
         return tf.strided_slice(tf.reshape(x, [tf.shape(x)[0], original_size]), [0, 0], [batch_size, -1], [1, 1])
     return layer
+
+
+def round_tensor(x: tf.Tensor):
+    return tf.round(x)

@@ -42,7 +42,7 @@ from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
 from keras.activations import linear, softmax, relu
 from keras.optimizers import adagrad
-from models.activations import modulo
+from models.activations import modulo, to_integer
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_adv
 from evaluators import pnb
@@ -56,8 +56,9 @@ BATCHES = 50 if HPC_TRAIN else 1                # batches in complete dataset
 EPOCHS = 300000 if HPC_TRAIN else 10            # number of epochs for training
 PRETRAIN_EPOCHS = 15000 if HPC_TRAIN else 5     # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
-MAX_VAL = 127 if HPC_TRAIN else 20              # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 5000 if HPC_TRAIN else 10       # number of values generated for each seed
+VAL_BITS = 8                                    # the number of bits of each output value or seed
+MAX_VAL = 255                                   # number generated are between 0-MAX_VAL
+OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5        # number of values generated for each seed
 LEARNING_RATE = 0.008
 CLIP_VALUE = 0.5
 
@@ -109,7 +110,7 @@ def discriminative_gan():
     diego.fit(x, y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0)
 
     # train both networks in turn
-    for epoch in tqdm(range(EPOCHS), desc='Train: '):
+    for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
         # todo currently each epoch only alternates between jerry and diego once
         # todo should alternate at each batch
         # train diego
@@ -122,8 +123,8 @@ def discriminative_gan():
         operation_utils.set_trainable(diego, False)
         discgan.fit(x, y, verbose=0)
     # generate output file for one seed
-    utils.generate_output_file(jerry, MAX_VAL)
-    pnb.evaluate('../sequences/jerry.txt')
+    utils.generate_output_file(jerry, MAX_VAL, VAL_BITS)
+    # pnb.evaluate('../sequences/jerry.txt')
 
 
 def predictive_gan():
@@ -161,7 +162,7 @@ def predictive_gan():
 
     # pretrain pramesh
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-    for epoch in tqdm(range(PRETRAIN_EPOCHS), desc='Pre-training pramesh ...'):
+    for epoch in range(PRETRAIN_EPOCHS):
         for janice_input in seed_dataset:
             janice_output = janice.predict(np.array([janice_input]))
             pramesh_input, pramesh_output = operation_utils.split_generator_output(janice_output, 1)
@@ -181,8 +182,8 @@ def predictive_gan():
             operation_utils.set_trainable(pramesh, False)
             predgan.fit(np.array([janice_input]), pramesh_output, verbose=0)
 
-    utils.generate_output_file(janice, MAX_VAL)
-    pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
+    utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
+    # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
 
 
 if __name__ == '__main__':
