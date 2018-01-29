@@ -1,5 +1,4 @@
 import sys
-import struct
 from keras import Model
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -25,15 +24,17 @@ def save_configurations(disc_gan, pred_gan):
     # pred_gan.get_model()[2].save('../saved_models/pred_gan.h5', overwrite=True)
 
 
-def generate_output_file(generator: Model, max_value):
-    """Produces an output """
-    # https://stackoverflow.com/questions/16444726/binary-representation-of-
-    values = generator.predict(input_utils.get_random_sequence(max_value, 1))
+def generate_output_file(generator: Model, max_value, val_bits):
+    """Produces an ASCII output text file consisting of 0s and 1s.
+    Such a file can be evaluated by the NIST test suite."""
+    values = generator.predict(input_utils.get_random_sequence(1, max_value))
     values = operation_utils.flatten_irregular_nested_iterable(values)
-    binary_strings = [''.join(bin(ord('c')).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', float(num))) for num in values]
+    binary_strings \
+        = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '')) for number in values]
+
     with open('../sequences/' + str(generator.name) + '.txt', 'w') as file:
         for bin_str in binary_strings:
-            file.write(str(bin_str))
+            file.write(str(bin_str) + "")
 
 
 def email_report(disc_metrics: Metrics, pred_metrics: Metrics, settings, data_params) -> bool:
