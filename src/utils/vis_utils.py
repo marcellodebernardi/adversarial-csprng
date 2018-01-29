@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-from models.gan_predictive import PredictiveGan
-from models.gan_discriminative import DiscriminativeGan
 from models.metrics import Metrics
 from keras import Model
 from keras.utils import plot_model
@@ -63,6 +61,12 @@ def plot_metrics(metrics: Metrics, data_range: int):
     plt.ylabel('Frequency')
     plt.xlabel('Weight')
     fig5.show()
+    # pretrain loss
+    fig6 = plt.figure()
+    plt.plot(metrics.adversary_pretrain_loss())
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    fig6.show()
     # show all plots
     plt.show()
 
