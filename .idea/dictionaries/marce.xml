@@ -6,9 +6,12 @@
       <w>convolutional</w>
       <w>crossentropy</w>
       <w>dataset</w>
+      <w>discgan</w>
       <w>eprint</w>
       <w>keras</w>
+      <w>pramesh</w>
       <w>pred</w>
+      <w>predgan</w>
       <w>pretrain</w>
       <w>prng</w>
       <w>timesteps</w>
