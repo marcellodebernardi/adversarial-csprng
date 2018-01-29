@@ -35,6 +35,7 @@ The main function defines these networks and trains them.
 """
 
 import sys
+import numpy as np
 from utils import utils, vis_utils, input_utils
 from tqdm import tqdm
 from keras import Model
@@ -69,7 +70,7 @@ def main():
         TESTING = True
 
     discriminative_gan()
-    # predictive_gan()
+    predictive_gan()
 
 
 def discriminative_gan():
@@ -135,7 +136,7 @@ def predictive_gan():
     janice_output = SimpleRNN(60, return_sequences=True, activation=linear)(janice_output)
     janice_output = Flatten()(janice_output)
     janice_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(janice_output)
-    janice = Model(janice_input, janice_output)
+    janice = Model(janice_input, janice_output, name='janice')
     janice.compile('adagrad', 'binary_crossentropy')
     vis_utils.plot_network_graphs(janice, 'janice')
     # define pramesh
@@ -162,7 +163,7 @@ def predictive_gan():
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     for epoch in tqdm(range(PRETRAIN_EPOCHS), desc='Pre-training pramesh ...'):
         for janice_input in seed_dataset:
-            janice_output = janice.predict(janice_input)
+            janice_output = janice.predict(np.array([janice_input]))
             pramesh_input, pramesh_output = utils.split_generator_output(janice_output, 1)
             pramesh.fit(pramesh_input, pramesh_output, verbose=0)
 
@@ -170,7 +171,7 @@ def predictive_gan():
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     for epoch in tqdm(range(EPOCHS), desc='Train janice and pramesh: '):
         for janice_input in seed_dataset:
-            janice_output = janice.predict_on_batch(janice_input)
+            janice_output = janice.predict(np.array([janice_input]))
             pramesh_input, pramesh_output = utils.split_generator_output(janice_output, 1)
             # train predictor
             utils.set_trainable(pramesh)
@@ -178,10 +179,10 @@ def predictive_gan():
                 pramesh.fit(pramesh_input, pramesh_output, verbose=0)
             # train generator
             utils.set_trainable(pramesh, False)
-            predgan.fit(janice_input, pramesh_output, verbose=0)
+            predgan.fit(np.array([janice_input]), pramesh_output, verbose=0)
 
     utils.generate_output_file(janice, MAX_VAL)
-    pnb.evaluate('../sequences/janice.txt')
+    pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
 
 
 if __name__ == '__main__':
