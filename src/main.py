@@ -36,7 +36,7 @@ The main function defines these networks and trains them.
 
 import sys
 import numpy as np
-from utils import utils, vis_utils, input_utils
+from utils import utils, vis_utils, input_utils, operation_utils
 from tqdm import tqdm
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
@@ -114,12 +114,12 @@ def discriminative_gan():
         # todo should alternate at each batch
         # train diego
         x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-        utils.set_trainable(diego)
+        operation_utils.set_trainable(diego)
         for iteration in range(ADVERSARY_MULT):
             diego.fit(x, y, BATCH_SIZE, verbose=0)
         # train jerry
         x, y = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
-        utils.set_trainable(diego, False)
+        operation_utils.set_trainable(diego, False)
         discgan.fit(x, y, verbose=0)
     # generate output file for one seed
     utils.generate_output_file(jerry, MAX_VAL)
@@ -164,7 +164,7 @@ def predictive_gan():
     for epoch in tqdm(range(PRETRAIN_EPOCHS), desc='Pre-training pramesh ...'):
         for janice_input in seed_dataset:
             janice_output = janice.predict(np.array([janice_input]))
-            pramesh_input, pramesh_output = utils.split_generator_output(janice_output, 1)
+            pramesh_input, pramesh_output = operation_utils.split_generator_output(janice_output, 1)
             pramesh.fit(pramesh_input, pramesh_output, verbose=0)
 
     # train both janice and pramesh
@@ -172,13 +172,13 @@ def predictive_gan():
     for epoch in tqdm(range(EPOCHS), desc='Train janice and pramesh: '):
         for janice_input in seed_dataset:
             janice_output = janice.predict(np.array([janice_input]))
-            pramesh_input, pramesh_output = utils.split_generator_output(janice_output, 1)
+            pramesh_input, pramesh_output = operation_utils.split_generator_output(janice_output, 1)
             # train predictor
-            utils.set_trainable(pramesh)
+            operation_utils.set_trainable(pramesh)
             for i in range(ADVERSARY_MULT):
                 pramesh.fit(pramesh_input, pramesh_output, verbose=0)
             # train generator
-            utils.set_trainable(pramesh, False)
+            operation_utils.set_trainable(pramesh, False)
             predgan.fit(np.array([janice_input]), pramesh_output, verbose=0)
 
     utils.generate_output_file(janice, MAX_VAL)

@@ -1,7 +1,5 @@
 import sys
 import struct
-import tensorflow as tf
-import numpy as np
 from keras import Model
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -9,50 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from models.metrics import Metrics
-from utils import input_utils
-
-
-def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
-    """Takes the generator output as a numpy array and splits it into two
-    separate numpy arrays, the first representing the input to the predictor
-    and the second representing the output labels for the predictor."""
-    batch_len = len(generator_output)
-    seq_len = len(generator_output[0])
-    predictor_inputs = generator_output[0: batch_len, 0: -n_to_predict]
-    predictor_outputs = generator_output[0: batch_len, seq_len - n_to_predict - 1: seq_len - n_to_predict]
-    return predictor_inputs, predictor_outputs
-
-
-def set_trainable(model: Model, trainable: bool = True):
-    """Helper method that sets the trainability of all of a model's
-    parameters."""
-    model.trainable = trainable
-    for layer in model.layers:
-        layer.trainable = trainable
-
-
-def log(x, base) -> tf.Tensor:
-    """Allows computing element-wise logarithms on a Tensor, in
-    any base. TensorFlow itself only has a natural logarithm
-    operation."""
-    numerator = tf.log(x)
-    denominator = tf.log(tf.constant(base, dtype=numerator.dtype))
-    return numerator / denominator
-
-
-def flatten_irregular_nested_iterable(weight_matrix) -> list:
-    """Allows flattening a matrix of iterables where the specific type
-    and shape of each iterable is not necessarily the same. Returns
-    the individual elements of the original nested iterable in a single
-    flat list.
-    """
-    flattened_list = []
-    try:
-        for element in weight_matrix:
-            flattened_list.extend(flatten_irregular_nested_iterable(element))
-        return flattened_list
-    except TypeError:
-        return weight_matrix
+from utils import input_utils, operation_utils
 
 
 def eprint(*args, **kwargs):
@@ -74,7 +29,7 @@ def generate_output_file(generator: Model, max_value):
     """Produces an output """
     # https://stackoverflow.com/questions/16444726/binary-representation-of-
     values = generator.predict(input_utils.get_random_sequence(max_value, 1))
-    values = flatten_irregular_nested_iterable(values)
+    values = operation_utils.flatten_irregular_nested_iterable(values)
     binary_strings = [''.join(bin(ord('c')).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', float(num))) for num in values]
     with open('../sequences/' + str(generator.name) + '.txt', 'w') as file:
         for bin_str in binary_strings:
