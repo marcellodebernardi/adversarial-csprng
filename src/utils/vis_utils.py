@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-import keras as K
-from models.metrics import Metrics
 from keras import Model
 from keras.utils import plot_model
 
@@ -23,7 +21,7 @@ def plot_train_loss(generator_loss, adversary_loss, fname):
     plt.clf()
 
 
-def plot_metrics(metrics: Metrics, data_range: int):
+def plot_metrics(metrics, data_range: int):
     """Draws visual plots of all available data using matplotlib."""
     # output distribution plot
     fig1 = plt.figure()
