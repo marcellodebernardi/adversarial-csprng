@@ -1,7 +1,26 @@
 import matplotlib.pyplot as plt
+import keras as K
 from models.metrics import Metrics
 from keras import Model
 from keras.utils import plot_model
+
+
+def plot_pretrain_history_loss(history, fname):
+    plt.plot(history.history['loss'])
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.savefig(fname)
+    plt.clf()
+
+
+def plot_train_loss(generator_loss, adversary_loss, fname):
+    plt.plot(generator_loss)
+    plt.plot(adversary_loss)
+    plt.ylabel('Loss')
+    plt.ylabel('Epoch')
+    plt.legend(['Generative loss', 'Adversary loss'])
+    plt.savefig(fname)
+    plt.clf()
 
 
 def plot_metrics(metrics: Metrics, data_range: int):
