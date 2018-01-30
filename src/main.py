@@ -37,6 +37,7 @@ The main function defines these networks and trains them.
 import sys
 import numpy as np
 from utils import utils, vis_utils, input_utils, operation_utils
+from utils.operation_utils import get_ith_batch
 from tqdm import tqdm
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
@@ -107,22 +108,20 @@ def discriminative_gan():
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    diego.fit(x, y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0)
+    diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
 
     # train both networks in turn
-    jerry_loss, diego_loss = [], []
     for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
-        # todo currently each epoch only alternates between jerry and diego once
-        # todo should alternate at each batch
-        # train diego
-        x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-        operation_utils.set_trainable(diego)
-        for iteration in range(ADVERSARY_MULT):
-            diego.fit(x, y, batch_size=BATCH_SIZE, verbose=0)
-        # train jerry
-        x, y = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
-        operation_utils.set_trainable(diego, False)
-        print(discgan.fit(x, y, batch_size=BATCH_SIZE, verbose=0).history['loss'])
+        x_d, y_d = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+        x_j, y_j = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+        for batch in range(BATCHES):
+            # train diego
+            operation_utils.set_trainable(diego)
+            for iteration in range(ADVERSARY_MULT):
+                diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE), get_ith_batch(y_d, batch, BATCH_SIZE))
+            # train jerry
+            operation_utils.set_trainable(diego, False)
+            discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE), get_ith_batch(y_j, batch, BATCH_SIZE))
     # generate output file for one seed
     utils.generate_output_file(jerry, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/jerry.txt')
@@ -163,25 +162,23 @@ def predictive_gan():
 
     # pretrain priya
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-    for epoch in range(PRETRAIN_EPOCHS):
-        for janice_input in seed_dataset:
-            janice_output = janice.predict(np.array([janice_input]))
-            priya_input, priya_output = operation_utils.split_generator_output(janice_output, 1)
-            priya.fit(priya_input, priya_output, verbose=0)
+    janice_output = janice.predict(seed_dataset)
+    priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
+    priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
 
     # train both janice and priya
-    seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     for epoch in tqdm(range(EPOCHS), desc='Train janice and priya: '):
-        for janice_input in seed_dataset:
-            janice_output = janice.predict(np.array([janice_input]))
-            priya_input, priya_output = operation_utils.split_generator_output(janice_output, 1)
-            # train predictor
+        seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+        for batch in range(BATCHES):
+            janice_output = janice.predict_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE))
+            # priya_input, priya_output = operation_utils.split_generator_output(janice_output, 1)
+            priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
             operation_utils.set_trainable(priya)
             for i in range(ADVERSARY_MULT):
-                priya.fit(priya_input, priya_output, verbose=0)
+                priya.train_on_batch(priya_input, priya_output)
             # train generator
             operation_utils.set_trainable(priya, False)
-            predgan.fit(np.array([janice_input]), priya_output, verbose=0)
+            predgan.train_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE), priya_output)
 
     utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
