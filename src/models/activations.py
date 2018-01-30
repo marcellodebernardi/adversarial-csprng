@@ -1,4 +1,4 @@
-from operations import round_tensor
+from models.operations import round_tensor
 
 """
 The activations.py module defines activation functions that can

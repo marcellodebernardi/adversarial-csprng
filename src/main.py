@@ -43,25 +43,38 @@ from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
 from keras.activations import linear, softmax, relu
 from keras.optimizers import adagrad
-from models.activations import modulo, to_integer
+from models.activations import modulo
 from models.operations import drop_last_value
-from models.losses import loss_discriminator, loss_predictor, loss_adv
+from models.losses import loss_discriminator, loss_predictor, loss_gan
 from evaluators import pnb
 
 
 HPC_TRAIN = False                               # set to true when training on HPC to collect data
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
-BATCH_SIZE = 4096 if HPC_TRAIN else 10          # seeds in a single batch
-UNIQUE_SEEDS = 128 if HPC_TRAIN else 5          # unique seeds in each batch
-BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
+RECOMPILE = False                               # if true, models are recompiled when changing trainability
+BATCH_SIZE = 4096 if HPC_TRAIN else 1000        # seeds in a single batch
+UNIQUE_SEEDS = 128 if HPC_TRAIN else 1          # unique seeds in each batch
+BATCHES = 50 if HPC_TRAIN else 1                # batches in complete dataset
 EPOCHS = 300000 if HPC_TRAIN else 100           # number of epochs for training
 PRETRAIN_EPOCHS = 15000 if HPC_TRAIN else 20    # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
 VAL_BITS = 8                                    # the number of bits of each output value or seed
 MAX_VAL = 255                                   # number generated are between 0-MAX_VAL
 OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5        # number of values generated for each seed
-LEARNING_RATE = 0.008
+LEARNING_RATE = 1
 CLIP_VALUE = 0.5
+
+# losses and optimizers
+DISC_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+DISC_GAN_LOSS = loss_gan(loss_discriminator)
+DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+DIEGO_LOSS = loss_discriminator
+PRED_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+PRED_GAN_LOSS = loss_gan(loss_predictor(MAX_VAL))
+PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+PRIYA_LOSS = loss_predictor(MAX_VAL)
+UNUSED_OPT = 'adagrad'
+UNUSED_LOSS = 'binary_crossentropy'
 
 
 def main():
@@ -71,8 +84,12 @@ def main():
         global TESTING
         TESTING = True
 
-    discriminative_gan()
-    predictive_gan()
+    # train discriminative GAN
+    if "-nodisc" not in sys.argv:
+        discriminative_gan()
+    # train predictive GAN
+    if "-nopred" not in sys.argv:
+        predictive_gan()
 
 
 def discriminative_gan():
@@ -86,7 +103,7 @@ def discriminative_gan():
     jerry_output = Flatten()(jerry_output)
     jerry_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(jerry_output)
     jerry = Model(jerry_input, jerry_output, name='jerry')
-    jerry.compile('adagrad', 'binary_crossentropy')
+    jerry.compile(UNUSED_OPT, UNUSED_LOSS)
     vis_utils.plot_network_graphs(jerry, 'jerry')
     # define Diego
     diego_input = Input(shape=(OUTPUT_LENGTH,))
@@ -97,17 +114,19 @@ def discriminative_gan():
     diego_output = Dense(int(OUTPUT_LENGTH / 4), activation=linear)(diego_output)
     diego_output = Dense(1, activation=softmax)(diego_output)
     diego = Model(diego_input, diego_output)
-    diego.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_discriminator)
+    diego.compile(DIEGO_OPT, DIEGO_LOSS)
     vis_utils.plot_network_graphs(diego, 'diego')
     # define the connected GAN
     discgan_output = jerry(jerry_input)
     discgan_output = diego(discgan_output)
     discgan = Model(jerry_input, discgan_output)
-    discgan.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_adv(loss_discriminator))
+    discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
     vis_utils.plot_network_graphs(discgan, 'discriminative_gan')
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    print(x)
+    print(y)
     history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
     vis_utils.plot_pretrain_history_loss(history, '../plots/diego_pretrain_loss.pdf')
 
@@ -119,11 +138,11 @@ def discriminative_gan():
         jerry_l, diego_l = 0, 0
         for batch in range(BATCHES):
             # train diego
-            operation_utils.set_trainable(diego)
+            operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
             for iteration in range(ADVERSARY_MULT):
                 diego_l += diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE), get_ith_batch(y_d, batch, BATCH_SIZE))
             # train jerry
-            operation_utils.set_trainable(diego, False)
+            operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
             jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE), get_ith_batch(y_j, batch, BATCH_SIZE))
         jerry_loss.append(np.mean(jerry_l))
         diego_loss.append(np.mean(diego_l))
@@ -144,7 +163,7 @@ def predictive_gan():
     janice_output = Flatten()(janice_output)
     janice_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(janice_output)
     janice = Model(janice_input, janice_output, name='janice')
-    janice.compile('adagrad', 'binary_crossentropy')
+    janice.compile(UNUSED_OPT, UNUSED_LOSS)
     vis_utils.plot_network_graphs(janice, 'janice')
     # define priya
     priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
@@ -154,7 +173,7 @@ def predictive_gan():
     priya_output = Flatten()(priya_output)
     priya_output = Dense(1, activation=relu)(priya_output)
     priya = Model(priya_input, priya_output)
-    priya.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_predictor(MAX_VAL))
+    priya.compile(PRIYA_OPT, PRIYA_LOSS)
     vis_utils.plot_network_graphs(priya, 'priya')
     # connect GAN
     output_predgan = janice(janice_input)
@@ -163,7 +182,7 @@ def predictive_gan():
         name='adversarial_drop_last_value')(output_predgan)
     output_predgan = priya(output_predgan)
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
-    predgan.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_adv(loss_predictor(MAX_VAL)))
+    predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     vis_utils.plot_network_graphs(predgan, 'predictive_gan')
 
     # pretrain priya
@@ -182,11 +201,11 @@ def predictive_gan():
             janice_output = janice.predict_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE))
             # priya_input, priya_output = operation_utils.split_generator_output(janice_output, 1)
             priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
-            operation_utils.set_trainable(priya)
+            operation_utils.set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
             for i in range(ADVERSARY_MULT):
                 priya_l += priya.train_on_batch(priya_input, priya_output)
             # train generator
-            operation_utils.set_trainable(priya, False)
+            operation_utils.set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
             janice_l += predgan.train_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE), priya_output)
         janice_loss.append(np.mean(janice_l))
         priya_loss.append(np.mean(priya_l))
