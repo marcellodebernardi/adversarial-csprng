@@ -3,12 +3,14 @@ import numpy as np
 from keras import Model
 
 
-def set_trainable(model: Model, trainable: bool = True):
+def set_trainable(model: Model, optimizer, loss, recompile, trainable: bool = True):
     """Helper method that sets the trainability of all of a model's
     parameters."""
     model.trainable = trainable
     for layer in model.layers:
         layer.trainable = trainable
+    if recompile:
+        model.compile(optimizer, loss)
 
 
 def split_generator_outputs_batch(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):

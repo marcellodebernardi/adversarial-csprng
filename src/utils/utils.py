@@ -5,7 +5,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from models.metrics import Metrics
 from utils import input_utils, operation_utils
 
 
@@ -16,10 +15,10 @@ def eprint(*args, **kwargs):
 
 
 def save_configurations(disc_gan, pred_gan):
-    disc_gan.get_model()[0].save('../saved_models/disc_generator.h5', overwrite=True)
-    pred_gan.get_model()[0].save('../saved_models/pred_generator.h5', overwrite=True)
-    disc_gan.get_model()[1].save('../saved_models/disc_adversary.h5', overwrite=True)
-    pred_gan.get_model()[1].save('../saved_models/pred_adversary.h5', overwrite=True)
+    disc_gan.get_model()[0].save('../saved_models/jerry.h5', overwrite=True)
+    pred_gan.get_model()[0].save('../saved_models/janice.h5', overwrite=True)
+    disc_gan.get_model()[1].save('../saved_models/diego.h5', overwrite=True)
+    pred_gan.get_model()[1].save('../saved_models/priya.h5', overwrite=True)
     disc_gan.get_model()[2].save('../saved_models/disc_gan.h5', overwrite=True)
     # pred_gan.get_model()[2].save('../saved_models/pred_gan.h5', overwrite=True)
 
@@ -37,7 +36,7 @@ def generate_output_file(generator: Model, max_value, val_bits):
             file.write(str(bin_str) + "")
 
 
-def email_report(disc_metrics: Metrics, pred_metrics: Metrics, settings, data_params) -> bool:
+def email_report(settings, data_params) -> bool:
     # sender and receiver
     sender = "neural.csprng@gmail.com"
     recipient = "marcello1234@live.co.uk"

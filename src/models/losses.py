@@ -8,11 +8,11 @@ import utils
 import tensorflow as tf
 
 
-def loss_adv(predictor_loss_function):
+def loss_gan(adversary_loss_function):
     """Loss function for the adversarial network, used to train the
     generator."""
     def loss(true, pred):
-        return tf.subtract(tf.ones(tf.shape(pred)), predictor_loss_function(true, pred))
+        return tf.subtract(tf.ones(tf.shape(pred)), adversary_loss_function(true, pred))
     return loss
 
 
