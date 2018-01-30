@@ -49,13 +49,13 @@ from models.losses import loss_discriminator, loss_predictor, loss_adv
 from evaluators import pnb
 
 
-HPC_TRAIN = False                                # set to true when training on HPC to collect data
+HPC_TRAIN = False                               # set to true when training on HPC to collect data
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
-BATCH_SIZE = 4096 if HPC_TRAIN else 2           # seeds in a single batch
-UNIQUE_SEEDS = 128 if HPC_TRAIN else 2          # unique seeds in each batch
-BATCHES = 50 if HPC_TRAIN else 1                # batches in complete dataset
-EPOCHS = 300000 if HPC_TRAIN else 10            # number of epochs for training
-PRETRAIN_EPOCHS = 15000 if HPC_TRAIN else 5     # number of epochs for pre-training
+BATCH_SIZE = 4096 if HPC_TRAIN else 10          # seeds in a single batch
+UNIQUE_SEEDS = 128 if HPC_TRAIN else 5          # unique seeds in each batch
+BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
+EPOCHS = 300000 if HPC_TRAIN else 100           # number of epochs for training
+PRETRAIN_EPOCHS = 15000 if HPC_TRAIN else 20    # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
 VAL_BITS = 8                                    # the number of bits of each output value or seed
 MAX_VAL = 255                                   # number generated are between 0-MAX_VAL
