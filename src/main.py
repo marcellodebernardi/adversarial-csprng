@@ -26,8 +26,8 @@ network.
 
 The second GAN, which shall be referred to as the predictive
 GAN, consists of two networks termed Janice (the generator)
-and Pramesh (the predictor). Janice produces sequences of real
-numbers in the same fashion as Jerry. Pramesh receives as
+and Priya (the predictor). Janice produces sequences of real
+numbers in the same fashion as Jerry. Priya receives as
 input the entire sequence produced by Janice, except for the
 last value, which it attempts to predict.
 
@@ -48,7 +48,7 @@ from models.losses import loss_discriminator, loss_predictor, loss_adv
 from evaluators import pnb
 
 
-HPC_TRAIN = False                               # set to true when training on HPC to collect data
+HPC_TRAIN = False                                # set to true when training on HPC to collect data
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 BATCH_SIZE = 4096 if HPC_TRAIN else 2           # seeds in a single batch
 UNIQUE_SEEDS = 128 if HPC_TRAIN else 2          # unique seeds in each batch
@@ -110,6 +110,7 @@ def discriminative_gan():
     diego.fit(x, y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0)
 
     # train both networks in turn
+    jerry_loss, diego_loss = [], []
     for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
         # todo currently each epoch only alternates between jerry and diego once
         # todo should alternate at each batch
@@ -117,11 +118,11 @@ def discriminative_gan():
         x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
         operation_utils.set_trainable(diego)
         for iteration in range(ADVERSARY_MULT):
-            diego.fit(x, y, BATCH_SIZE, verbose=0)
+            diego.fit(x, y, batch_size=BATCH_SIZE, verbose=0)
         # train jerry
         x, y = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
         operation_utils.set_trainable(diego, False)
-        discgan.fit(x, y, verbose=0)
+        print(discgan.fit(x, y, batch_size=BATCH_SIZE, verbose=0).history['loss'])
     # generate output file for one seed
     utils.generate_output_file(jerry, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/jerry.txt')
@@ -129,7 +130,7 @@ def discriminative_gan():
 
 def predictive_gan():
     """Constructs and trains the predictive GAN consisting of
-    Janice and Pramesh."""
+    Janice and priya."""
     # define janice
     janice_input = Input(shape=(1,))
     janice_output = Dense(OUTPUT_LENGTH, activation=linear)(janice_input)
@@ -140,47 +141,47 @@ def predictive_gan():
     janice = Model(janice_input, janice_output, name='janice')
     janice.compile('adagrad', 'binary_crossentropy')
     vis_utils.plot_network_graphs(janice, 'janice')
-    # define pramesh
-    pramesh_input = Input(shape=(OUTPUT_LENGTH - 1,))
-    pramesh_output = Dense(OUTPUT_LENGTH)(pramesh_input)
-    pramesh_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(pramesh_output)
-    pramesh_output = LSTM(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(pramesh_output)
-    pramesh_output = Flatten()(pramesh_output)
-    pramesh_output = Dense(1, activation=relu)(pramesh_output)
-    pramesh = Model(pramesh_input, pramesh_output)
-    pramesh.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_predictor(MAX_VAL))
-    vis_utils.plot_network_graphs(pramesh, 'pramesh')
+    # define priya
+    priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
+    priya_output = Dense(OUTPUT_LENGTH)(priya_input)
+    priya_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(priya_output)
+    priya_output = LSTM(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(priya_output)
+    priya_output = Flatten()(priya_output)
+    priya_output = Dense(1, activation=relu)(priya_output)
+    priya = Model(priya_input, priya_output)
+    priya.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_predictor(MAX_VAL))
+    vis_utils.plot_network_graphs(priya, 'priya')
     # connect GAN
     output_predgan = janice(janice_input)
     output_predgan = Lambda(
         drop_last_value(OUTPUT_LENGTH, BATCH_SIZE),
         name='adversarial_drop_last_value')(output_predgan)
-    output_predgan = pramesh(output_predgan)
+    output_predgan = priya(output_predgan)
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE), loss_adv(loss_predictor(MAX_VAL)))
     vis_utils.plot_network_graphs(predgan, 'predictive_gan')
 
-    # pretrain pramesh
+    # pretrain priya
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     for epoch in range(PRETRAIN_EPOCHS):
         for janice_input in seed_dataset:
             janice_output = janice.predict(np.array([janice_input]))
-            pramesh_input, pramesh_output = operation_utils.split_generator_output(janice_output, 1)
-            pramesh.fit(pramesh_input, pramesh_output, verbose=0)
+            priya_input, priya_output = operation_utils.split_generator_output(janice_output, 1)
+            priya.fit(priya_input, priya_output, verbose=0)
 
-    # train both janice and pramesh
+    # train both janice and priya
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-    for epoch in tqdm(range(EPOCHS), desc='Train janice and pramesh: '):
+    for epoch in tqdm(range(EPOCHS), desc='Train janice and priya: '):
         for janice_input in seed_dataset:
             janice_output = janice.predict(np.array([janice_input]))
-            pramesh_input, pramesh_output = operation_utils.split_generator_output(janice_output, 1)
+            priya_input, priya_output = operation_utils.split_generator_output(janice_output, 1)
             # train predictor
-            operation_utils.set_trainable(pramesh)
+            operation_utils.set_trainable(priya)
             for i in range(ADVERSARY_MULT):
-                pramesh.fit(pramesh_input, pramesh_output, verbose=0)
+                priya.fit(priya_input, priya_output, verbose=0)
             # train generator
-            operation_utils.set_trainable(pramesh, False)
-            predgan.fit(np.array([janice_input]), pramesh_output, verbose=0)
+            operation_utils.set_trainable(priya, False)
+            predgan.fit(np.array([janice_input]), priya_output, verbose=0)
 
     utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
