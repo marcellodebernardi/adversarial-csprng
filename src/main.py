@@ -35,14 +35,14 @@ The main function defines these networks and trains them.
 """
 
 import sys
-import numpy as np
 from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch
 from tqdm import tqdm
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
-from keras.activations import linear, softmax, relu
+from keras.activations import linear, relu
 from keras.optimizers import adagrad
+from keras.callbacks import TensorBoard
 from models.activations import modulo, diagonal_max
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
@@ -196,7 +196,7 @@ def predictive_gan():
     janice_output = janice.predict(seed_dataset)
     priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
     history = priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
-    vis_utils.plot_pretrain_history_loss(history, '../plots/priya_pretrain_loss.pdf')
+    vis_utils.plot_pretrain_history_loss(history, '..output/plots/priya_pretrain_loss.pdf')
 
     # train both janice and priya
     janice_loss, priya_loss = [], []
@@ -215,7 +215,7 @@ def predictive_gan():
             janice_l += predgan.train_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE), priya_output)
         janice_loss.append(janice_l / BATCHES)
         priya_loss.append(priya_l / (BATCHES * ADVERSARY_MULT))
-    vis_utils.plot_train_loss(janice_loss, priya_loss, '../plots/predgan_train_loss.pdf')
+    vis_utils.plot_train_loss(janice_loss, priya_loss, '..output/plots/predgan_train_loss.pdf')
 
     utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')

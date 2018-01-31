@@ -92,4 +92,4 @@ def plot_metrics(metrics, data_range: int):
 def plot_network_graphs(model: Model, name: str):
     """Draws visualizations of the network structure as well as the
     shape of each layer."""
-    plot_model(model, '../model_graphs/' + name + '.png', show_shapes=True)
+    plot_model(model, '..output/model_graphs/' + name + '.png', show_shapes=True)

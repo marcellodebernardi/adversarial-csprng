@@ -50,3 +50,7 @@ as loss functions, activation functions, and other tensor operations. The `utils
 contains modules providing supporting functionality such as graph plotting and reporting. 
 The functionality provided by modules in this package is not crucial to the project 
 at the conceptual level.
+
+
+## 5 - TO DO
+1. TensorBoard visualizations, see https://gist.github.com/joelthchao/ef6caa586b647c3c032a4f84d52e3a11
