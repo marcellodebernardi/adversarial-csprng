@@ -14,13 +14,8 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def save_configurations(disc_gan, pred_gan):
-    disc_gan.get_model()[0].save('../saved_models/jerry.h5', overwrite=True)
-    pred_gan.get_model()[0].save('../saved_models/janice.h5', overwrite=True)
-    disc_gan.get_model()[1].save('../saved_models/diego.h5', overwrite=True)
-    pred_gan.get_model()[1].save('../saved_models/priya.h5', overwrite=True)
-    disc_gan.get_model()[2].save('../saved_models/disc_gan.h5', overwrite=True)
-    # pred_gan.get_model()[2].save('../saved_models/pred_gan.h5', overwrite=True)
+def save_configuration(model, name):
+    model.save('../saved_models/' + str(name) + '.h5', overwrite=True)
 
 
 def generate_output_file(generator: Model, max_value, val_bits):
@@ -36,7 +31,7 @@ def generate_output_file(generator: Model, max_value, val_bits):
             file.write(str(bin_str) + "")
 
 
-def email_report(settings, data_params) -> bool:
+def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> bool:
     # sender and receiver
     sender = "neural.csprng@gmail.com"
     recipient = "marcello1234@live.co.uk"
@@ -49,29 +44,35 @@ def email_report(settings, data_params) -> bool:
     # body
     body = "Training complete. See attached files for model graphs, model state snapshots, and output sequences for" \
            + "evaluation.\n\n SETTINGS:\n" \
-           + str(settings) + "\n\n" \
-           + "DATA PARAMETERS:\n" \
-           + str(data_params) + "\n\n"
+           + "Batch size: " + str(batch_size) + "\n" \
+           + "Dataset size: " + str(batch_size * batches) + "\n" \
+           + "Unique seeds per batch: " + str(unique_seeds) + "\n" \
+           + "Training epochs: " + str(epochs) + "\n" \
+           + "Pretraining epochs: " + str(pretrain_epochs) + "\n"
     msg.attach(MIMEText(body, 'plain'))
     # attachment list includes:
     # model graphs
     # saved models for reinstantiation
     # output files for NIST evaluation
     attachments = [
-                   ('disc_generator.h5', '../saved_models/'),
-                   ('disc_adversary.h5', '../saved_models/'),
-                   ('disc_gan.h5', '../saved_models/'),
-                   ('pred_generator.h5', '../saved_models/'),
-                   ('pred_adversary.h5', '../saved_models/'),
-                   ('pred_gan.h5', '../saved_models/'),
-                   ('disc_generator.png', '../model_graphs/'),
-                   ('disc_adversary.png', '../model_graphs/'),
-                   ('disc_gan.png', '../model_graphs/'),
-                   ('pred_generator.png', '../model_graphs/'),
-                   ('pred_adversary.png', '../model_graphs/'),
-                   ('pred_gan.png', '../model_graphs/'),
-                   ('disc_sequence.txt', '../sequences/'),
-                   ('pred_sequence.txt', '../sequences/')
+                   ('jerry.h5', '../saved_models/'),
+                   ('diego.h5', '../saved_models/'),
+                   ('discgan.h5', '../saved_models/'),
+                   ('janice.h5', '../saved_models/'),
+                   ('priya.h5', '../saved_models/'),
+                   ('predgan.h5', '../saved_models/'),
+                   ('jerry.png', '../model_graphs/'),
+                   ('diego.png', '../model_graphs/'),
+                   ('discriminative_gan.png', '../model_graphs/'),
+                   ('janice.png', '../model_graphs/'),
+                   ('priya.png', '../model_graphs/'),
+                   ('predictive_gan.png', '../model_graphs/'),
+                   ('diego_pretrain_loss.pdf', '../plots/'),
+                   ('discgan_train_loss.pdf', '../plots/'),
+                   ('priya_pretrain_loss.pdf', '../plots/'),
+                   ('predgan_train_loss.pdf', '../plots/'),
+                   ('janice.txt', '../sequences/'),
+                   ('jerry.txt', '../sequences/')
     ]
     # insert attachments
     for att in attachments:

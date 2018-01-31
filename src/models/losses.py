@@ -8,11 +8,21 @@ import utils
 import tensorflow as tf
 
 
-def loss_gan(adversary_loss_function):
+def loss_disc_gan(true, pred):
     """Loss function for the adversarial network, used to train the
     generator."""
+    # return tf.ones(tf.shape(pred))
+    return tf.subtract(tf.ones(tf.shape(pred), dtype=tf.float32), tf.abs(tf.subtract(true, pred)))
+
+
+def loss_discriminator(true, pred):
+    """Loss function for the discriminative adversary"""
+    return tf.abs(tf.subtract(true, pred))
+
+
+def loss_pred_gan(max_value):
     def loss(true, pred):
-        return tf.subtract(tf.ones(tf.shape(pred)), adversary_loss_function(true, pred))
+        return tf.subtract(tf.ones(tf.shape(pred), dtype=tf.float32), tf.div(tf.abs(tf.subtract(true, pred)), max_value))
     return loss
 
 
@@ -24,8 +34,3 @@ def loss_predictor(max_value):
     def loss(true, pred):
         return tf.div(tf.abs(tf.subtract(true, pred)), max_value)
     return loss
-
-
-def loss_discriminator(true, pred):
-    """Loss function for the discriminative adversary"""
-    return tf.abs(tf.subtract(true, pred))
