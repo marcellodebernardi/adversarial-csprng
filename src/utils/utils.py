@@ -15,7 +15,7 @@ def eprint(*args, **kwargs):
 
 
 def save_configuration(model, name):
-    model.save('../saved_models/' + str(name) + '.h5', overwrite=True)
+    model.save('..output/saved_models/' + str(name) + '.h5', overwrite=True)
 
 
 def generate_output_file(generator: Model, max_value, val_bits):
@@ -26,7 +26,7 @@ def generate_output_file(generator: Model, max_value, val_bits):
     binary_strings \
         = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '')) for number in values]
 
-    with open('../sequences/' + str(generator.name) + '.txt', 'w') as file:
+    with open('..output/sequences/' + str(generator.name) + '.txt', 'w') as file:
         for bin_str in binary_strings:
             file.write(str(bin_str) + "")
 
@@ -55,24 +55,24 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
     # saved models for reinstantiation
     # output files for NIST evaluation
     attachments = [
-                   ('jerry.h5', '../saved_models/'),
-                   ('diego.h5', '../saved_models/'),
-                   ('discgan.h5', '../saved_models/'),
-                   ('janice.h5', '../saved_models/'),
-                   ('priya.h5', '../saved_models/'),
-                   ('predgan.h5', '../saved_models/'),
-                   ('jerry.png', '../model_graphs/'),
-                   ('diego.png', '../model_graphs/'),
-                   ('discriminative_gan.png', '../model_graphs/'),
-                   ('janice.png', '../model_graphs/'),
-                   ('priya.png', '../model_graphs/'),
-                   ('predictive_gan.png', '../model_graphs/'),
-                   ('diego_pretrain_loss.pdf', '../plots/'),
-                   ('discgan_train_loss.pdf', '../plots/'),
-                   ('priya_pretrain_loss.pdf', '../plots/'),
-                   ('predgan_train_loss.pdf', '../plots/'),
-                   ('janice.txt', '../sequences/'),
-                   ('jerry.txt', '../sequences/')
+                   ('jerry.h5', '..output/saved_models/'),
+                   ('diego.h5', '..output/saved_models/'),
+                   ('discgan.h5', '..output/saved_models/'),
+                   ('janice.h5', '..output/saved_models/'),
+                   ('priya.h5', '..output/saved_models/'),
+                   ('predgan.h5', '..output/saved_models/'),
+                   ('jerry.png', '..output/model_graphs/'),
+                   ('diego.png', '..output/model_graphs/'),
+                   ('discriminative_gan.png', '..output/model_graphs/'),
+                   ('janice.png', '..output/model_graphs/'),
+                   ('priya.png', '..output/model_graphs/'),
+                   ('predictive_gan.png', '..output/model_graphs/'),
+                   ('diego_pretrain_loss.pdf', '..output/plots/'),
+                   ('discgan_train_loss.pdf', '..output/plots/'),
+                   ('priya_pretrain_loss.pdf', '..output/plots/'),
+                   ('predgan_train_loss.pdf', '..output/plots/'),
+                   ('janice.txt', '..output/sequences/'),
+                   ('jerry.txt', '..output/sequences/')
     ]
     # insert attachments
     for att in attachments:
