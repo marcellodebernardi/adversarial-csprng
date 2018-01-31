@@ -41,16 +41,17 @@ from tqdm import tqdm
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
 from keras.activations import linear, relu
-from keras.optimizers import adagrad
-from keras.callbacks import TensorBoard
+from keras.optimizers import adagrad, sgd
 from models.activations import modulo, diagonal_max
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
 HPC_TRAIN = False                               # set to true when training on HPC to collect data
+TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
+SEND_REPORT = False                             # if true, emails results to given addresses
 BATCH_SIZE = 4096 if HPC_TRAIN else 10          # seeds in a single batch
 UNIQUE_SEEDS = 128 if HPC_TRAIN else 10         # unique seeds in each batch
 BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
@@ -66,7 +67,7 @@ CLIP_VALUE = 0.5
 # losses and optimizers
 DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DIEGO_LOSS = loss_discriminator
-DISC_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+DISC_GAN_OPT = sgd(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
 PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRIYA_LOSS = loss_predictor(MAX_VAL)
@@ -79,19 +80,18 @@ UNUSED_LOSS = 'binary_crossentropy'
 def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
-    if "-t" in sys.argv:
-        global TESTING
-        TESTING = True
+    process_cli_arguments()
 
     # train discriminative GAN
-    if "-nodisc" not in sys.argv:
-        # discriminative_gan()
-        pass
+    if TRAIN[0]:
+        discriminative_gan()
     # train predictive GAN
-    if "-nopred" not in sys.argv:
+    if TRAIN[1]:
         predictive_gan()
 
-    utils.email_report(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, EPOCHS, PRETRAIN_EPOCHS)
+    # send off email report
+    if SEND_REPORT:
+        utils.email_report(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, EPOCHS, PRETRAIN_EPOCHS)
 
 
 def discriminative_gan():
@@ -219,6 +219,24 @@ def predictive_gan():
 
     utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
+
+
+def process_cli_arguments():
+    global TESTING
+    global TRAIN
+    global SEND_REPORT
+
+    if "-t" in sys.argv:
+        TESTING = True
+
+    if '-nodisc' in sys.argv:
+        TRAIN[0] = False
+
+    if '-nopred' in sys.argv:
+        TRAIN[1] = False
+
+    if '-noemail' in sys.argv:
+        SEND_REPORT = False
 
 
 if __name__ == '__main__':
