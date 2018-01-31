@@ -6,7 +6,6 @@ work on bootstrapping encryption schemes using GANs: [Learning to Protect Commun
 with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 
 
-
 ## 1 - Setup
 The system targets `Python 3.6.2`, with module import requirements outlined
 in `requirements.txt`. More in-depth dependency management will be added in
@@ -20,15 +19,15 @@ in the constants section at the top of the script.
 
 
 ## 3 - Approaches to the Problem
-The system trains and evaluates three separate models. Two are variation of the
-*generative adversarial network* framework, and two are a single neural network.
-The approaches, briefly outlined, are:
+The system trains and evaluates two separate models. These are two different
+takes on the now popular *generative adversarial network* framework, though
+with some major differences.
 
-### 3.1 - Generative Adversarial Network
+### 3.1 - Generative Adversarial Network with Discriminator
 In this approach, a generator network produces output sequences that are served
 as input to a discriminator, as per the usual GAN approach. The discriminator is
 fed sequences from the generator as well as sequences obtained from a true randomness
-source, and attempts to classify sequences as belonging in either category. The
+source, and attempts to classify sequences as belonging to either category. The
 generator attempts to maximize the error of the discriminator, and as thus should
 learn the distribution of "true" randomness source used.
 
@@ -47,14 +46,7 @@ to sequences of real numbers.
 The high-level functionality is in `main.py`. 
 
 The `models` package contains modules defining components of neural networks such 
-as loss functions, activation functions, and . The `utils` package contains 
-modules either providing supporting functionality such as graph plotting or convenience 
-functions, or abstracting the details of defining and compiling the Keras models. In the 
-latter case, the functionality provided by this package is not crucial to the project 
-at the conceptual level, and serves only to provide further abstraction over the Keras API.
-
-
-## 5 - To-dos
-3. Evaluation using statistical tests
-4. Evaluation using NIST
-7. Saving and restoring models
+as loss functions, activation functions, and other tensor operations. The `utils` package 
+contains modules providing supporting functionality such as graph plotting and reporting. 
+The functionality provided by modules in this package is not crucial to the project 
+at the conceptual level.
