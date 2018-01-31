@@ -48,11 +48,10 @@ def get_discriminator_training_dataset(generator: Model, batch_size, num_of_batc
     dataset = []
     labels = []
     for i in range(num_of_batches):
-        dataset.extend([get_random_sequence(sequence_length, max_val) for i in range(int(batch_size / 2))])
+        dataset.extend([get_random_sequence(sequence_length, 1) for i in range(int(batch_size / 2))])
         dataset.extend(generator.predict(get_random_sequence(batch_size / 2, max_val)))
         labels.extend([1 for i in range(int(batch_size / 2))])
         labels.extend([0 for i in range(int(batch_size / 2))])
-    # todo shuffling
     return np.array(dataset), np.array(labels)
 
 

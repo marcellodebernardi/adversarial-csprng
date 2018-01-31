@@ -4,6 +4,7 @@ from keras.utils import plot_model
 
 
 def plot_pretrain_history_loss(history, fname):
+    print(history.history['loss'])
     plt.plot(history.history['loss'])
     plt.ylabel('Loss')
     plt.xlabel('Epoch')

@@ -1,11 +1,11 @@
-from models.operations import round_tensor
-
 """
 The activations.py module defines activation functions that can
 be used in Keras layers. Activation functions operate on scalar
 values and thus do not need to be implemented as symbolic TensorFlow
 operations.
 """
+
+import tensorflow as tf
 
 
 def modulo(divisor, activation_function=None):
@@ -24,9 +24,9 @@ def absolute(input_value):
     return abs(input_value)
 
 
-def to_integer(activation_function):
-    """Produces a wrapper for another activation function, which
-    reduces the value produced by that activation to an integer."""
-    def act(input_value):
-        return round_tensor(activation_function(input_value))
-    return act
+def diagonal_max(max_bound):
+    """Activation function that scales"""
+    def activation(input_value):
+        input_value = tf.clip_by_value(input_value, -max_bound, max_bound)
+        return tf.div(tf.add(input_value, tf.constant(max_bound, dtype=tf.float32)), tf.constant(max_bound * 2, dtype=tf.float32))
+    return activation
