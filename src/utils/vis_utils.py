@@ -79,14 +79,6 @@ def plot_metrics(metrics, data_range: int):
     plt.ylabel('Frequency')
     plt.xlabel('Weight')
     fig5.show()
-    # pretrain loss
-    fig6 = plt.figure()
-    plt.plot(metrics.adversary_pretrain_loss())
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    fig6.show()
-    # show all plots
-    plt.show()
 
 
 def plot_network_graphs(model: Model, name: str):
