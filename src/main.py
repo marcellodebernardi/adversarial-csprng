@@ -80,6 +80,7 @@ UNUSED_LOSS = 'binary_crossentropy'
 def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
+    # available args: -t, -nodisc, -nopred, -noemail
     process_cli_arguments()
 
     # train discriminative GAN
@@ -131,7 +132,7 @@ def discriminative_gan():
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
     history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
-    vis_utils.plot_pretrain_history_loss(history, '../plots/diego_pretrain_loss.pdf')
+    vis_utils.plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
     jerry_loss, diego_loss = [], []
@@ -149,7 +150,7 @@ def discriminative_gan():
             jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE), get_ith_batch(y_j, batch, BATCH_SIZE))
         jerry_loss.append(jerry_l/BATCHES)
         diego_loss.append(diego_l/(BATCHES * ADVERSARY_MULT))
-    vis_utils.plot_train_loss(jerry_loss, diego_loss, '../plots/discgan_train_loss.pdf')
+    vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
     # generate output file for one seed
     utils.generate_output_file(jerry, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/jerry.txt')
@@ -189,14 +190,14 @@ def predictive_gan():
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     vis_utils.plot_network_graphs(predgan, 'predictive_gan')
-    utils.save_configuration(predgan, 'predgan')
+    # utils.save_configuration(predgan, 'predgan')
 
     # pretrain priya
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     janice_output = janice.predict(seed_dataset)
     priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
     history = priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
-    vis_utils.plot_pretrain_history_loss(history, '..output/plots/priya_pretrain_loss.pdf')
+    vis_utils.plot_pretrain_history_loss(history, '../output/plots/priya_pretrain_loss.pdf')
 
     # train both janice and priya
     janice_loss, priya_loss = [], []
@@ -215,7 +216,7 @@ def predictive_gan():
             janice_l += predgan.train_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE), priya_output)
         janice_loss.append(janice_l / BATCHES)
         priya_loss.append(priya_l / (BATCHES * ADVERSARY_MULT))
-    vis_utils.plot_train_loss(janice_loss, priya_loss, '..output/plots/predgan_train_loss.pdf')
+    vis_utils.plot_train_loss(janice_loss, priya_loss, '../ output/plots/predgan_train_loss.pdf')
 
     utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
     # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
@@ -225,6 +226,13 @@ def process_cli_arguments():
     global TESTING
     global TRAIN
     global SEND_REPORT
+
+    if "-help" in sys.argv or "-h" in sys.argv:
+        print("Optional arguments include:\n" + "-t\t\ttesting mode\n"
+              + "-nodisc\t\tdo not train discriminator\n"
+              + "-nopred\t\tdo not train predictor\n"
+              + "-noemail\tdo not report by email\n")
+        exit(0)
 
     if "-t" in sys.argv:
         TESTING = True
