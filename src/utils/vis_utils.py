@@ -41,7 +41,16 @@ def plot_output_sequence(values, fname):
     for a trained generator, for one seed, in temporal order."""
     plt.plot(values)
     plt.ylabel('Output')
-    plt.ylabel('Position in Sequence')
+    plt.xlabel('Position in Sequence')
+    plt.savefig(fname)
+    plt.clf()
+
+
+def plot_network_weights(weights, fname):
+    """Plots a histogram of network weights."""
+    plt.hist(weights, bins=int((max(weights) - min(weights))*100))
+    plt.ylabel('Frequency')
+    plt.xlabel('Weight')
     plt.savefig(fname)
     plt.clf()
 
@@ -49,32 +58,6 @@ def plot_output_sequence(values, fname):
 def plot_metrics(metrics, data_range: int):
     """Draws visual plots of all available data using matplotlib."""
     # output distribution plot
-    fig1 = plt.figure()
-    # distribution of generated values during training
-    plt.subplot(211)
-    plt.hist(metrics.generator_outputs(), bins=data_range * 3)
-    plt.title('Generator Output Distribution (Training)')
-    # distribution of generated values during evaluation
-    plt.subplot(212)
-    plt.hist(metrics.generator_eval_outputs(), bins=data_range * 3)
-    plt.title('Generator Output Distribution (Evaluation)')
-    plt.xlabel('Output')
-    plt.ylabel('Frequency')
-    fig1.show()
-    # loss value charts
-    fig2 = plt.figure()
-    plt.plot(metrics.generator_loss())
-    plt.plot(metrics.predictor_loss())
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    plt.legend(['Generative loss', 'Predictive loss'])
-    fig2.show()
-    # Average output per batch during training
-    fig3 = plt.figure()
-    plt.plot(metrics.generator_avg_outputs())
-    plt.ylabel('Average output per batch')
-    plt.xlabel('Batch training iteration')
-    fig3.show()
     # distribution of weights in generator
     fig4 = plt.figure()
     plt.subplot(211)
