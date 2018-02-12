@@ -1,11 +1,29 @@
+# Marcello De Bernardi, Queen Mary University of London
+#
+# An exploratory proof-of-concept implementation of a CSPRNG
+# (cryptographically secure pseudorandom number generator) using
+# adversarially trained neural networks. The work was inspired by
+# the findings of Abadi & Andersen, outlined in the paper
+# "Learning to Protect Communications with Adversarial
+# Networks", available at https://arxiv.org/abs/1610.06918.
+#
+# The original implementation by Abadi is available at
+# https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
+# =================================================================
+
+"""
+This module provides miscellaneous utility functions for the training
+and evaluation of the model, such as means for storing ASCII bit sequences
+into text files and emailing a report after training.
+"""
+
 import sys
-from keras import Model
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from utils import input_utils, operation_utils
+from utils import operation_utils
 
 
 def eprint(*args, **kwargs):
@@ -54,26 +72,26 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
     # saved models for reinstantiation
     # output files for NIST evaluation
     attachments = [
-                   ('jerry.h5', '../output/saved_models/'),
-                   ('diego.h5', '../output/saved_models/'),
-                   ('discgan.h5', '../output/saved_models/'),
-                   ('janice.h5', '../output/saved_models/'),
-                   ('priya.h5', '../output/saved_models/'),
-                   ('predgan.h5', '../output/saved_models/'),
-                   ('jerry.png', '../output/model_graphs/'),
-                   ('diego.png', '../output/model_graphs/'),
-                   ('discriminative_gan.png', '../output/model_graphs/'),
-                   ('janice.png', '../output/model_graphs/'),
-                   ('priya.png', '../output/model_graphs/'),
-                   ('predictive_gan.png', '../output/model_graphs/'),
-                   ('diego_pretrain_loss.pdf', '../output/plots/'),
-                   ('discgan_train_loss.pdf', '../output/plots/'),
-                   ('priya_pretrain_loss.pdf', '../output/plots/'),
-                   ('predgan_train_loss.pdf', '../output/plots/'),
-                   ('discgan_jerry_output_distribution.pdf', '../output/plots/'),
-                   ('predgan_janice_output_distribution.pdf', '../output/plots/'),
-                   ('janice.txt', '../output/sequences/'),
-                   ('jerry.txt', '../output/sequences/')
+        ('jerry.h5', '../output/saved_models/'),
+        ('diego.h5', '../output/saved_models/'),
+        ('discgan.h5', '../output/saved_models/'),
+        ('janice.h5', '../output/saved_models/'),
+        ('priya.h5', '../output/saved_models/'),
+        ('predgan.h5', '../output/saved_models/'),
+        ('jerry.png', '../output/model_graphs/'),
+        ('diego.png', '../output/model_graphs/'),
+        ('discriminative_gan.png', '../output/model_graphs/'),
+        ('janice.png', '../output/model_graphs/'),
+        ('priya.png', '../output/model_graphs/'),
+        ('predictive_gan.png', '../output/model_graphs/'),
+        ('diego_pretrain_loss.pdf', '../output/plots/'),
+        ('discgan_train_loss.pdf', '../output/plots/'),
+        ('priya_pretrain_loss.pdf', '../output/plots/'),
+        ('predgan_train_loss.pdf', '../output/plots/'),
+        ('discgan_jerry_output_distribution.pdf', '../output/plots/'),
+        ('predgan_janice_output_distribution.pdf', '../output/plots/'),
+        ('janice.txt', '../output/sequences/'),
+        ('jerry.txt', '../output/sequences/')
     ]
     # insert attachments
     for att in attachments:

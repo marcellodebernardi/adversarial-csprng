@@ -10,6 +10,7 @@
 # The original implementation by Abadi is available at
 # https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
 # =================================================================
+
 """
 This module provides utility methods for obtaining values and sequences
 to be used as inputs to the neural networks.

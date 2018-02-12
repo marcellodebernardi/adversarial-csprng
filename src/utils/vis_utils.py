@@ -1,3 +1,22 @@
+# Marcello De Bernardi, Queen Mary University of London
+#
+# An exploratory proof-of-concept implementation of a CSPRNG
+# (cryptographically secure pseudorandom number generator) using
+# adversarially trained neural networks. The work was inspired by
+# the findings of Abadi & Andersen, outlined in the paper
+# "Learning to Protect Communications with Adversarial
+# Networks", available at https://arxiv.org/abs/1610.06918.
+#
+# The original implementation by Abadi is available at
+# https://github.com/tensorflow/models/tree/master/research/adversarial_crypto
+# =================================================================
+
+"""
+This module provides utility functions for visualizing various metrics
+pertaining to the trained models, including loss functions, histograms
+of the model weights, etc.
+"""
+
 import matplotlib.pyplot as plt
 from keras import Model
 from keras.utils import plot_model
@@ -53,37 +72,6 @@ def plot_network_weights(weights, fname):
     plt.xlabel('Weight')
     plt.savefig(fname)
     plt.clf()
-
-
-def plot_metrics(metrics, data_range: int):
-    """Draws visual plots of all available data using matplotlib."""
-    # output distribution plot
-    # distribution of weights in generator
-    fig4 = plt.figure()
-    plt.subplot(211)
-    plt.hist(metrics.generator_weights_initial(), bins=300)
-    plt.title('Initial Generator Weight Distribution')
-    plt.ylabel('Frequency')
-    plt.xlabel('Weight')
-    plt.subplot(212)
-    plt.hist(metrics.generator_weights_final(), bins=300)
-    plt.title('Final Generator Weight Distribution')
-    plt.ylabel('Frequency')
-    plt.xlabel('Weight')
-    fig4.show()
-    # distribution of weights in predictor
-    fig5 = plt.figure()
-    plt.subplot(211)
-    plt.hist(metrics.predictor_weights_initial(), bins=300)
-    plt.title('Initial Predictor Weight Distribution')
-    plt.ylabel('Frequency')
-    plt.xlabel('Weight')
-    plt.subplot(212)
-    plt.hist(metrics.predictor_weights_final(), bins=300)
-    plt.title('Final Predictor Weight Distribution')
-    plt.ylabel('Frequency')
-    plt.xlabel('Weight')
-    fig5.show()
 
 
 def plot_network_graphs(model: Model, name: str):
