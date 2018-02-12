@@ -28,6 +28,7 @@ def plot_pretrain_history_loss(history, fname):
     plt.plot(history.history['loss'])
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
+    plt.ticklabel_format(useOffset=False)
     plt.savefig(fname)
     plt.clf()
 
@@ -40,6 +41,7 @@ def plot_train_loss(generator_loss, adversary_loss, fname):
     plt.ylabel('Loss')
     plt.ylabel('Epoch')
     plt.legend(['Generative loss', 'Adversary loss'])
+    plt.ticklabel_format(useOffset=False)
     plt.savefig(fname)
     plt.clf()
 
