@@ -159,6 +159,10 @@ def discriminative_gan():
     values = operation_utils.flatten_irregular_nested_iterable(jerry.predict(EVAL_SEED))
     vis_utils.plot_output_histogram(values, '../output/plots/discgan_jerry_output_distribution.pdf')
     vis_utils.plot_output_sequence(values, '../output/plots/discgan_jerry_output_sequence.pdf')
+    vis_utils.plot_network_weights(
+        operation_utils.flatten_irregular_nested_iterable(jerry.get_weights()),
+        '../output/plots/jerry_weights.pdf'
+    )
     utils.generate_output_file(values, jerry.name, MAX_VAL, VAL_BITS)
 
 
@@ -228,6 +232,10 @@ def predictive_gan():
     values = operation_utils.flatten_irregular_nested_iterable(janice.predict(EVAL_SEED))
     vis_utils.plot_output_histogram(values, '../output/plots/predgan_janice_output_distribution.pdf')
     vis_utils.plot_output_sequence(values, '../output/plots/predgan_janice_output_sequence.pdf')
+    vis_utils.plot_network_weights(
+        operation_utils.flatten_irregular_nested_iterable(janice.get_weights()),
+        '../output/plots/janice_weights.pdf'
+    )
     utils.generate_output_file(values, janice.name, MAX_VAL, VAL_BITS)
 
 
