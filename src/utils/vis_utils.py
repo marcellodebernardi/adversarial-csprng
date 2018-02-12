@@ -37,6 +37,16 @@ def plot_output_histogram(values, fname):
     plt.clf()
 
 
+def plot_output_sequence(values, fname):
+    """Plot a line displaying the sequence of output values
+    for a trained generator, for one seed, in temporal order."""
+    plt.plot(values)
+    plt.ylabel('Output')
+    plt.ylabel('Position in Sequence')
+    plt.savefig(fname)
+    plt.clf()
+
+
 def plot_metrics(metrics, data_range: int):
     """Draws visual plots of all available data using matplotlib."""
     # output distribution plot

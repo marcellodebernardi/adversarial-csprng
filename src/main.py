@@ -154,12 +154,12 @@ def discriminative_gan():
         jerry_loss.append(jerry_l/BATCHES)
         diego_loss.append(diego_l/(BATCHES * ADVERSARY_MULT))
     vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
-    # generate output file for one seed
-    vis_utils.plot_output_histogram(
-        jerry.predict(EVAL_SEED),
-        '../output/plots/discgan_jerry_output_distribution.pdf')
-    utils.generate_output_file(jerry, MAX_VAL, VAL_BITS)
-    # pnb.evaluate('../sequences/jerry.txt')
+
+    # generate outputs for one seed
+    values = operation_utils.flatten_irregular_nested_iterable(jerry.predict(EVAL_SEED))
+    vis_utils.plot_output_histogram(values, '../output/plots/discgan_jerry_output_distribution.pdf')
+    vis_utils.plot_output_sequence(values, '../output/plots/discgan_jerry_output_sequence.pdf')
+    utils.generate_output_file(values, jerry.name, MAX_VAL, VAL_BITS)
 
 
 def predictive_gan():
@@ -222,13 +222,13 @@ def predictive_gan():
             janice_l += predgan.train_on_batch(get_ith_batch(seed_dataset, batch, BATCH_SIZE), priya_output)
         janice_loss.append(janice_l / BATCHES)
         priya_loss.append(priya_l / (BATCHES * ADVERSARY_MULT))
-
     vis_utils.plot_train_loss(janice_loss, priya_loss, '../output/plots/predgan_train_loss.pdf')
-    vis_utils.plot_output_histogram(
-        janice.predict(EVAL_SEED),
-        '../output/plots/predgan_janice_output_distribution.pdf')
-    utils.generate_output_file(janice, MAX_VAL, VAL_BITS)
-    # pnb.evaluate('../sequences/' + str(janice.name) + '.txt')
+
+    # produce output for one seed
+    values = operation_utils.flatten_irregular_nested_iterable(janice.predict(EVAL_SEED))
+    vis_utils.plot_output_histogram(values, '../output/plots/predgan_janice_output_distribution.pdf')
+    vis_utils.plot_output_sequence(values, '../output/plots/predgan_janice_output_sequence.pdf')
+    utils.generate_output_file(values, janice.name, MAX_VAL, VAL_BITS)
 
 
 def process_cli_arguments():
