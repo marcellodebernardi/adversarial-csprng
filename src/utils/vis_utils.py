@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 from keras import Model
 from keras.utils import plot_model
+from utils.operation_utils import flatten_irregular_nested_iterable
 
 
 def plot_pretrain_history_loss(history, fname):
+    """Plot a line chart of the adversary's loss during pre-training."""
     print(history.history['loss'])
     plt.plot(history.history['loss'])
     plt.ylabel('Loss')
@@ -13,11 +15,24 @@ def plot_pretrain_history_loss(history, fname):
 
 
 def plot_train_loss(generator_loss, adversary_loss, fname):
+    """Plot a line chart of the generator's and adversary's losses
+    during training. """
     plt.plot(generator_loss)
     plt.plot(adversary_loss)
     plt.ylabel('Loss')
     plt.ylabel('Epoch')
     plt.legend(['Generative loss', 'Adversary loss'])
+    plt.savefig(fname)
+    plt.clf()
+
+
+def plot_output_histogram(values, fname):
+    """Plot a histogram of the output values for one seed. """
+    values = flatten_irregular_nested_iterable(values)
+    plt.hist(values, bins=int((max(values) - min(values))*3))
+    plt.title('Generator Output Frequency Distribution')
+    plt.xlabel('Output')
+    plt.ylabel('Frequency')
     plt.savefig(fname)
     plt.clf()
 
@@ -30,8 +45,6 @@ def plot_metrics(metrics, data_range: int):
     plt.subplot(211)
     plt.hist(metrics.generator_outputs(), bins=data_range * 3)
     plt.title('Generator Output Distribution (Training)')
-    plt.xlabel('Output')
-    plt.ylabel('Frequency')
     # distribution of generated values during evaluation
     plt.subplot(212)
     plt.hist(metrics.generator_eval_outputs(), bins=data_range * 3)

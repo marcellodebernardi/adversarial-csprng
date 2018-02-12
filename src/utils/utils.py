@@ -71,6 +71,8 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
                    ('discgan_train_loss.pdf', '../output/plots/'),
                    ('priya_pretrain_loss.pdf', '../output/plots/'),
                    ('predgan_train_loss.pdf', '../output/plots/'),
+                   ('discgan_jerry_output_distribution.pdf', '../output/plots/'),
+                   ('predgan_janice_output_distribution.pdf', '../output/plots/'),
                    ('janice.txt', '../output/sequences/'),
                    ('jerry.txt', '../output/sequences/')
     ]
