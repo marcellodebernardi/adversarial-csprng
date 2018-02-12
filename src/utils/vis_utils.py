@@ -6,7 +6,6 @@ from utils.operation_utils import flatten_irregular_nested_iterable
 
 def plot_pretrain_history_loss(history, fname):
     """Plot a line chart of the adversary's loss during pre-training."""
-    print(history.history['loss'])
     plt.plot(history.history['loss'])
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
