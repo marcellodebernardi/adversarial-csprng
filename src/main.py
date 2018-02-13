@@ -48,7 +48,7 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = True                               # set to true when training on HPC to collect data
+HPC_TRAIN = False                               # set to true when training on HPC to collect data
 TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
@@ -138,8 +138,11 @@ def discriminative_gan():
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    print('generated dataset')
     history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
+    print('fitted')
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
+    print('plotted')
 
     # train both networks in turn
     jerry_loss, diego_loss = [], []
