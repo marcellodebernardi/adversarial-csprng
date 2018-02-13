@@ -35,6 +35,7 @@ The main function defines these networks and trains them.
 """
 
 import sys
+
 from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch
 from tqdm import tqdm
@@ -48,7 +49,7 @@ from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, los
 
 
 HPC_TRAIN = False                               # set to true when training on HPC to collect data
-TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
+TRAIN = [True, False]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
 SEND_REPORT = False                             # if true, emails results to given addresses
@@ -147,12 +148,14 @@ def discriminative_gan():
             # train diego
             operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
             for iteration in range(ADVERSARY_MULT):
-                diego_l += diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE), get_ith_batch(y_d, batch, BATCH_SIZE))
+                diego_l += diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE),
+                                                get_ith_batch(y_d, batch, BATCH_SIZE))
             # train jerry
             operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE), get_ith_batch(y_j, batch, BATCH_SIZE))
-        jerry_loss.append(jerry_l/BATCHES)
-        diego_loss.append(diego_l/(BATCHES * ADVERSARY_MULT))
+            jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE),
+                                              get_ith_batch(y_j, batch, BATCH_SIZE))
+        jerry_loss.append(jerry_l / BATCHES)
+        diego_loss.append(diego_l / (BATCHES * ADVERSARY_MULT))
     vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
 
     # generate outputs for one seed
