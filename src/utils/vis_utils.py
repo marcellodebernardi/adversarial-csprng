@@ -17,12 +17,12 @@ pertaining to the trained models, including loss functions, histograms
 of the model weights, etc.
 """
 
-import matplotlib.pyplot as plt
 import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 from keras import Model
 from keras.utils import plot_model
 from utils.operation_utils import flatten_irregular_nested_iterable
-matplotlib.use('Agg')
 
 
 def plot_pretrain_history_loss(history, fname):
