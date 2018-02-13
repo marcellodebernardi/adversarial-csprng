@@ -113,6 +113,7 @@ def discriminative_gan():
     jerry.compile(UNUSED_OPT, UNUSED_LOSS)
     vis_utils.plot_network_graphs(jerry, 'jerry')
     utils.save_configuration(jerry, 'jerry')
+    print('Compiled Jerry ...')
     # define Diego
     diego_input = Input(shape=(OUTPUT_LENGTH,))
     diego_output = Dense(OUTPUT_LENGTH)(diego_input)
@@ -125,6 +126,7 @@ def discriminative_gan():
     diego.compile(DIEGO_OPT, DIEGO_LOSS)
     vis_utils.plot_network_graphs(diego, 'diego')
     utils.save_configuration(diego, 'diego')
+    print('Compiled Diego ...')
     # define the connected GAN
     discgan_output = jerry(jerry_input)
     discgan_output = diego(discgan_output)
@@ -132,6 +134,7 @@ def discriminative_gan():
     discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
     vis_utils.plot_network_graphs(discgan, 'discriminative_gan')
     utils.save_configuration(discgan, 'discgan')
+    print('Compiled discgan ...')
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
@@ -183,6 +186,7 @@ def predictive_gan():
     janice.compile(UNUSED_OPT, UNUSED_LOSS)
     vis_utils.plot_network_graphs(janice, 'janice')
     utils.save_configuration(janice, 'janice')
+    print('Compiled Janice ...')
     # define priya
     priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
     priya_output = Dense(OUTPUT_LENGTH)(priya_input)
@@ -194,6 +198,7 @@ def predictive_gan():
     priya.compile(PRIYA_OPT, PRIYA_LOSS)
     vis_utils.plot_network_graphs(priya, 'priya')
     utils.save_configuration(priya, 'priya')
+    print('Compiled Priya ...')
     # connect GAN
     output_predgan = janice(janice_input)
     output_predgan = Lambda(
@@ -203,6 +208,7 @@ def predictive_gan():
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     vis_utils.plot_network_graphs(predgan, 'predictive_gan')
+    print('Compiled predgan ...')
     # utils.save_configuration(predgan, 'predgan')
 
     # pretrain priya
@@ -243,7 +249,7 @@ def predictive_gan():
 
 
 def process_cli_arguments():
-    global TESTING
+    global HPC_TRAIN
     global TRAIN
     global SEND_REPORT
 
@@ -255,7 +261,7 @@ def process_cli_arguments():
         exit(0)
 
     if "-t" in sys.argv:
-        TESTING = True
+        HPC_TRAIN = False
 
     if '-nodisc' in sys.argv:
         TRAIN[0] = False
