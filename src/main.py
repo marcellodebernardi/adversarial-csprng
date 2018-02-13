@@ -48,11 +48,11 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = False                               # set to true when training on HPC to collect data
-TRAIN = [True, False]                            # Indicates whether discgan / predgan are to be trained
+HPC_TRAIN = True                               # set to true when training on HPC to collect data
+TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
-SEND_REPORT = False                             # if true, emails results to given addresses
+SEND_REPORT = True                             # if true, emails results to given addresses
 BATCH_SIZE = 4096 if HPC_TRAIN else 10          # seeds in a single batch
 UNIQUE_SEEDS = 128 if HPC_TRAIN else 10         # unique seeds in each batch
 BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
