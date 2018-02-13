@@ -77,7 +77,7 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
         ('discgan.h5', '../output/saved_models/'),
         ('janice.h5', '../output/saved_models/'),
         ('priya.h5', '../output/saved_models/'),
-        ('predgan.h5', '../output/saved_models/'),
+        # ('predgan.h5', '../output/saved_models/'),
         ('jerry.png', '../output/model_graphs/'),
         ('diego.png', '../output/model_graphs/'),
         ('discriminative_gan.png', '../output/model_graphs/'),

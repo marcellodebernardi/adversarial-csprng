@@ -48,7 +48,7 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = True                               # set to true when training on HPC to collect data
+HPC_TRAIN = False                               # set to true when training on HPC to collect data
 TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
@@ -56,8 +56,8 @@ SEND_REPORT = True                             # if true, emails results to give
 BATCH_SIZE = 32 if HPC_TRAIN else 10          # seeds in a single batch
 UNIQUE_SEEDS = 4 if HPC_TRAIN else 10         # unique seeds in each batch
 BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
-EPOCHS = 300000 if HPC_TRAIN else 100           # number of epochs for training
-PRETRAIN_EPOCHS = 15000 if HPC_TRAIN else 160    # number of epochs for pre-training
+EPOCHS = 50000 if HPC_TRAIN else 100           # number of epochs for training
+PRETRAIN_EPOCHS = 10000 if HPC_TRAIN else 160    # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
 VAL_BITS = 2                                    # the number of bits of each output value or seed
 MAX_VAL = 3                                   # number generated are between 0-MAX_VAL
@@ -137,11 +137,8 @@ def discriminative_gan():
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    print('generated dataset')
-    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
-    print('fitted')
+    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
-    print('plotted')
 
     # train both networks in turn
     jerry_loss, diego_loss = [], []
