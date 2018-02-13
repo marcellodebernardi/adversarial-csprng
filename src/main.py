@@ -85,7 +85,6 @@ def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
     # available args: -t, -nodisc, -nopred, -noemail
-    process_cli_arguments()
 
     # train discriminative GAN
     if TRAIN[0]:

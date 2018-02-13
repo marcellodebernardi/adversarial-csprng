@@ -19,6 +19,7 @@ to be used as inputs to the neural networks.
 import numpy as np
 import random as rng
 from keras import Model
+from tqdm import tqdm
 
 
 def get_jerry_training_dataset(batch_size, num_of_batches, unique_seeds_per_batch, max_val) -> (np.ndarray, np.ndarray):
@@ -48,7 +49,7 @@ def get_discriminator_training_dataset(generator: Model, batch_size, num_of_batc
     produced by the generator."""
     dataset = []
     labels = []
-    for i in range(num_of_batches):
+    for i in tqdm(range(num_of_batches), 'Generating training dataset'):
         data_batch = [get_random_sequence(sequence_length, max_val) for i in range(int(batch_size / 2))]
         data_batch.extend(generator.predict(get_random_sequence(batch_size / 2, max_val)))
         labels_batch = [1 for i in range(int(batch_size / 2))]
