@@ -56,8 +56,8 @@ SEND_REPORT = True                             # if true, emails results to give
 BATCH_SIZE = 32 if HPC_TRAIN else 10          # seeds in a single batch
 UNIQUE_SEEDS = 4 if HPC_TRAIN else 10         # unique seeds in each batch
 BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
-EPOCHS = 50000 if HPC_TRAIN else 100           # number of epochs for training
-PRETRAIN_EPOCHS = 10000 if HPC_TRAIN else 160    # number of epochs for pre-training
+EPOCHS = 25000 if HPC_TRAIN else 100           # number of epochs for training
+PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 160    # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
 VAL_BITS = 2                                    # the number of bits of each output value or seed
 MAX_VAL = 3                                   # number generated are between 0-MAX_VAL
@@ -70,7 +70,7 @@ DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DIEGO_LOSS = loss_discriminator
 DISC_GAN_OPT = sgd(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
-PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+PRIYA_OPT = sgd(lr=LEARNING_RATE, clipvalue=CLIP_VALUE, momentum=0.5, nesterov=True)
 PRIYA_LOSS = loss_predictor(MAX_VAL)
 PRED_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRED_GAN_LOSS = loss_pred_gan(MAX_VAL)
