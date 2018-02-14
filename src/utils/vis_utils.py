@@ -51,7 +51,7 @@ def plot_train_loss(generator_loss, adversary_loss, fname):
 def plot_output_histogram(values, fname):
     """Plot a histogram of the output values for one seed. """
     values = flatten_irregular_nested_iterable(values)
-    plt.hist(values, bins=int(abs((max(values) - min(values)))*3))
+    plt.hist(values, bins=int(abs((max(values) - min(values))*3)))
     plt.title('Generator Output Frequency Distribution')
     plt.xlabel('Output')
     plt.ylabel('Frequency')

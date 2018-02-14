@@ -18,12 +18,14 @@ into text files and emailing a report after training.
 """
 
 import sys
+import numpy as np
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from utils import operation_utils
+from utils import operation_utils, input_utils
+from keras import Model
 
 
 def eprint(*args, **kwargs):
@@ -46,6 +48,20 @@ def generate_output_file(values, generator_name, max_value, val_bits):
     with open('../output/sequences/' + str(generator_name) + '.txt', 'w') as file:
         for bin_str in binary_strings:
             file.write(str(bin_str) + "")
+
+
+def log_adversary_predictions(gan: Model):
+    inputs = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
+    outputs = gan.predict(inputs)
+    print(outputs)
+
+    inputs = np.array([11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+    outputs = gan.predict(inputs)
+    print(outputs)
+
+    with open('../output/logs/' + str(gan.name) + '.txt', 'w') as file:
+        for pred in outputs:
+            file.write(str(pred) + " ")
 
 
 def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> bool:
