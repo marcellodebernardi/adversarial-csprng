@@ -35,7 +35,6 @@ The main function defines these networks and trains them.
 """
 
 import sys
-
 from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch
 from tqdm import tqdm
@@ -53,15 +52,15 @@ TRAIN = [True, True]                            # Indicates whether discgan / pr
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
 SEND_REPORT = True                             # if true, emails results to given addresses
-BATCH_SIZE = 32 if HPC_TRAIN else 10          # seeds in a single batch
-UNIQUE_SEEDS = 4 if HPC_TRAIN else 10         # unique seeds in each batch
-BATCHES = 50 if HPC_TRAIN else 10               # batches in complete dataset
+BATCH_SIZE = 32 if HPC_TRAIN else 2          # seeds in a single batch
+UNIQUE_SEEDS = 8 if HPC_TRAIN else 1         # unique seeds in each batch
+BATCHES = 40 if HPC_TRAIN else 50               # batches in complete dataset
 EPOCHS = 25000 if HPC_TRAIN else 100           # number of epochs for training
-PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 160    # number of epochs for pre-training
+PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 20    # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
-VAL_BITS = 2                                    # the number of bits of each output value or seed
-MAX_VAL = 3                                   # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 50 if HPC_TRAIN else 5        # number of values generated for each seed
+VAL_BITS = 4                                    # the number of bits of each output value or seed
+MAX_VAL = 15                                   # number generated are between 0-MAX_VAL
+OUTPUT_LENGTH = 100 if HPC_TRAIN else 5        # number of values generated for each seed
 LEARNING_RATE = 1
 CLIP_VALUE = 0.5
 
@@ -70,7 +69,7 @@ DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DIEGO_LOSS = loss_discriminator
 DISC_GAN_OPT = sgd(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
-PRIYA_OPT = sgd(lr=LEARNING_RATE, clipvalue=CLIP_VALUE, momentum=0.5, nesterov=True)
+PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRIYA_LOSS = loss_predictor(MAX_VAL)
 PRED_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRED_GAN_LOSS = loss_pred_gan(MAX_VAL)
@@ -85,6 +84,7 @@ def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
     # available args: -t, -nodisc, -nopred, -noemail
+    process_cli_arguments()
 
     # train discriminative GAN
     if TRAIN[0]:
@@ -112,7 +112,6 @@ def discriminative_gan():
     jerry.compile(UNUSED_OPT, UNUSED_LOSS)
     vis_utils.plot_network_graphs(jerry, 'jerry')
     utils.save_configuration(jerry, 'jerry')
-    print('Compiled Jerry ...')
     # define Diego
     diego_input = Input(shape=(OUTPUT_LENGTH,))
     diego_output = Dense(OUTPUT_LENGTH)(diego_input)
@@ -125,7 +124,6 @@ def discriminative_gan():
     diego.compile(DIEGO_OPT, DIEGO_LOSS)
     vis_utils.plot_network_graphs(diego, 'diego')
     utils.save_configuration(diego, 'diego')
-    print('Compiled Diego ...')
     # define the connected GAN
     discgan_output = jerry(jerry_input)
     discgan_output = diego(discgan_output)
@@ -133,11 +131,10 @@ def discriminative_gan():
     discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
     vis_utils.plot_network_graphs(discgan, 'discriminative_gan')
     utils.save_configuration(discgan, 'discgan')
-    print('Compiled discgan ...')
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
+    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
@@ -150,14 +147,12 @@ def discriminative_gan():
             # train diego
             operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
             for iteration in range(ADVERSARY_MULT):
-                diego_l += diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE),
-                                                get_ith_batch(y_d, batch, BATCH_SIZE))
+                diego_l += diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE), get_ith_batch(y_d, batch, BATCH_SIZE))
             # train jerry
             operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE),
-                                              get_ith_batch(y_j, batch, BATCH_SIZE))
-        jerry_loss.append(jerry_l / BATCHES)
-        diego_loss.append(diego_l / (BATCHES * ADVERSARY_MULT))
+            jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE), get_ith_batch(y_j, batch, BATCH_SIZE))
+        jerry_loss.append(jerry_l/BATCHES)
+        diego_loss.append(diego_l/(BATCHES * ADVERSARY_MULT))
     vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
 
     # generate outputs for one seed
@@ -169,6 +164,7 @@ def discriminative_gan():
         '../output/plots/jerry_weights.pdf'
     )
     utils.generate_output_file(values, jerry.name, MAX_VAL, VAL_BITS)
+    utils.log_adversary_predictions(discgan)
 
 
 def predictive_gan():
@@ -178,26 +174,24 @@ def predictive_gan():
     janice_input = Input(shape=(1,))
     janice_output = Dense(OUTPUT_LENGTH, activation=linear)(janice_input)
     janice_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(janice_output)
-    janice_output = SimpleRNN(60, return_sequences=True, activation=linear)(janice_output)
+    janice_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(janice_output)
     janice_output = Flatten()(janice_output)
     janice_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(janice_output)
     janice = Model(janice_input, janice_output, name='janice')
     janice.compile(UNUSED_OPT, UNUSED_LOSS)
     vis_utils.plot_network_graphs(janice, 'janice')
     utils.save_configuration(janice, 'janice')
-    print('Compiled Janice ...')
     # define priya
     priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
     priya_output = Dense(OUTPUT_LENGTH)(priya_input)
     priya_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(priya_output)
     priya_output = LSTM(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(priya_output)
     priya_output = Flatten()(priya_output)
-    priya_output = Dense(1, activation=relu)(priya_output)
+    priya_output = Dense(1, activation=linear)(priya_output)
     priya = Model(priya_input, priya_output)
     priya.compile(PRIYA_OPT, PRIYA_LOSS)
     vis_utils.plot_network_graphs(priya, 'priya')
     utils.save_configuration(priya, 'priya')
-    print('Compiled Priya ...')
     # connect GAN
     output_predgan = janice(janice_input)
     output_predgan = Lambda(
@@ -207,14 +201,13 @@ def predictive_gan():
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     vis_utils.plot_network_graphs(predgan, 'predictive_gan')
-    print('Compiled predgan ...')
     # utils.save_configuration(predgan, 'predgan')
 
     # pretrain priya
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     janice_output = janice.predict(seed_dataset)
     priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
-    history = priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
+    history = priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/priya_pretrain_loss.pdf')
 
     # train both janice and priya
@@ -245,6 +238,7 @@ def predictive_gan():
         '../output/plots/janice_weights.pdf'
     )
     utils.generate_output_file(values, janice.name, MAX_VAL, VAL_BITS)
+    utils.log_adversary_predictions(predgan)
 
 
 def process_cli_arguments():
@@ -260,7 +254,7 @@ def process_cli_arguments():
         exit(0)
 
     if "-t" in sys.argv:
-        HPC_TRAIN = False
+        HPC_TRAIN = True
 
     if '-nodisc' in sys.argv:
         TRAIN[0] = False
