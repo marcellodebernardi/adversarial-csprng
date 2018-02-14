@@ -47,7 +47,7 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = True                               # set to true when training on HPC to collect data
+HPC_TRAIN = False                               # set to true when training on HPC to collect data
 TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
@@ -164,7 +164,7 @@ def discriminative_gan():
         '../output/plots/jerry_weights.pdf'
     )
     utils.generate_output_file(values, jerry.name, MAX_VAL, VAL_BITS)
-    utils.log_adversary_predictions(discgan)
+    # utils.log_adversary_predictions(discgan)
 
 
 def predictive_gan():
@@ -238,7 +238,7 @@ def predictive_gan():
         '../output/plots/janice_weights.pdf'
     )
     utils.generate_output_file(values, janice.name, MAX_VAL, VAL_BITS)
-    utils.log_adversary_predictions(predgan)
+    # utils.log_adversary_predictions(predgan)
 
 
 def process_cli_arguments():
