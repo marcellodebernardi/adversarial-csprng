@@ -134,7 +134,7 @@ def discriminative_gan():
 
     # pre-train Diego
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
+    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
@@ -207,7 +207,7 @@ def predictive_gan():
     seed_dataset = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     janice_output = janice.predict(seed_dataset)
     priya_input, priya_output = operation_utils.split_generator_outputs_batch(janice_output, 1)
-    history = priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0)
+    history = priya.fit(priya_input, priya_output, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/priya_pretrain_loss.pdf')
 
     # train both janice and priya
