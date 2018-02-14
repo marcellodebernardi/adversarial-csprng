@@ -47,7 +47,7 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = False                               # set to true when training on HPC to collect data
+HPC_TRAIN = True                               # set to true when training on HPC to collect data
 TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
