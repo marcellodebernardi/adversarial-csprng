@@ -22,7 +22,7 @@ from keras import Model
 from tqdm import tqdm
 
 
-def get_jerry_training_dataset(batch_size, num_of_batches, unique_seeds_per_batch, max_val) -> (np.ndarray, np.ndarray):
+def get_seed_dataset(batch_size, num_of_batches, unique_seeds_per_batch, max_val) -> (np.ndarray, np.ndarray):
     """Generates a dataset for adversarially training Jerry (the generator).
     The first element in the returned tuple is an array of seeds, representing
     the inputs to the GAN. The second element is an array of labels, which are

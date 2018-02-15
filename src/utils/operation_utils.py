@@ -33,7 +33,11 @@ def set_trainable(model: Model, optimizer, loss, recompile, trainable: bool = Tr
         model.compile(optimizer, loss)
 
 
-def split_generator_outputs_batch(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
+def split_generator_outputs(generator_output: np.ndarray, n_to_predict=1) -> (np.ndarray, np.ndarray):
+    """For an array of outputs produced by a generator, where each element in the
+    array is an array of real numbers, splits all the inner array into two, such that
+    the first resulting array contains all elements of the original inner array minus
+    n_to_predict items, and the second contains the last n_to_predict items."""
     inputs = []
     outputs = []
 
@@ -58,7 +62,7 @@ def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.nd
 def get_ith_batch(data: np.ndarray, batch: int, batch_size):
     """Returns a slice of the given array, corresponding to the ith
     batch of size batch_size."""
-    return data[batch * batch_size: ((batch + 1) * batch_size) - 1]
+    return data[(batch * batch_size): (batch + 1) * batch_size]
 
 
 def log(x, base) -> tf.Tensor:
