@@ -26,7 +26,7 @@ def loss_disc_gan(true, pred):
     """Loss function for the adversarial network, used to train the
     generator."""
     # return tf.ones(tf.shape(pred))
-    return tf.subtract(tf.ones(tf.shape(pred), dtype=tf.float32), tf.abs(tf.subtract(true, pred)))
+    return tf.subtract(tf.ones(tf.shape(pred), dtype=tf.float32), loss_discriminator(true, pred))
 
 
 def loss_discriminator(true, pred):

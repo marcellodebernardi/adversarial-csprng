@@ -35,28 +35,30 @@ The main function defines these networks and trains them.
 """
 
 import sys
+import numpy as np
 from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch
 from tqdm import tqdm
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
-from keras.activations import linear, relu
+from keras.activations import linear, relu, softmax
 from keras.optimizers import adagrad, sgd
+from keras.losses import mean_absolute_error, binary_crossentropy, mean_absolute_percentage_error
 from models.activations import modulo, diagonal_max
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = True                               # set to true when training on HPC to collect data
-TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
+HPC_TRAIN = False                               # set to true when training on HPC to collect data
+TRAIN = [True, False]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
-SEND_REPORT = True                             # if true, emails results to given addresses
+SEND_REPORT = False                             # if true, emails results to given addresses
 BATCH_SIZE = 32 if HPC_TRAIN else 2          # seeds in a single batch
 UNIQUE_SEEDS = 8 if HPC_TRAIN else 1         # unique seeds in each batch
 BATCHES = 40 if HPC_TRAIN else 50               # batches in complete dataset
 EPOCHS = 25000 if HPC_TRAIN else 100           # number of epochs for training
-PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 20    # number of epochs for pre-training
+PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 100    # number of epochs for pre-training
 ADVERSARY_MULT = 2                              # multiplier for training of the adversary
 VAL_BITS = 4                                    # the number of bits of each output value or seed
 MAX_VAL = 15                                   # number generated are between 0-MAX_VAL
@@ -67,7 +69,7 @@ CLIP_VALUE = 0.5
 # losses and optimizers
 DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DIEGO_LOSS = loss_discriminator
-DISC_GAN_OPT = sgd(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+DISC_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
 PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRIYA_LOSS = loss_predictor(MAX_VAL)
@@ -118,8 +120,7 @@ def discriminative_gan():
     diego_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(diego_output)
     diego_output = Conv1D(int(OUTPUT_LENGTH / 4), 4)(diego_output)
     diego_output = Flatten()(diego_output)
-    diego_output = Dense(int(OUTPUT_LENGTH / 4), activation=diagonal_max(100))(diego_output)
-    diego_output = Dense(1)(diego_output)
+    diego_output = Dense(1, activation=diagonal_max(100))(diego_output)
     diego = Model(diego_input, diego_output)
     diego.compile(DIEGO_OPT, DIEGO_LOSS)
     vis_utils.plot_network_graphs(diego, 'diego')
@@ -136,24 +137,27 @@ def discriminative_gan():
     x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
     history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
     vis_utils.plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
+    print(diego.predict(x))
 
     # train both networks in turn
     jerry_loss, diego_loss = [], []
-    for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
-        x_d, y_d = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-        x_j, y_j = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
-        jerry_l, diego_l = 0, 0
-        for batch in range(BATCHES):
-            # train diego
-            operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-            for iteration in range(ADVERSARY_MULT):
-                diego_l += diego.train_on_batch(get_ith_batch(x_d, batch, BATCH_SIZE), get_ith_batch(y_d, batch, BATCH_SIZE))
-            # train jerry
-            operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_l += discgan.train_on_batch(get_ith_batch(x_j, batch, BATCH_SIZE), get_ith_batch(y_j, batch, BATCH_SIZE))
-        jerry_loss.append(jerry_l/BATCHES)
-        diego_loss.append(diego_l/(BATCHES * ADVERSARY_MULT))
-    vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
+    # for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
+    #     x_d, y_d = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    #     x_j, y_j = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+    #
+    #     operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
+    #     diego_loss.append(np.mean(diego.fit(x_d, y_d, batch_size=BATCH_SIZE, epochs=ADVERSARY_MULT, verbose=0).history['loss']))
+    #     operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
+    #     jerry_loss.append(discgan.fit(x_j, y_j, batch_size=BATCH_SIZE, verbose=0).history['loss'])
+    #
+    # vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
+
+    x_d, y_d = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    x_j, y_j = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+    operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, True)
+    print(diego.fit(x_d, y_d, batch_size=BATCH_SIZE, epochs=ADVERSARY_MULT * EPOCHS, verbose=0).history['loss'])
+    operation_utils.set_trainable(diego, DIEGO_OPT, False, RECOMPILE)
+    print(discgan.fit(x_j, y_j, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=0).history['loss'])
 
     # generate outputs for one seed
     values = operation_utils.flatten_irregular_nested_iterable(jerry.predict(EVAL_SEED))
