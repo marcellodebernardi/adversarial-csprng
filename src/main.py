@@ -258,12 +258,14 @@ def predictive_gan():
 def process_cli_arguments():
     global TRAIN
     global SEND_REPORT
+    global RECOMPILE
 
     if "-help" in sys.argv or "-h" in sys.argv:
         print("Optional arguments include:\n"
               + "-nodisc\t\tdo not train discriminator\n"
               + "-nopred\t\tdo not train predictor\n"
-              + "-noemail\tdo not report by email\n")
+              + "-noemail\tdo not report by email\n"
+              + "-r\t\trecompile models during training\n")
         exit(0)
 
     if '-nodisc' in sys.argv:
@@ -274,6 +276,9 @@ def process_cli_arguments():
 
     if '-noemail' in sys.argv:
         SEND_REPORT = False
+
+    if '-r' in sys.argv:
+        RECOMPILE = True
 
 
 if __name__ == '__main__':
