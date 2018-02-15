@@ -50,8 +50,10 @@ def generate_output_file(values, generator_name, max_value, val_bits):
             file.write(str(bin_str) + "")
 
 
-def write_training_log():
-    pass
+def log_to_file(logs: np.ndarray, fname: str):
+    """Writes the given data array to the given file. No prettifying."""
+    with open(fname, 'w') as file:
+        file.write(str(logs))
 
 
 def log_adversary_predictions(gan: Model):
