@@ -50,6 +50,10 @@ def generate_output_file(values, generator_name, max_value, val_bits):
             file.write(str(bin_str) + "")
 
 
+def write_training_log():
+    pass
+
+
 def log_adversary_predictions(gan: Model):
     inputs = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
     outputs = gan.predict(inputs)
