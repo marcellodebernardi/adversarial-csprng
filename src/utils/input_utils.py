@@ -43,7 +43,7 @@ def get_seed_dataset(batch_size, num_of_batches, unique_seeds_per_batch, max_val
     return np.array(x), np.zeros(len(x))
 
 
-def get_discriminator_training_dataset(generator: Model, batch_size, num_of_batches, sequence_length, max_val, shuffle=False) -> (np.ndarray, np.ndarray):
+def get_sequences_dataset(generator: Model, batch_size, num_of_batches, sequence_length, max_val, shuffle=False) -> (np.ndarray, np.ndarray):
     """Generates a dataset for training Diego (the discriminator). The
     dataset consists half of truly random sequences and half of sequences
     produced by the generator."""

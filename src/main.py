@@ -38,7 +38,7 @@ import sys
 import numpy as np
 from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch, split_generator_outputs, set_trainable
-from utils.input_utils import get_seed_dataset
+from utils.input_utils import get_seed_dataset, get_sequences_dataset
 from utils.vis_utils import *
 from tqdm import tqdm
 from keras import Model
@@ -137,33 +137,30 @@ def discriminative_gan():
     utils.save_configuration(discgan, 'discgan')
 
     # pre-train Diego
-    x, y = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    history = diego.fit(x, y, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=1)
-    plot_pretrain_history_loss(history, '../output/plots/diego_pretrain_loss.pdf')
-    print(diego.predict(x))
+    diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    plot_pretrain_history_loss(
+        diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0),
+        '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
-    jerry_loss, diego_loss = [], []
-    # for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
-    #     x_d, y_d = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    #     x_j, y_j = input_utils.get_jerry_training_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
-    #
-    #     operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-    #     diego_loss.append(np.mean(diego.fit(x_d, y_d, batch_size=BATCH_SIZE, epochs=ADVERSARY_MULT, verbose=0).history['loss']))
-    #     operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-    #     jerry_loss.append(discgan.fit(x_j, y_j, batch_size=BATCH_SIZE, verbose=0).history['loss'])
-    #
-    # vis_utils.plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
-
-    x_d, y_d = input_utils.get_discriminator_training_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    x_j, y_j = input_utils.get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
-    operation_utils.set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, True)
-    print(diego.fit(x_d, y_d, batch_size=BATCH_SIZE, epochs=ADVERSARY_MULT * EPOCHS, verbose=0).history['loss'])
-    operation_utils.set_trainable(diego, DIEGO_OPT, False, RECOMPILE)
-    print(discgan.fit(x_j, y_j, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=0).history['loss'])
+    jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
+    diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+    # iterate over entire dataset
+    for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
+        set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
+        diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
+                                               epochs=ADVERSARY_MULT, verbose=0).history['loss'])
+        set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
+        jerry_loss[epoch] += np.mean(discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
+                                                 verbose=0).history['loss'])
+        # log losses to console
+        if epoch % LOG_EVERY_N == 0:
+            print('Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(diego_loss[epoch]))
+    plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
 
     # generate outputs for one seed
-    values = operation_utils.flatten_irregular_nested_iterable(jerry.predict(EVAL_SEED))
+    values = flatten_irregular_nested_iterable(jerry.predict(EVAL_SEED))
     plot_output_histogram(values, '../output/plots/discgan_jerry_output_distribution.pdf')
     plot_output_sequence(values, '../output/plots/discgan_jerry_output_sequence.pdf')
     plot_network_weights(
