@@ -52,20 +52,20 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = False                               # set to true when training on HPC to collect data
-TRAIN = [False, True]                            # Indicates whether discgan / predgan are to be trained
+HPC_TRAIN = True                               # set to true when training on HPC to collect data
+TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
 PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
 RECOMPILE = False                               # if true, models are recompiled when changing trainability
-SEND_REPORT = False                             # if true, emails results to given addresses
+SEND_REPORT = True                             # if true, emails results to given addresses
 BATCH_SIZE = 32 if HPC_TRAIN else 3          # seeds in a single batch
-UNIQUE_SEEDS = 8 if HPC_TRAIN else 1         # unique seeds in each batch
-BATCHES = 40 if HPC_TRAIN else 50               # batches in complete dataset
+UNIQUE_SEEDS = 32 if HPC_TRAIN else 1         # unique seeds in each batch
+BATCHES = 100 if HPC_TRAIN else 50               # batches in complete dataset
 EPOCHS = 25000 if HPC_TRAIN else 100           # number of epochs for training
 PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 100    # number of epochs for pre-training
-ADVERSARY_MULT = 2                              # multiplier for training of the adversary
-VAL_BITS = 4                                    # the number of bits of each output value or seed
-MAX_VAL = 15                                   # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 100 if HPC_TRAIN else 5        # number of values generated for each seed
+ADVERSARY_MULT = 3                              # multiplier for training of the adversary
+VAL_BITS = 8                                    # the number of bits of each output value or seed
+MAX_VAL = 255                                   # number generated are between 0-MAX_VAL
+OUTPUT_LENGTH = 500 if HPC_TRAIN else 5        # number of values generated for each seed
 LEARNING_RATE = 1
 CLIP_VALUE = 0.5
 # losses and optimizers
