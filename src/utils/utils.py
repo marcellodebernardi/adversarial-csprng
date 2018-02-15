@@ -81,7 +81,7 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
            + "Dataset size: " + str(batch_size * batches) + "\n" \
            + "Unique seeds per batch: " + str(unique_seeds) + "\n" \
            + "Training epochs: " + str(epochs) + "\n" \
-           + "Pretraining epochs: " + str(pretrain_epochs) + "\n"
+           + "Pretraining epochs: " + str(pretrain_epochs) + "\n\n\n"
     msg.attach(MIMEText(body, 'plain'))
     # attachment list includes:
     # model graphs
@@ -93,7 +93,7 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
         ('discgan.h5', '../output/saved_models/'),
         ('janice.h5', '../output/saved_models/'),
         ('priya.h5', '../output/saved_models/'),
-        # ('predgan.h5', '../output/saved_models/'),
+        ('predgan.h5', '../output/saved_models/'),
         ('jerry.png', '../output/model_graphs/'),
         ('diego.png', '../output/model_graphs/'),
         ('discriminative_gan.png', '../output/model_graphs/'),
@@ -111,13 +111,16 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
     ]
     # insert attachments
     for att in attachments:
-        filename = att[0]
-        attachment = open(att[1] + att[0], 'rb')
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-        msg.attach(part)
+        try:
+            filename = att[0]
+            attachment = open(att[1] + att[0], 'rb')
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(attachment.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+            msg.attach(part)
+        except FileNotFoundError:
+            body = body + "File not found: " + att[0] + "\n"
 
     server = SMTP('smtp.gmail.com', 587)
     server.starttls()
