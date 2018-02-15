@@ -82,7 +82,7 @@ UNUSED_LOSS = 'binary_crossentropy'
 # evaluation seed
 EVAL_SEED = input_utils.get_random_sequence(1, MAX_VAL)
 # logging
-LOG_EVERY_N = 200 if HPC_TRAIN else 10
+LOG_EVERY_N = 100 if HPC_TRAIN else 10
 
 
 def main():
@@ -106,6 +106,8 @@ def main():
 def discriminative_gan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
+    # logs of form
+    logs = np.ndarray(shape=(int(EPOCHS / LOG_EVERY_N), 4))
     # define Jerry
     jerry_input = Input(shape=(1,))
     jerry_output = Dense(OUTPUT_LENGTH, activation=linear)(jerry_input)
@@ -144,10 +146,10 @@ def discriminative_gan():
 
     # train both networks in turn
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
     # iterate over entire dataset
     for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
+        diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+        discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
         set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
         diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
                                                epochs=ADVERSARY_MULT, verbose=0).history['loss'])
@@ -216,9 +218,9 @@ def predictive_gan():
 
     # main training procedure
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     # iterate over entire dataset
     for epoch in tqdm(range(EPOCHS), desc='Training janice and priya: '):
+        seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
         priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
         # iterate over portions of dataset
         for batch in range(BATCHES):
