@@ -29,7 +29,7 @@ def main():
         return
 
     generator = load_model(sys.argv[0])
-    utils.generate_output_file(generator, MAX_VAL, VAL_BITS)
+    utils.generate_output_file(, MAX_VAL, VAL_BITS, )
 
 
 if __name__ == '__main__':
