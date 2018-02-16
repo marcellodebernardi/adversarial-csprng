@@ -20,7 +20,7 @@ trained generator network.
 import sys
 from keras.models import load_model
 from utils import utils
-from main import MAX_VAL, VAL_BITS
+from main import MAX_VAL, VAL_BITS, EVAL_SEED
 
 
 def main():
@@ -29,7 +29,10 @@ def main():
         return
 
     generator = load_model(sys.argv[0])
-    utils.generate_output_file(, MAX_VAL, VAL_BITS, )
+    utils.generate_output_file(
+        generator.predict(EVAL_SEED),
+        VAL_BITS,
+        '../output/testbed_sequences/' + generator.name + 'txt')
 
 
 if __name__ == '__main__':

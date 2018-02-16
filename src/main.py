@@ -170,7 +170,7 @@ def discriminative_gan():
         operation_utils.flatten_irregular_nested_iterable(jerry.get_weights()),
         '../output/plots/jerry_weights.pdf'
     )
-    utils.generate_output_file(values, jerry.name, MAX_VAL, VAL_BITS)
+    utils.generate_output_file(values, VAL_BITS, '../output/sequences/jerry.txt')
     # utils.log_adversary_predictions(discgan)
 
 
@@ -255,7 +255,7 @@ def predictive_gan():
         flatten_irregular_nested_iterable(janice.get_weights()),
         '../output/plots/janice_weights.pdf'
     )
-    utils.generate_output_file(output_values, janice.name, MAX_VAL, VAL_BITS)
+    utils.generate_output_file(output_values, VAL_BITS, '../output/sequences/janice.txt')
     # utils.log_adversary_predictions(predgan)
 
 
