@@ -36,6 +36,7 @@ The main function defines these networks and trains them.
 
 import sys
 import numpy as np
+import tensorflow as tf
 from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch, split_generator_outputs, set_trainable
 from utils.input_utils import get_seed_dataset, get_sequences_dataset
@@ -88,12 +89,21 @@ LOG_EVERY_N = 100 if HPC_TRAIN else 10
 def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
-    # train discriminative GAN
-    if TRAIN[0]:
-        discriminative_gan()
-    # train predictive GAN
-    if TRAIN[1]:
-        predictive_gan()
+    if '-cpu' in sys.argv:
+        with tf.device('/cpu:0'):
+            # train discriminative GAN
+            if TRAIN[0]:
+                discriminative_gan()
+            # train predictive GAN
+            if TRAIN[1]:
+                predictive_gan()
+    else:
+        # train discriminative GAN
+        if TRAIN[0]:
+            discriminative_gan()
+        # train predictive GAN
+        if TRAIN[1]:
+            predictive_gan()
 
     # send off email report
     if SEND_REPORT:
