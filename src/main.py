@@ -149,11 +149,11 @@ def discriminative_gan():
             diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
             discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
         set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-        diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
-                                               epochs=ADVERSARY_MULT, verbose=0).history['loss'])
+        diego_loss[epoch] += diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
+                                       epochs=ADVERSARY_MULT, verbose=0).history['loss']
         set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-        jerry_loss[epoch] += np.mean(discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
-                                                 verbose=0).history['loss'])
+        jerry_loss[epoch] += discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
+                                         verbose=0).history['loss']
         # log losses to console
         if epoch % LOG_EVERY_N == 0:
             print('Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(diego_loss[epoch]))
