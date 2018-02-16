@@ -38,14 +38,14 @@ def save_configuration(model, name):
     model.save('../output/saved_models/' + str(name) + '.h5', overwrite=True)
 
 
-def generate_output_file(values, generator_name, max_value, val_bits, fname=None):
+def generate_output_file(values, val_bits, fname=None):
     """Produces an ASCII output text file consisting of 0s and 1s.
     Such a file can be evaluated by the NIST test suite."""
     values = operation_utils.flatten_irregular_nested_iterable(values)
     binary_strings \
         = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '')) for number in values]
 
-    with open('../output/sequences/' + str(generator_name) + '.txt' if fname is None else fname, 'w') as file:
+    with open(fname, 'w') as file:
         for bin_str in binary_strings:
             file.write(str(bin_str) + "")
 
