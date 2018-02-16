@@ -19,7 +19,7 @@ into text files and emailing a report after training.
 
 import sys
 import numpy as np
-from smtplib import SMTP
+from smtplib import SMTP_SSL
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -128,10 +128,9 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
         except FileNotFoundError:
             body = body + "File not found: " + att[0] + "\n"
 
-    server = SMTP('smtp.gmail.com', 587)
-    server.starttls()
+    server = SMTP_SSL('smtp.gmail.com', 465)
     server.login(sender, 'neural_networks_rule_forever')
     text = msg.as_string()
     server.sendmail(sender, recipient, text)
-    server.quit()
+    server.close()
     return True
