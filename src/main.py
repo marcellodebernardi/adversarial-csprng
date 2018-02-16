@@ -52,20 +52,21 @@ from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 
-HPC_TRAIN = True                               # set to true when training on HPC to collect data
-TRAIN = [True, True]                            # Indicates whether discgan / predgan are to be trained
-PRETRAIN = True                                 # if true, pretrain the discriminator/predictor
-RECOMPILE = False                               # if true, models are recompiled when changing trainability
-SEND_REPORT = True                             # if true, emails results to given addresses
-BATCH_SIZE = 32 if HPC_TRAIN else 3          # seeds in a single batch
-UNIQUE_SEEDS = 32 if HPC_TRAIN else 1         # unique seeds in each batch
-BATCHES = 100 if HPC_TRAIN else 50               # batches in complete dataset
-EPOCHS = 25000 if HPC_TRAIN else 100           # number of epochs for training
-PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 100    # number of epochs for pre-training
-ADVERSARY_MULT = 3                              # multiplier for training of the adversary
-VAL_BITS = 8                                    # the number of bits of each output value or seed
-MAX_VAL = 255                                   # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 500 if HPC_TRAIN else 5        # number of values generated for each seed
+HPC_TRAIN = '-t' not in sys.argv                                # set to true when training on HPC to collect data
+TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]  # Indicates whether discgan / predgan are to be trained
+PRETRAIN = True                                                 # if true, pretrain the discriminator/predictor
+RECOMPILE = '-rec' in sys.argv                                  # if true, models are recompiled when set_trainable
+REFRESH_DATASET = '-ref' in sys.argv                            # refresh dataset at each epoch
+SEND_REPORT = '-noemail' not in sys.argv                        # emails results to given addresses
+BATCH_SIZE = 32 if HPC_TRAIN else 3                             # seeds in a single batch
+UNIQUE_SEEDS = 32 if HPC_TRAIN else 1                           # unique seeds in each batch
+BATCHES = 100 if HPC_TRAIN else 50                              # batches in complete dataset
+EPOCHS = 25000 if HPC_TRAIN else 100                            # number of epochs for training
+PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 20                     # number of epochs for pre-training
+ADVERSARY_MULT = 3                                              # multiplier for training of the adversary
+VAL_BITS = 16 if HPC_TRAIN else 4                               # the number of bits of each output value or seed
+MAX_VAL = 65535 if HPC_TRAIN else 15                            # number generated are between 0-MAX_VAL
+OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5                        # number of values generated for each seed
 LEARNING_RATE = 1
 CLIP_VALUE = 0.5
 # losses and optimizers
@@ -88,9 +89,6 @@ LOG_EVERY_N = 100 if HPC_TRAIN else 10
 def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
-    # available args: -nodisc, -nopred, -noemail
-    process_cli_arguments()
-
     # train discriminative GAN
     if TRAIN[0]:
         discriminative_gan()
@@ -146,10 +144,13 @@ def discriminative_gan():
 
     # train both networks in turn
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
+    diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
     # iterate over entire dataset
     for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
-        diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-        discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+        if REFRESH_DATASET:
+            diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+            discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
         set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
         diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
                                                epochs=ADVERSARY_MULT, verbose=0).history['loss'])
@@ -218,10 +219,13 @@ def predictive_gan():
 
     # main training procedure
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
+    seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+    priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
     # iterate over entire dataset
     for epoch in tqdm(range(EPOCHS), desc='Training janice and priya: '):
-        seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-        priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
+        if REFRESH_DATASET:
+            seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+            priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
         # iterate over portions of dataset
         for batch in range(BATCHES):
             # train predictor
@@ -253,32 +257,6 @@ def predictive_gan():
     )
     utils.generate_output_file(output_values, janice.name, MAX_VAL, VAL_BITS)
     # utils.log_adversary_predictions(predgan)
-
-
-def process_cli_arguments():
-    global TRAIN
-    global SEND_REPORT
-    global RECOMPILE
-
-    if "-help" in sys.argv or "-h" in sys.argv:
-        print("Optional arguments include:\n"
-              + "-nodisc\t\tdo not train discriminator\n"
-              + "-nopred\t\tdo not train predictor\n"
-              + "-noemail\tdo not report by email\n"
-              + "-r\t\trecompile models during training\n")
-        exit(0)
-
-    if '-nodisc' in sys.argv:
-        TRAIN[0] = False
-
-    if '-nopred' in sys.argv:
-        TRAIN[1] = False
-
-    if '-noemail' in sys.argv:
-        SEND_REPORT = False
-
-    if '-r' in sys.argv:
-        RECOMPILE = True
 
 
 if __name__ == '__main__':
