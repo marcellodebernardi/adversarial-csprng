@@ -51,22 +51,21 @@ from models.activations import modulo, diagonal_max
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
-
-HPC_TRAIN = '-t' not in sys.argv                                # set to true when training on HPC to collect data
+HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]  # Indicates whether discgan / predgan are to be trained
-PRETRAIN = True                                                 # if true, pretrain the discriminator/predictor
-RECOMPILE = '-rec' in sys.argv                                  # if true, models are recompiled when set_trainable
-REFRESH_DATASET = '-ref' in sys.argv                            # refresh dataset at each epoch
-SEND_REPORT = '-noemail' not in sys.argv                        # emails results to given addresses
-BATCH_SIZE = 32 if HPC_TRAIN else 3                             # seeds in a single batch
-UNIQUE_SEEDS = 32 if HPC_TRAIN else 1                           # unique seeds in each batch
-BATCHES = 100 if HPC_TRAIN else 2                              # batches in complete dataset
-EPOCHS = 25000 if HPC_TRAIN else 10                            # number of epochs for training
-PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 5                     # number of epochs for pre-training
-ADVERSARY_MULT = 3                                              # multiplier for training of the adversary
-VAL_BITS = 16 if HPC_TRAIN else 4                               # the number of bits of each output value or seed
-MAX_VAL = 65535 if HPC_TRAIN else 15                            # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5                        # number of values generated for each seed
+PRETRAIN = True  # if true, pretrain the discriminator/predictor
+RECOMPILE = '-rec' in sys.argv  # if true, models are recompiled when set_trainable
+REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
+SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
+BATCH_SIZE = 32 if HPC_TRAIN else 3  # seeds in a single batch
+UNIQUE_SEEDS = 32 if HPC_TRAIN else 1  # unique seeds in each batch
+BATCHES = 100 if HPC_TRAIN else 2  # batches in complete dataset
+EPOCHS = 25000 if HPC_TRAIN else 10  # number of epochs for training
+PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 5  # number of epochs for pre-training
+ADVERSARY_MULT = 3  # multiplier for training of the adversary
+VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
+MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
+OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5  # number of values generated for each seed
 LEARNING_RATE = 1
 CLIP_VALUE = 0.5
 # losses and optimizers
@@ -104,8 +103,6 @@ def main():
 def discriminative_gan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
-    # logs of form
-    logs = np.ndarray(shape=(int(EPOCHS / LOG_EVERY_N), 4))
     # define Jerry
     jerry_input = Input(shape=(1,))
     jerry_output = Dense(OUTPUT_LENGTH, activation=linear)(jerry_input)
@@ -147,7 +144,7 @@ def discriminative_gan():
     diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
     discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
     # iterate over entire dataset
-    for epoch in tqdm(range(EPOCHS), desc='Train jerry and diego: '):
+    for epoch in range(EPOCHS):
         if REFRESH_DATASET:
             diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
             discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
@@ -171,7 +168,6 @@ def discriminative_gan():
         '../output/plots/jerry_weights.pdf'
     )
     utils.generate_output_file(values, VAL_BITS, '../output/sequences/jerry.txt')
-    # utils.log_adversary_predictions(discgan)
 
 
 def predictive_gan():
@@ -222,7 +218,7 @@ def predictive_gan():
     seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
     # iterate over entire dataset
-    for epoch in tqdm(range(EPOCHS), desc='Training janice and priya: '):
+    for epoch in range(EPOCHS):
         if REFRESH_DATASET:
             seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
             priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
@@ -256,7 +252,6 @@ def predictive_gan():
         '../output/plots/janice_weights.pdf'
     )
     utils.generate_output_file(output_values, VAL_BITS, '../output/sequences/janice.txt')
-    # utils.log_adversary_predictions(predgan)
 
 
 if __name__ == '__main__':
