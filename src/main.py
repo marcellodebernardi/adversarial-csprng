@@ -66,7 +66,7 @@ PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 5  # number of epochs for pre-training
 ADVERSARY_MULT = 3  # multiplier for training of the adversary
 VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
 MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5  # number of values generated for each seed
+OUTPUT_LENGTH = 500 if HPC_TRAIN else 5  # number of values generated for each seed
 LEARNING_RATE = 1
 CLIP_VALUE = 0.5
 # losses and optimizers
@@ -159,11 +159,11 @@ def discriminative_gan():
             diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
             discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
         set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-        diego_loss[epoch] += diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
-                                       epochs=ADVERSARY_MULT, verbose=0).history['loss']
+        diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
+                                               epochs=ADVERSARY_MULT, verbose=0).history['loss'])
         set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-        jerry_loss[epoch] += discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
-                                         verbose=0).history['loss']
+        jerry_loss[epoch] += np.mean(discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
+                                                 verbose=0).history['loss'])
         # log losses to console
         if epoch % LOG_EVERY_N == 0:
             print('Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(diego_loss[epoch]))
@@ -237,14 +237,14 @@ def predictive_gan():
             # train predictor
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
             for i in range(ADVERSARY_MULT):
-                priya_loss[epoch] += priya.train_on_batch(
+                priya_loss[epoch] += np.mean(priya.train_on_batch(
                     get_ith_batch(priya_x_data, batch, BATCH_SIZE),
-                    get_ith_batch(priya_y_labels, batch, BATCH_SIZE))
+                    get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
             # train generator
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            janice_loss[epoch] += predgan.train_on_batch(
+            janice_loss[epoch] += np.mean(predgan.train_on_batch(
                 get_ith_batch(seed_dataset, batch, BATCH_SIZE),
-                get_ith_batch(priya_y_labels, batch, BATCH_SIZE))
+                get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
         # update and log loss value
         janice_loss[epoch] /= BATCHES
         priya_loss[epoch] /= (BATCHES * ADVERSARY_MULT)
