@@ -35,6 +35,7 @@ The main function defines these networks and trains them.
 """
 
 import sys
+import datetime
 import numpy as np
 import tensorflow as tf
 from utils import utils, vis_utils, input_utils, operation_utils
@@ -166,7 +167,7 @@ def discriminative_gan():
                                                  verbose=0).history['loss'])
         # log losses to console
         if epoch % LOG_EVERY_N == 0:
-            print('Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(diego_loss[epoch]))
+            print(str(datetime.datetime.utcnow()) + 'Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(diego_loss[epoch]))
     plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
 
     # generate outputs for one seed
@@ -249,7 +250,7 @@ def predictive_gan():
         janice_loss[epoch] /= BATCHES
         priya_loss[epoch] /= (BATCHES * ADVERSARY_MULT)
         if epoch % LOG_EVERY_N == 0:
-            print('Janice loss: ' + str(janice_loss[epoch]) + ' / Priya loss: ' + str(priya_loss[epoch]))
+            print(str(datetime.datetime.utcnow()) + 'Janice loss: ' + str(janice_loss[epoch]) + ' / Priya loss: ' + str(priya_loss[epoch]))
     # end of training results collection
     plot_train_loss(janice_loss, priya_loss, '../output/plots/predgan_train_loss.pdf')
 
