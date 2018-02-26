@@ -36,6 +36,7 @@ The main function defines these networks and trains them.
 
 import sys
 import datetime
+import math
 import numpy as np
 import tensorflow as tf
 from utils import utils, vis_utils, input_utils, operation_utils
@@ -155,19 +156,27 @@ def discriminative_gan():
     diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
     discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
     # iterate over entire dataset
-    for epoch in range(EPOCHS):
-        if REFRESH_DATASET:
-            diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-            discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
-        set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-        diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
-                                               epochs=ADVERSARY_MULT, verbose=0).history['loss'])
-        set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-        jerry_loss[epoch] += np.mean(discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
-                                                 verbose=0).history['loss'])
-        # log losses to console
-        if epoch % LOG_EVERY_N == 0:
-            print(str(datetime.datetime.utcnow()) + 'Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(diego_loss[epoch]))
+    try:
+        for epoch in range(EPOCHS):
+            if REFRESH_DATASET:
+                diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+                discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
+            diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
+                                                   epochs=ADVERSARY_MULT, verbose=0).history['loss'])
+            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
+            jerry_loss[epoch] += np.mean(discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
+                                                     verbose=0).history['loss'])
+
+            if math.isnan(jerry_loss[epoch]) or math.isnan(diego_loss[epoch]):
+                raise ValueError()
+            # log losses to console
+            if epoch % LOG_EVERY_N == 0:
+                print(
+                    str(datetime.datetime.utcnow()) + 'Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(
+                        diego_loss[epoch]))
+    except ValueError:
+        print(str(datetime.datetime.utcnow()) + " loss is nan, aborting")
     plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
 
     # generate outputs for one seed
@@ -229,32 +238,35 @@ def predictive_gan():
     seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
     priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
     # iterate over entire dataset
-    for epoch in range(EPOCHS):
-        if REFRESH_DATASET:
-            seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-            priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
-        # iterate over portions of dataset
-        for batch in range(BATCHES):
-            # train predictor
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
-            for i in range(ADVERSARY_MULT):
-                priya_loss[epoch] += np.mean(priya.train_on_batch(
-                    get_ith_batch(priya_x_data, batch, BATCH_SIZE),
+    try:
+        for epoch in range(EPOCHS):
+            if REFRESH_DATASET:
+                seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+                priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
+            # iterate over portions of dataset
+            for batch in range(BATCHES):
+                # train predictor
+                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
+                for i in range(ADVERSARY_MULT):
+                    priya_loss[epoch] += np.mean(priya.train_on_batch(
+                        get_ith_batch(priya_x_data, batch, BATCH_SIZE),
+                        get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
+                # train generator
+                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
+                janice_loss[epoch] = np.mean(predgan.train_on_batch(
+                    get_ith_batch(seed_dataset, batch, BATCH_SIZE),
                     get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
-            # train generator
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            loss = np.mean(predgan.train_on_batch(
-                get_ith_batch(seed_dataset, batch, BATCH_SIZE),
-                get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
-            if math.isnan(loss):
-                print(str(datetime.datetime.utcnow()) + " loss is nan, aborting")
-                break
-            janice_loss[epoch] +=
-        # update and log loss value
-        janice_loss[epoch] /= BATCHES
-        priya_loss[epoch] /= (BATCHES * ADVERSARY_MULT)
-        if epoch % LOG_EVERY_N == 0:
-            print(str(datetime.datetime.utcnow()) + 'Janice loss: ' + str(janice_loss[epoch]) + ' / Priya loss: ' + str(priya_loss[epoch]))
+                if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
+                    raise ValueError()
+            # update and log loss value
+            janice_loss[epoch] /= BATCHES
+            priya_loss[epoch] /= (BATCHES * ADVERSARY_MULT)
+            if epoch % LOG_EVERY_N == 0:
+                print(str(datetime.datetime.utcnow()) + 'Janice loss: ' + str(
+                    janice_loss[epoch]) + ' / Priya loss: ' + str(priya_loss[epoch]))
+    except ValueError:
+        print(str(datetime.datetime.utcnow()) + " loss is nan, aborting")
+
     # end of training results collection
     plot_train_loss(janice_loss, priya_loss, '../output/plots/predgan_train_loss.pdf')
 
