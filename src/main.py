@@ -68,7 +68,7 @@ ADVERSARY_MULT = 3  # multiplier for training of the adversary
 VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
 MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
 OUTPUT_LENGTH = 500 if HPC_TRAIN else 5  # number of values generated for each seed
-LEARNING_RATE = 1
+LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.5
 # losses and optimizers
 DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
@@ -243,9 +243,13 @@ def predictive_gan():
                     get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
             # train generator
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            janice_loss[epoch] += np.mean(predgan.train_on_batch(
+            loss = np.mean(predgan.train_on_batch(
                 get_ith_batch(seed_dataset, batch, BATCH_SIZE),
                 get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
+            if math.isnan(loss):
+                print(str(datetime.datetime.utcnow()) + " loss is nan, aborting")
+                break
+            janice_loss[epoch] +=
         # update and log loss value
         janice_loss[epoch] /= BATCHES
         priya_loss[epoch] /= (BATCHES * ADVERSARY_MULT)
