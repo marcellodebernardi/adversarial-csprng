@@ -43,13 +43,11 @@ from utils import utils, vis_utils, input_utils, operation_utils
 from utils.operation_utils import get_ith_batch, split_generator_outputs, set_trainable
 from utils.input_utils import get_seed_dataset, get_sequences_dataset
 from utils.vis_utils import *
-from tqdm import tqdm
 from keras import Model
 from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
 from keras.activations import linear, relu, softmax
 from keras.optimizers import adagrad, sgd
 from keras.losses import mean_absolute_error, binary_crossentropy, mean_absolute_percentage_error
-from keras.callbacks import CSVLogger
 from models.activations import modulo, diagonal_max
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
@@ -64,7 +62,7 @@ BATCH_SIZE = 32 if HPC_TRAIN else 10  # seeds in a single batch
 UNIQUE_SEEDS = 32 if HPC_TRAIN else 5  # unique seeds in each batch
 BATCHES = 100 if HPC_TRAIN else 10  # batches in complete dataset
 EPOCHS = 25000 if HPC_TRAIN else 100  # number of epochs for training
-PRETRAIN_EPOCHS = 10 if HPC_TRAIN else 5  # number of epochs for pre-training
+PRETRAIN_EPOCHS = 1 if '-nopretrain' in sys.argv else 5000 if HPC_TRAIN else 5  # number of epochs for pre-training
 ADVERSARY_MULT = 3  # multiplier for training of the adversary
 VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
 MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
