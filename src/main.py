@@ -60,11 +60,11 @@ PRETRAIN = True  # if true, pretrain the discriminator/predictor
 RECOMPILE = '-rec' in sys.argv  # if true, models are recompiled when set_trainable
 REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
 SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
-BATCH_SIZE = 32 if HPC_TRAIN else 3  # seeds in a single batch
-UNIQUE_SEEDS = 32 if HPC_TRAIN else 1  # unique seeds in each batch
-BATCHES = 100 if HPC_TRAIN else 2  # batches in complete dataset
-EPOCHS = 25000 if HPC_TRAIN else 10  # number of epochs for training
-PRETRAIN_EPOCHS = 5000 if HPC_TRAIN else 5  # number of epochs for pre-training
+BATCH_SIZE = 32 if HPC_TRAIN else 10  # seeds in a single batch
+UNIQUE_SEEDS = 32 if HPC_TRAIN else 5  # unique seeds in each batch
+BATCHES = 100 if HPC_TRAIN else 10  # batches in complete dataset
+EPOCHS = 25000 if HPC_TRAIN else 100  # number of epochs for training
+PRETRAIN_EPOCHS = 10 if HPC_TRAIN else 5  # number of epochs for pre-training
 ADVERSARY_MULT = 3  # multiplier for training of the adversary
 VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
 MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
@@ -248,14 +248,16 @@ def predictive_gan():
                 # train predictor
                 set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
                 for i in range(ADVERSARY_MULT):
-                    priya_loss[epoch] += np.mean(priya.train_on_batch(
+                    priya_loss[epoch] += priya.fit(
                         get_ith_batch(priya_x_data, batch, BATCH_SIZE),
-                        get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
+                        get_ith_batch(priya_y_labels, batch, BATCH_SIZE), verbose=0).history['loss']
                 # train generator
                 set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-                janice_loss[epoch] = np.mean(predgan.train_on_batch(
+                batch_train_pred = predgan.fit(
                     get_ith_batch(seed_dataset, batch, BATCH_SIZE),
-                    get_ith_batch(priya_y_labels, batch, BATCH_SIZE)))
+                    get_ith_batch(priya_y_labels, batch, BATCH_SIZE), verbose=0).history['loss']
+                print(batch_train_pred)
+                janice_loss[epoch] = batch_train_pred[0]
                 if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
                     raise ValueError()
             # update and log loss value
