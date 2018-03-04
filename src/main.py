@@ -58,8 +58,8 @@ PRETRAIN = True  # if true, pretrain the discriminator/predictor
 RECOMPILE = '-rec' in sys.argv  # if true, models are recompiled when set_trainable
 REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
 SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
-BATCH_SIZE = 32 if HPC_TRAIN else 10  # seeds in a single batch
-UNIQUE_SEEDS = 32 if HPC_TRAIN else 5  # unique seeds in each batch
+BATCH_SIZE = 4096 if HPC_TRAIN else 10  # seeds in a single batch
+UNIQUE_SEEDS = 64 if HPC_TRAIN else 5  # unique seeds in each batch
 BATCHES = 200 if HPC_TRAIN else 10  # batches in complete dataset
 EPOCHS = 100000 if HPC_TRAIN else 100  # number of epochs for training
 PRETRAIN_EPOCHS = 1 if '-nopretrain' in sys.argv else 20000 if HPC_TRAIN else 5  # number of epochs for pre-training
@@ -254,7 +254,6 @@ def predictive_gan():
                 batch_train_pred = predgan.fit(
                     get_ith_batch(seed_dataset, batch, BATCH_SIZE),
                     get_ith_batch(priya_y_labels, batch, BATCH_SIZE), verbose=0).history['loss']
-                print(batch_train_pred)
                 janice_loss[epoch] = batch_train_pred[0]
                 if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
                     raise ValueError()
