@@ -25,7 +25,7 @@ from keras.utils import plot_model
 from utils.operation_utils import flatten_irregular_nested_iterable
 
 
-def plot_pretrain_history_loss(history, fname):
+def plot_pretrain_loss(history, fname):
     """Plot a line chart of the adversary's loss during pre-training."""
     plt.plot(history.history['loss'])
     plt.ylabel('Loss')
