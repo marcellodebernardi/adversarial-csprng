@@ -117,35 +117,34 @@ def discriminative_gan():
     jerry, diego, discgan = construct_discgan()
 
     # pre-train Diego
-    diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    plot_pretrain_history_loss(
-        diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE, epochs=PRETRAIN_EPOCHS, verbose=0),
+    diego_x, diego_y = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    plot_pretrain_loss(
+        diego.fit(diego_x, diego_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0),
         '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+    diego_x, diego_y = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    discgan_x, discgan_y = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
     # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
             if REFRESH_DATASET:
-                diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-                discgan_x_data, discgan_y_labels = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+                diego_x, diego_y = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+                discgan_x, discgan_y = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+            # alternate train
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-            diego_loss[epoch] += np.mean(diego.fit(diego_x_data, diego_y_labels, batch_size=BATCH_SIZE,
-                                                   epochs=ADVERSARY_MULT, verbose=0).history['loss'])
+            diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_loss[epoch] += np.mean(discgan.fit(discgan_x_data, discgan_y_labels, batch_size=BATCH_SIZE,
-                                                     verbose=0).history['loss'])
-
+            jerry_loss[epoch] = discgan.fit(discgan_x, discgan_y, BATCH_SIZE, verbose=0).history['loss']
+            # check for NaNs
             if math.isnan(jerry_loss[epoch]) or math.isnan(diego_loss[epoch]):
                 raise ValueError()
             # log losses to console
             if epoch % LOG_EVERY_N == 0:
-                print(
-                    str(datetime.datetime.utcnow()) + 'Jerry loss: ' + str(jerry_loss[epoch]) + ' / Diego loss: ' + str(
-                        diego_loss[epoch]))
+                print(str(datetime.datetime.utcnow())
+                      + 'Jerry loss: ' + str(jerry_loss[epoch])
+                      + ' / Diego loss: ' + str(diego_loss[epoch]))
     except ValueError:
         print(str(datetime.datetime.utcnow()) + " loss is nan, aborting")
     plot_train_loss(jerry_loss, diego_loss, '../output/plots/discgan_train_loss.pdf')
@@ -169,7 +168,7 @@ def predictive_gan():
     # pretrain priya
     priya_x, priya_y = split_generator_outputs(
         janice.predict(get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]))
-    plot_pretrain_history_loss(
+    plot_pretrain_loss(
         priya.fit(priya_x, priya_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/priya_pretrain_loss.pdf')
 
