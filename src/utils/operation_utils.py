@@ -33,7 +33,7 @@ def set_trainable(model: Model, optimizer, loss, recompile, trainable: bool = Tr
         model.compile(optimizer, loss)
 
 
-def split_generator_outputs(generator_output: np.ndarray, n_to_predict=1) -> (np.ndarray, np.ndarray):
+def split_n_last(generator_output: np.ndarray, n_to_predict=1) -> (np.ndarray, np.ndarray):
     """For an array of outputs produced by a generator, where each element in the
     array is an array of real numbers, splits all the inner array into two, such that
     the first resulting array contains all elements of the original inner array minus
