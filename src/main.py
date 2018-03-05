@@ -167,44 +167,35 @@ def predictive_gan():
     janice, priya, predgan = construct_predgan()
 
     # pretrain priya
-    priya_x_data, priya_y_labels = split_generator_outputs(
+    priya_x, priya_y = split_generator_outputs(
         janice.predict(get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]))
     plot_pretrain_history_loss(
-        priya.fit(priya_x_data, priya_y_labels, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0),
+        priya.fit(priya_x, priya_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/priya_pretrain_loss.pdf')
 
     # main training procedure
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-    priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
+    seeds = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+    priya_x, priya_y = split_generator_outputs(janice.predict(seeds))
     # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
             if REFRESH_DATASET:
-                seed_dataset = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-                priya_x_data, priya_y_labels = split_generator_outputs(janice.predict(seed_dataset))
-            # iterate over portions of dataset
-            for batch in range(BATCHES):
-                # train predictor
-                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
-                for i in range(ADVERSARY_MULT):
-                    priya_loss[epoch] += priya.fit(
-                        get_ith_batch(priya_x_data, batch, BATCH_SIZE),
-                        get_ith_batch(priya_y_labels, batch, BATCH_SIZE), verbose=0).history['loss']
-                # train generator
-                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-                batch_train_pred = predgan.fit(
-                    get_ith_batch(seed_dataset, batch, BATCH_SIZE),
-                    get_ith_batch(priya_y_labels, batch, BATCH_SIZE), verbose=0).history['loss']
-                janice_loss[epoch] = batch_train_pred[0]
-                if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
-                    raise ValueError()
+                seeds = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+                priya_x, priya_y = split_generator_outputs(janice.predict(seeds))
+            # train both networks on entire dataset
+            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
+            priya_loss[epoch] = np.mean(priya.fit(priya_x, priya_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
+            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
+            janice_loss[epoch] = predgan.fit(seeds, priya_y, BATCH_SIZE, verbose=0).history['loss']
+            # check for NaNs
+            if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
+                raise ValueError()
             # update and log loss value
-            janice_loss[epoch] /= BATCHES
-            priya_loss[epoch] /= (BATCHES * ADVERSARY_MULT)
             if epoch % LOG_EVERY_N == 0:
-                print(str(datetime.datetime.utcnow()) + 'Janice loss: ' + str(
-                    janice_loss[epoch]) + ' / Priya loss: ' + str(priya_loss[epoch]))
+                print(str(datetime.datetime.utcnow())
+                      + 'Janice loss: ' + str(janice_loss[epoch])
+                      + ' / Priya loss: ' + str(priya_loss[epoch]))
     except ValueError:
         print(str(datetime.datetime.utcnow()) + " loss is nan, aborting")
 
