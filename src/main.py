@@ -113,35 +113,8 @@ def main():
 def discriminative_gan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
-    # define Jerry
-    jerry_input = Input(shape=(1,))
-    jerry_output = Dense(OUTPUT_LENGTH, activation=linear)(jerry_input)
-    jerry_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(jerry_output)
-    jerry_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True)(jerry_output)
-    jerry_output = Flatten()(jerry_output)
-    jerry_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(jerry_output)
-    jerry = Model(jerry_input, jerry_output, name='jerry')
-    jerry.compile(UNUSED_OPT, UNUSED_LOSS)
-    plot_network_graphs(jerry, 'jerry')
-    utils.save_configuration(jerry, 'jerry')
-    # define Diego
-    diego_input = Input(shape=(OUTPUT_LENGTH,))
-    diego_output = Dense(OUTPUT_LENGTH)(diego_input)
-    diego_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(diego_output)
-    diego_output = Conv1D(int(OUTPUT_LENGTH / 4), 4)(diego_output)
-    diego_output = Flatten()(diego_output)
-    diego_output = Dense(1, activation=diagonal_max(100))(diego_output)
-    diego = Model(diego_input, diego_output)
-    diego.compile(DIEGO_OPT, DIEGO_LOSS)
-    plot_network_graphs(diego, 'diego')
-    utils.save_configuration(diego, 'diego')
-    # define the connected GAN
-    discgan_output = jerry(jerry_input)
-    discgan_output = diego(discgan_output)
-    discgan = Model(jerry_input, discgan_output)
-    discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
-    plot_network_graphs(discgan, 'discriminative_gan')
-    utils.save_configuration(discgan, 'discgan')
+    # construct models
+    jerry, diego, discgan = construct_discgan()
 
     # pre-train Diego
     diego_x_data, diego_y_labels = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
@@ -191,38 +164,7 @@ def discriminative_gan():
 def predictive_gan():
     """Constructs and trains the predictive GAN consisting of
     Janice and priya."""
-    # define janice
-    janice_input = Input(shape=(1,))
-    janice_output = Dense(OUTPUT_LENGTH, activation=linear)(janice_input)
-    janice_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(janice_output)
-    janice_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(janice_output)
-    janice_output = Flatten()(janice_output)
-    janice_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(janice_output)
-    janice = Model(janice_input, janice_output, name='janice')
-    janice.compile(UNUSED_OPT, UNUSED_LOSS)
-    plot_network_graphs(janice, 'janice')
-    utils.save_configuration(janice, 'janice')
-    # define priya
-    priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
-    priya_output = Dense(OUTPUT_LENGTH)(priya_input)
-    priya_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(priya_output)
-    priya_output = LSTM(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(priya_output)
-    priya_output = Flatten()(priya_output)
-    priya_output = Dense(1, activation=linear)(priya_output)
-    priya = Model(priya_input, priya_output)
-    priya.compile(PRIYA_OPT, PRIYA_LOSS)
-    plot_network_graphs(priya, 'priya')
-    utils.save_configuration(priya, 'priya')
-    # connect GAN
-    output_predgan = janice(janice_input)
-    output_predgan = Lambda(
-        drop_last_value(OUTPUT_LENGTH, BATCH_SIZE),
-        name='adversarial_drop_last_value')(output_predgan)
-    output_predgan = priya(output_predgan)
-    predgan = Model(janice_input, output_predgan, name='predictive_gan')
-    predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
-    plot_network_graphs(predgan, 'predictive_gan')
-    # utils.save_configuration(predgan, 'predgan')
+    janice, priya, predgan = construct_predgan()
 
     # pretrain priya
     priya_x_data, priya_y_labels = split_generator_outputs(
@@ -278,6 +220,78 @@ def predictive_gan():
         '../output/plots/janice_weights.pdf'
     )
     utils.generate_output_file(output_values, VAL_BITS, '../output/sequences/janice.txt')
+
+
+def construct_discgan():
+    """Defines and compiles the models for Jerry, Diego, and the connected discgan."""
+    # define Jerry
+    jerry_input = Input(shape=(1,))
+    jerry_output = Dense(OUTPUT_LENGTH, activation=linear)(jerry_input)
+    jerry_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(jerry_output)
+    jerry_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True)(jerry_output)
+    jerry_output = Flatten()(jerry_output)
+    jerry_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(jerry_output)
+    jerry = Model(jerry_input, jerry_output, name='jerry')
+    jerry.compile(UNUSED_OPT, UNUSED_LOSS)
+    plot_network_graphs(jerry, 'jerry')
+    utils.save_configuration(jerry, 'jerry')  # todo this occupies too much storage
+    # define Diego
+    diego_input = Input(shape=(OUTPUT_LENGTH,))
+    diego_output = Dense(OUTPUT_LENGTH)(diego_input)
+    diego_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(diego_output)
+    diego_output = Conv1D(int(OUTPUT_LENGTH / 4), 4)(diego_output)
+    diego_output = Flatten()(diego_output)
+    diego_output = Dense(1, activation=diagonal_max(100))(diego_output)
+    diego = Model(diego_input, diego_output)
+    diego.compile(DIEGO_OPT, DIEGO_LOSS)
+    plot_network_graphs(diego, 'diego')
+    utils.save_configuration(diego, 'diego')  # todo this occupies too much storage
+    # define the connected GAN
+    discgan_output = jerry(jerry_input)
+    discgan_output = diego(discgan_output)
+    discgan = Model(jerry_input, discgan_output)
+    discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
+    plot_network_graphs(discgan, 'discriminative_gan')
+    utils.save_configuration(discgan, 'discgan')  # todo this occupies too much storage
+
+    return jerry, diego, discgan
+
+
+def construct_predgan():
+    """Defines and compiles the models for Janice, Priya, and the connected predgan. """
+    # define janice
+    janice_input = Input(shape=(1,))
+    janice_output = Dense(OUTPUT_LENGTH, activation=linear)(janice_input)
+    janice_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(janice_output)
+    janice_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(janice_output)
+    janice_output = Flatten()(janice_output)
+    janice_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(janice_output)
+    janice = Model(janice_input, janice_output, name='janice')
+    janice.compile(UNUSED_OPT, UNUSED_LOSS)
+    plot_network_graphs(janice, 'janice')
+    utils.save_configuration(janice, 'janice')
+    # define priya
+    priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
+    priya_output = Dense(OUTPUT_LENGTH)(priya_input)
+    priya_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(priya_output)
+    priya_output = LSTM(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(priya_output)
+    priya_output = Flatten()(priya_output)
+    priya_output = Dense(1, activation=linear)(priya_output)
+    priya = Model(priya_input, priya_output)
+    priya.compile(PRIYA_OPT, PRIYA_LOSS)
+    plot_network_graphs(priya, 'priya')
+    utils.save_configuration(priya, 'priya')
+    # connect GAN
+    output_predgan = janice(janice_input)
+    output_predgan = Lambda(
+        drop_last_value(OUTPUT_LENGTH, BATCH_SIZE),
+        name='adversarial_drop_last_value')(output_predgan)
+    output_predgan = priya(output_predgan)
+    predgan = Model(janice_input, output_predgan, name='predictive_gan')
+    predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
+    plot_network_graphs(predgan, 'predictive_gan')
+    # utils.save_configuration(predgan, 'predgan')
+    return janice, priya, predgan
 
 
 if __name__ == '__main__':
