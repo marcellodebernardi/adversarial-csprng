@@ -66,7 +66,7 @@ PRETRAIN_EPOCHS = 1 if '-nopretrain' in sys.argv else 20000 if HPC_TRAIN else 5 
 ADVERSARY_MULT = 20  # multiplier for training of the adversary
 VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
 MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 50000 if HPC_TRAIN else 5  # number of values generated for each seed
+OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5  # number of values generated for each seed
 LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.5
 # losses and optimizers
