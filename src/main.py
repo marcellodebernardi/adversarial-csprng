@@ -226,14 +226,12 @@ def construct_discgan():
     diego = Model(diego_input, diego_output)
     diego.compile(DIEGO_OPT, DIEGO_LOSS)
     plot_network_graphs(diego, 'diego')
-    utils.save_configuration(diego, 'diego')  # todo this occupies too much storage
     # define the connected GAN
     discgan_output = jerry(jerry_input)
     discgan_output = diego(discgan_output)
     discgan = Model(jerry_input, discgan_output)
     discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
     plot_network_graphs(discgan, 'discriminative_gan')
-    utils.save_configuration(discgan, 'discgan')  # todo this occupies too much storage
 
     return jerry, diego, discgan
 
@@ -252,7 +250,6 @@ def construct_predgan():
     priya = Model(priya_input, priya_output)
     priya.compile(PRIYA_OPT, PRIYA_LOSS)
     plot_network_graphs(priya, 'priya')
-    utils.save_configuration(priya, 'priya')
     # connect GAN
     output_predgan = janice(janice_input)
     output_predgan = Lambda(
@@ -262,7 +259,6 @@ def construct_predgan():
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     plot_network_graphs(predgan, 'predictive_gan')
-    # utils.save_configuration(predgan, 'predgan')
     return janice, priya, predgan
 
 
