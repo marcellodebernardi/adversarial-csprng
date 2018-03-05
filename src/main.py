@@ -225,16 +225,7 @@ def predictive_gan():
 def construct_discgan():
     """Defines and compiles the models for Jerry, Diego, and the connected discgan."""
     # define Jerry
-    jerry_input = Input(shape=(1,))
-    jerry_output = Dense(OUTPUT_LENGTH, activation=linear)(jerry_input)
-    jerry_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(jerry_output)
-    jerry_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True)(jerry_output)
-    jerry_output = Flatten()(jerry_output)
-    jerry_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(jerry_output)
-    jerry = Model(jerry_input, jerry_output, name='jerry')
-    jerry.compile(UNUSED_OPT, UNUSED_LOSS)
-    plot_network_graphs(jerry, 'jerry')
-    utils.save_configuration(jerry, 'jerry')  # todo this occupies too much storage
+    jerry_input, jerry = construct_generator('jerry')
     # define Diego
     diego_input = Input(shape=(OUTPUT_LENGTH,))
     diego_output = Dense(OUTPUT_LENGTH)(diego_input)
@@ -260,16 +251,7 @@ def construct_discgan():
 def construct_predgan():
     """Defines and compiles the models for Janice, Priya, and the connected predgan. """
     # define janice
-    janice_input = Input(shape=(1,))
-    janice_output = Dense(OUTPUT_LENGTH, activation=linear)(janice_input)
-    janice_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(janice_output)
-    janice_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(janice_output)
-    janice_output = Flatten()(janice_output)
-    janice_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(janice_output)
-    janice = Model(janice_input, janice_output, name='janice')
-    janice.compile(UNUSED_OPT, UNUSED_LOSS)
-    plot_network_graphs(janice, 'janice')
-    utils.save_configuration(janice, 'janice')
+    janice_input, janice = construct_generator('janice')
     # define priya
     priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
     priya_output = Dense(OUTPUT_LENGTH)(priya_input)
@@ -292,6 +274,20 @@ def construct_predgan():
     plot_network_graphs(predgan, 'predictive_gan')
     # utils.save_configuration(predgan, 'predgan')
     return janice, priya, predgan
+
+
+def construct_generator(name: str):
+    generator_input = Input(shape=(1,))
+    generator_output = Dense(OUTPUT_LENGTH, activation=linear)(generator_input)
+    generator_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(generator_output)
+    generator_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(generator_output)
+    generator_output = Flatten()(generator_output)
+    generator_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(generator_output)
+    generator = Model(generator_input, generator_output, name=name)
+    generator.compile(UNUSED_OPT, UNUSED_LOSS)
+    plot_network_graphs(generator, name)
+    utils.save_configuration(generator, name)
+    return generator_input, generator
 
 
 if __name__ == '__main__':
