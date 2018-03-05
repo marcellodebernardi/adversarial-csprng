@@ -22,46 +22,33 @@ from keras import Model
 from tqdm import tqdm
 
 
-def get_seed_dataset(batch_size, num_of_batches, unique_seeds_per_batch, max_val) -> (np.ndarray, np.ndarray):
+def get_seed_dataset(size, max_val) -> (np.ndarray, np.ndarray):
     """Generates a dataset for adversarially training Jerry (the generator).
     The first element in the returned tuple is an array of seeds, representing
     the inputs to the GAN. The second element is an array of labels, which are
     all 0 as the correct label for generated sequences, as labelled by the
     discriminator, is 0."""
-    # check for bad input
-    if batch_size % unique_seeds_per_batch != 0:
-        raise ValueError('The number of unique seeds must be a factor of the batch size.')
-    # how many times to repeat each seed in each batch
-    repetitions = batch_size / unique_seeds_per_batch
     x = []
     # generate dataset
-    for batch in range(num_of_batches):
-        for unique_seed in range(unique_seeds_per_batch):
-            seed = get_random_value(max_val)
-            for i in range(int(repetitions)):
-                x.append(seed)
+    for element in range(size):
+        x.append(get_random_value(max_val))
     return np.array(x), np.zeros(len(x))
 
 
-def get_sequences_dataset(generator: Model, batch_size, num_of_batches, sequence_length, max_val, shuffle=False) -> (np.ndarray, np.ndarray):
+def get_sequences_dataset(generator: Model, seeds, sequence_length, max_val) -> (np.ndarray, np.ndarray):
     """Generates a dataset for training Diego (the discriminator). The
     dataset consists half of truly random sequences and half of sequences
     produced by the generator."""
-    dataset = []
-    labels = []
-    for i in range(num_of_batches):
-        data_batch = [get_random_sequence(sequence_length, max_val) for i in range(int(batch_size / 2))]
-        data_batch.extend(generator.predict(get_random_sequence(batch_size / 2, max_val)))
-        labels_batch = [1 for i in range(int(batch_size / 2))]
-        labels_batch.extend([0 for i in range(int(batch_size / 2))])
+    dataset = generator.predict(seeds)
+    labels = [0 for i in range(len(seeds))]
 
-        combined = list(zip(data_batch, labels_batch))
-        rng.shuffle(combined)
-        data_batch[:], labels_batch[:] = zip(*combined)
+    for i in range(int(len(seeds)/2)):
+        dataset.append(get_random_sequence(sequence_length, max_val))
+        labels.append(1)
 
-        dataset.extend(data_batch)
-        labels.extend(labels_batch)
-
+    combined = list(zip(dataset, labels))
+    rng.shuffle(combined)
+    dataset[:], labels[:] = zip(*combined)
     return np.array(dataset), np.array(labels)
 
 

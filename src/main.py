@@ -40,7 +40,7 @@ import math
 import numpy as np
 import tensorflow as tf
 from utils import utils, vis_utils, input_utils, operation_utils
-from utils.operation_utils import get_ith_batch, split_generator_outputs, set_trainable
+from utils.operation_utils import get_ith_batch, split_n_last, set_trainable
 from utils.input_utils import get_seed_dataset, get_sequences_dataset
 from utils.vis_utils import *
 from keras import Model
@@ -93,50 +93,49 @@ def main():
         with tf.device('/cpu:0'):
             # train discriminative GAN
             if TRAIN[0]:
-                discriminative_gan()
+                run_discgan()
             # train predictive GAN
             if TRAIN[1]:
-                predictive_gan()
+                run_predgan()
     else:
         # train discriminative GAN
         if TRAIN[0]:
-            discriminative_gan()
+            run_discgan()
         # train predictive GAN
         if TRAIN[1]:
-            predictive_gan()
+            run_predgan()
 
     # send off email report
     if SEND_REPORT:
         utils.email_report(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, EPOCHS, PRETRAIN_EPOCHS)
 
 
-def discriminative_gan():
+def run_discgan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
     # construct models
     jerry, diego, discgan = construct_discgan()
 
     # pre-train Diego
-    diego_x, diego_y = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
+    diego_x, diego_y = get_sequences_dataset(jerry, get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL), OUTPUT_LENGTH, MAX_VAL)
     plot_pretrain_loss(
         diego.fit(diego_x, diego_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0),
         '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
+    jerry_x, jerry_y = get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)
+    diego_x, diego_y = get_sequences_dataset(jerry, jerry_x, OUTPUT_LENGTH, MAX_VAL)
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    diego_x, diego_y = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-    discgan_x, discgan_y = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
     # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
             if REFRESH_DATASET:
-                diego_x, diego_y = get_sequences_dataset(jerry, BATCH_SIZE, BATCHES, OUTPUT_LENGTH, MAX_VAL)
-                discgan_x, discgan_y = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)
+                diego_x, diego_y = get_sequences_dataset(jerry, jerry_x, OUTPUT_LENGTH, MAX_VAL)
             # alternate train
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
             diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_loss[epoch] = discgan.fit(discgan_x, discgan_y, BATCH_SIZE, verbose=0).history['loss']
+            jerry_loss[epoch] = discgan.fit(jerry_x, jerry_y, BATCH_SIZE, verbose=0).history['loss']
             # check for NaNs
             if math.isnan(jerry_loss[epoch]) or math.isnan(diego_loss[epoch]):
                 raise ValueError()
@@ -160,33 +159,32 @@ def discriminative_gan():
     utils.generate_output_file(values, VAL_BITS, '../output/sequences/jerry.txt')
 
 
-def predictive_gan():
+def run_predgan():
     """Constructs and trains the predictive GAN consisting of
     Janice and priya."""
     janice, priya, predgan = construct_predgan()
 
     # pretrain priya
-    priya_x, priya_y = split_generator_outputs(
-        janice.predict(get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]))
+    priya_x, priya_y = split_n_last(janice.predict(get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)[0]))
     plot_pretrain_loss(
         priya.fit(priya_x, priya_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/priya_pretrain_loss.pdf')
 
     # main training procedure
+    janice_x = get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)[0]
+    priya_x, priya_y = split_n_last(janice.predict(janice_x))
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    seeds = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-    priya_x, priya_y = split_generator_outputs(janice.predict(seeds))
     # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
             if REFRESH_DATASET:
-                seeds = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-                priya_x, priya_y = split_generator_outputs(janice.predict(seeds))
+                # janice_x = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
+                priya_x, priya_y = split_n_last(janice.predict(janice_x))
             # train both networks on entire dataset
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
             priya_loss[epoch] = np.mean(priya.fit(priya_x, priya_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            janice_loss[epoch] = predgan.fit(seeds, priya_y, BATCH_SIZE, verbose=0).history['loss']
+            janice_loss[epoch] = predgan.fit(janice_x, priya_y, BATCH_SIZE, verbose=0).history['loss']
             # check for NaNs
             if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
                 raise ValueError()
