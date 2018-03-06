@@ -117,12 +117,14 @@ def run_discgan():
     jerry, diego, discgan = construct_discgan()
 
     # pre-train Diego
+    print('PRETRAINING ...')
     diego_x, diego_y = get_sequences_dataset(jerry, get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL), OUTPUT_LENGTH, MAX_VAL)
     plot_pretrain_loss(
-        diego.fit(diego_x, diego_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=0),
+        diego.fit(diego_x, diego_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
+    print('TRAINING ...')
     jerry_x, jerry_y = get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)
     diego_x, diego_y = get_sequences_dataset(jerry, jerry_x, OUTPUT_LENGTH, MAX_VAL)
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
@@ -165,12 +167,14 @@ def run_predgan():
     janice, priya, predgan = construct_predgan()
 
     # pretrain priya
+    print('PRETRAINING ...')
     priya_x, priya_y = split_n_last(janice.predict(get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)[0]))
     plot_pretrain_loss(
         priya.fit(priya_x, priya_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/priya_pretrain_loss.pdf')
 
     # main training procedure
+    print('TRAINING ...')
     janice_x = get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)[0]
     priya_x, priya_y = split_n_last(janice.predict(janice_x))
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)

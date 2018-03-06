@@ -30,7 +30,7 @@ def get_seed_dataset(size, max_val) -> (np.ndarray, np.ndarray):
     discriminator, is 0."""
     x = []
     # generate dataset
-    for element in range(size):
+    for element in tqdm(range(size), 'Obtaining seeds'):
         x.append(get_random_value(max_val))
     return np.array(x), np.zeros(len(x))
 
