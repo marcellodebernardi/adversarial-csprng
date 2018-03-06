@@ -70,7 +70,7 @@ def log_adversary_predictions(gan: Model):
             file.write(str(pred) + " ")
 
 
-def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> bool:
+def email_report(batch_size, batches, epochs, pretrain_epochs) -> bool:
     # sender and receiver
     sender = "neural.csprng@gmail.com"
     recipient = "marcello1234@live.co.uk"
@@ -85,7 +85,6 @@ def email_report(batch_size, batches, unique_seeds, epochs, pretrain_epochs) -> 
            + "evaluation.\n\n SETTINGS:\n" \
            + "Batch size: " + str(batch_size) + "\n" \
            + "Dataset size: " + str(batch_size * batches) + "\n" \
-           + "Unique seeds per batch: " + str(unique_seeds) + "\n" \
            + "Training epochs: " + str(epochs) + "\n" \
            + "Pretraining epochs: " + str(pretrain_epochs) + "\n\n\n"
     msg.attach(MIMEText(body, 'plain'))

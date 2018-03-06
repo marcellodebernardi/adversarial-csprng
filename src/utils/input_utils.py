@@ -42,7 +42,7 @@ def get_sequences_dataset(generator: Model, seeds, sequence_length, max_val) -> 
     dataset = generator.predict(seeds)
     labels = [0 for i in range(len(seeds))]
 
-    for i in range(int(len(seeds)/2)):
+    for i in tqdm(range(int(len(seeds)/2)), 'Obtaining random sequences ...'):
         dataset.append(get_random_sequence(sequence_length, max_val))
         labels.append(1)
 
