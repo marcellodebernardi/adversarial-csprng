@@ -59,7 +59,6 @@ RECOMPILE = '-rec' in sys.argv  # if true, models are recompiled when set_traina
 REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
 SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
 BATCH_SIZE = 4096 if HPC_TRAIN else 10  # seeds in a single batch
-UNIQUE_SEEDS = 64 if HPC_TRAIN else 5  # unique seeds in each batch
 BATCHES = 200 if HPC_TRAIN else 10  # batches in complete dataset
 EPOCHS = 100000 if HPC_TRAIN else 100  # number of epochs for training
 PRETRAIN_EPOCHS = 1 if '-nopretrain' in sys.argv else 20000 if HPC_TRAIN else 5  # number of epochs for pre-training
@@ -107,7 +106,7 @@ def main():
 
     # send off email report
     if SEND_REPORT:
-        utils.email_report(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, EPOCHS, PRETRAIN_EPOCHS)
+        utils.email_report(BATCH_SIZE, BATCHES, EPOCHS, PRETRAIN_EPOCHS)
 
 
 def run_discgan():
