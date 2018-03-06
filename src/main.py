@@ -213,8 +213,10 @@ def run_predgan():
 def construct_discgan():
     """Defines and compiles the models for Jerry, Diego, and the connected discgan."""
     # define Jerry
+    print('Constructing Jerry ...')
     jerry_input, jerry = construct_generator('jerry')
     # define Diego
+    print('Constructing Diego ...')
     diego_input = Input(shape=(OUTPUT_LENGTH,))
     diego_output = Dense(OUTPUT_LENGTH)(diego_input)
     diego_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(diego_output)
@@ -225,20 +227,24 @@ def construct_discgan():
     diego.compile(DIEGO_OPT, DIEGO_LOSS)
     plot_network_graphs(diego, 'diego')
     # define the connected GAN
+    print('Constructing connected GAN ...')
     discgan_output = jerry(jerry_input)
     discgan_output = diego(discgan_output)
     discgan = Model(jerry_input, discgan_output)
     discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
     plot_network_graphs(discgan, 'discriminative_gan')
 
+    print('Models defined and compiled.')
     return jerry, diego, discgan
 
 
 def construct_predgan():
     """Defines and compiles the models for Janice, Priya, and the connected predgan. """
     # define janice
+    print('Constructing Janice ...')
     janice_input, janice = construct_generator('janice')
     # define priya
+    print('Constructing Priya ...')
     priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
     priya_output = Dense(OUTPUT_LENGTH)(priya_input)
     priya_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(priya_output)
@@ -249,6 +255,7 @@ def construct_predgan():
     priya.compile(PRIYA_OPT, PRIYA_LOSS)
     plot_network_graphs(priya, 'priya')
     # connect GAN
+    print('Constructing connected GAN ...')
     output_predgan = janice(janice_input)
     output_predgan = Lambda(
         drop_last_value(OUTPUT_LENGTH, BATCH_SIZE),
@@ -257,6 +264,8 @@ def construct_predgan():
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     plot_network_graphs(predgan, 'predictive_gan')
+
+    print('Models defined and compiled.')
     return janice, priya, predgan
 
 
