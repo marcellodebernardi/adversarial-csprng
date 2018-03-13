@@ -22,20 +22,20 @@ from keras import Model
 from tqdm import tqdm
 
 
-def get_seed_dataset(size, max_val) -> (np.ndarray, np.ndarray):
-    """Generates a dataset for adversarially training Jerry (the generator).
-    The first element in the returned tuple is an array of seeds, representing
-    the inputs to the GAN. The second element is an array of labels, which are
-    all 0 as the correct label for generated sequences, as labelled by the
-    discriminator, is 0."""
+def get_generator_dataset(size, max_val) -> np.ndarray:
+    """Generates an input dataset for adversarially training the generator. The
+    dataset is structured as a numpy array of dimensions (2, size). For array[0],
+    each element of the inner array is """
+    seed = get_random_value(max_val)
+    initial_offset = get_random_value(size)
     x = []
     # generate dataset
-    for element in tqdm(range(size), 'Obtaining seeds'):
-        x.append(get_random_value(max_val))
-    return np.array(x), np.zeros(len(x))
+    for element in tqdm(range(size), 'Building generator inputs ...'):
+        x.append(np.array([seed, element + initial_offset]))
+    return np.array([np.array(x), np.zeros(len(x))])
 
 
-def get_sequences_dataset(generator: Model, seeds, sequence_length, max_val) -> (np.ndarray, np.ndarray):
+def get_discriminator_dataset(generator: Model, seeds, sequence_length, max_val) -> (np.ndarray, np.ndarray):
     """Generates a dataset for training Diego (the discriminator). The
     dataset consists half of truly random sequences and half of sequences
     produced by the generator."""

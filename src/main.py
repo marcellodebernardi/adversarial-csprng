@@ -39,49 +39,56 @@ import datetime
 import math
 import numpy as np
 import tensorflow as tf
-from utils import utils, vis_utils, input_utils, operation_utils
-from utils.operation_utils import get_ith_batch, split_n_last, set_trainable
-from utils.input_utils import get_seed_dataset, get_sequences_dataset
+from utils import utils, input_utils, operation_utils
+from utils.operation_utils import detach_last, set_trainable
+from utils.input_utils import get_generator_dataset, get_discriminator_dataset
 from utils.vis_utils import *
 from keras import Model
-from keras.layers import Input, Dense, SimpleRNN, Reshape, Flatten, Conv1D, LSTM, Lambda
-from keras.activations import linear, relu, softmax
-from keras.optimizers import adagrad, sgd
-from keras.losses import mean_absolute_error, binary_crossentropy, mean_absolute_percentage_error
-from models.activations import modulo, diagonal_max
+from keras.layers import Input, Dense, Conv1D, MaxPooling1D, Lambda
+from keras.activations import linear
+from keras.optimizers import adagrad
+from models.activations import modulo
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
+
+# main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
-TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]  # Indicates whether discgan / predgan are to be trained
-PRETRAIN = True  # if true, pretrain the discriminator/predictor
-RECOMPILE = '-rec' in sys.argv  # if true, models are recompiled when set_trainable
-REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
-SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
-BATCH_SIZE = 32 if HPC_TRAIN else 10  # seeds in a single batch
-BATCHES = 100 if HPC_TRAIN else 10  # batches in complete dataset
-EPOCHS = 100000 if HPC_TRAIN else 100  # number of epochs for training
-PRETRAIN_EPOCHS = 1 if '-nopretrain' in sys.argv else 20000 if HPC_TRAIN else 5  # number of epochs for pre-training
-ADVERSARY_MULT = 3  # multiplier for training of the adversary
-VAL_BITS = 16 if HPC_TRAIN else 4  # the number of bits of each output value or seed
-MAX_VAL = 65535 if HPC_TRAIN else 15  # number generated are between 0-MAX_VAL
-OUTPUT_LENGTH = 5000 if HPC_TRAIN else 5  # number of values generated for each seed
+
+# HYPER-PARAMETERS
+OUTPUT_SIZE = 4
+OUTPUT_RANGE = 15
+OUTPUT_BITS = 4
+DATA_TYPE = tf.float32
+BATCH_SIZE = 32 if HPC_TRAIN else 4  # seeds in a single batch
+BATCHES = 32 if HPC_TRAIN else 10  # batches in complete dataset
 LEARNING_RATE = 0.0008
-CLIP_VALUE = 0.5
+CLIP_VALUE = 0.01
+
 # losses and optimizers
 DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DIEGO_LOSS = loss_discriminator
 DISC_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
 PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-PRIYA_LOSS = loss_predictor(MAX_VAL)
+PRIYA_LOSS = loss_predictor(OUTPUT_RANGE)
 PRED_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-PRED_GAN_LOSS = loss_pred_gan(MAX_VAL)
+PRED_GAN_LOSS = loss_pred_gan(OUTPUT_RANGE)
 UNUSED_OPT = 'adagrad'
 UNUSED_LOSS = 'binary_crossentropy'
-# evaluation seed
-EVAL_SEED = input_utils.get_random_sequence(1, MAX_VAL)
-# logging
+
+# training settings
+PRETRAIN = '-nopretrain' not in sys.argv  # if true, pretrain the discriminator/predictor
+TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]  # Indicates whether discgan / predgan are to be trained
+EPOCHS = 100000 if HPC_TRAIN else 100  # number of epochs for training
+PRETRAIN_EPOCHS = 0 if not PRETRAIN else 500 if HPC_TRAIN else 5  # number of epochs for pre-training
+ADVERSARY_MULT = 3  # multiplier for training of the adversary
+RECOMPILE = '-rec' in sys.argv  # if true, models are recompiled when set_trainable
+REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
+SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
+
+# logging and evaluation
+EVAL_SEED = input_utils.get_random_sequence(1, OUTPUT_RANGE)
 LOG_EVERY_N = 100 if HPC_TRAIN else 10
 
 
@@ -117,21 +124,25 @@ def run_discgan():
 
     # pre-train Diego
     print('PRETRAINING ...')
-    diego_x, diego_y = get_sequences_dataset(jerry, get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL), OUTPUT_LENGTH, MAX_VAL)
+    diego_x, diego_y = get_discriminator_dataset(
+        jerry,
+        get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[0],
+        OUTPUT_SIZE,
+        OUTPUT_RANGE)
     plot_pretrain_loss(
         diego.fit(diego_x, diego_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/diego_pretrain_loss.pdf')
 
     # train both networks in turn
     print('TRAINING ...')
-    jerry_x, jerry_y = get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)
-    diego_x, diego_y = get_sequences_dataset(jerry, jerry_x, OUTPUT_LENGTH, MAX_VAL)
+    jerry_x, jerry_y = get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)
+    diego_x, diego_y = get_discriminator_dataset(jerry, jerry_x, OUTPUT_SIZE, OUTPUT_RANGE)
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
     # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
             if REFRESH_DATASET:
-                diego_x, diego_y = get_sequences_dataset(jerry, jerry_x, OUTPUT_LENGTH, MAX_VAL)
+                diego_x, diego_y = get_discriminator_dataset(jerry, jerry_x, OUTPUT_SIZE, OUTPUT_RANGE)
             # alternate train
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
             diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
@@ -157,7 +168,7 @@ def run_discgan():
         operation_utils.flatten_irregular_nested_iterable(jerry.get_weights()),
         '../output/plots/jerry_weights.pdf'
     )
-    utils.generate_output_file(values, VAL_BITS, '../output/sequences/jerry.txt')
+    utils.generate_output_file(values, OUTPUT_BITS, '../output/sequences/jerry.txt')
 
 
 def run_predgan():
@@ -167,22 +178,22 @@ def run_predgan():
 
     # pretrain priya
     print('PRETRAINING ...')
-    priya_x, priya_y = split_n_last(janice.predict(get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)[0]))
+    priya_x, priya_y = detach_last(janice.predict(get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[0]))
     plot_pretrain_loss(
         priya.fit(priya_x, priya_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/priya_pretrain_loss.pdf')
 
     # main training procedure
     print('TRAINING ...')
-    janice_x = get_seed_dataset(BATCH_SIZE * BATCHES, MAX_VAL)[0]
-    priya_x, priya_y = split_n_last(janice.predict(janice_x))
+    janice_x = get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[0]
+    priya_x, priya_y = detach_last(janice.predict(janice_x))
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
     # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
             if REFRESH_DATASET:
                 # janice_x = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-                priya_x, priya_y = split_n_last(janice.predict(janice_x))
+                priya_x, priya_y = detach_last(janice.predict(janice_x))
             # train both networks on entire dataset
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
             priya_loss[epoch] = np.mean(priya.fit(priya_x, priya_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
@@ -210,7 +221,7 @@ def run_predgan():
         flatten_irregular_nested_iterable(janice.get_weights()),
         '../output/plots/janice_weights.pdf'
     )
-    utils.generate_output_file(output_values, VAL_BITS, '../output/sequences/janice.txt')
+    utils.generate_output_file(output_values, OUTPUT_BITS, '../output/sequences/janice.txt')
 
 
 def construct_discgan():
@@ -220,15 +231,7 @@ def construct_discgan():
     jerry_input, jerry = construct_generator('jerry')
     # define Diego
     print('Constructing Diego ...')
-    diego_input = Input(shape=(OUTPUT_LENGTH,))
-    diego_output = Dense(OUTPUT_LENGTH)(diego_input)
-    diego_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(diego_output)
-    diego_output = Conv1D(int(OUTPUT_LENGTH / 4), 4)(diego_output)
-    diego_output = Flatten()(diego_output)
-    diego_output = Dense(1, activation=diagonal_max(100))(diego_output)
-    diego = Model(diego_input, diego_output)
-    diego.compile(DIEGO_OPT, DIEGO_LOSS)
-    plot_network_graphs(diego, 'diego')
+    diego_input, diego = construct_discriminator('diego')
     # define the connected GAN
     print('Constructing connected GAN ...')
     discgan_output = jerry(jerry_input)
@@ -248,42 +251,66 @@ def construct_predgan():
     janice_input, janice = construct_generator('janice')
     # define priya
     print('Constructing Priya ...')
-    priya_input = Input(shape=(OUTPUT_LENGTH - 1,))
-    priya_output = Dense(OUTPUT_LENGTH)(priya_input)
-    priya_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(priya_output)
-    priya_output = LSTM(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(priya_output)
-    priya_output = Flatten()(priya_output)
-    priya_output = Dense(1, activation=linear)(priya_output)
-    priya = Model(priya_input, priya_output)
-    priya.compile(PRIYA_OPT, PRIYA_LOSS)
-    plot_network_graphs(priya, 'priya')
+    priya_input, priya = construct_predictor('priya')
     # connect GAN
     print('Constructing connected GAN ...')
     output_predgan = janice(janice_input)
     output_predgan = Lambda(
-        drop_last_value(OUTPUT_LENGTH, BATCH_SIZE),
+        drop_last_value(OUTPUT_SIZE, BATCH_SIZE),
         name='adversarial_drop_last_value')(output_predgan)
     output_predgan = priya(output_predgan)
     predgan = Model(janice_input, output_predgan, name='predictive_gan')
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     plot_network_graphs(predgan, 'predictive_gan')
-
     print('Models defined and compiled.')
     return janice, priya, predgan
 
 
 def construct_generator(name: str):
-    generator_input = Input(shape=(1,))
-    generator_output = Dense(OUTPUT_LENGTH, activation=linear)(generator_input)
-    generator_output = Reshape(target_shape=(5, int(OUTPUT_LENGTH / 5)))(generator_output)
-    generator_output = SimpleRNN(int(OUTPUT_LENGTH / 5), return_sequences=True, activation=linear)(generator_output)
-    generator_output = Flatten()(generator_output)
-    generator_output = Dense(OUTPUT_LENGTH, activation=modulo(MAX_VAL))(generator_output)
+    generator_input = Input(shape=(2,), dtype=DATA_TYPE)
+    generator_output = Dense(OUTPUT_SIZE, activation=linear, dtype=DATA_TYPE)(generator_input)
+    generator_output = Dense(OUTPUT_SIZE, activation=linear, dtype=DATA_TYPE)(generator_output)
+    generator_output = Dense(OUTPUT_SIZE, activation=modulo(OUTPUT_RANGE))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
+
     generator.compile(UNUSED_OPT, UNUSED_LOSS)
     plot_network_graphs(generator, name)
     utils.save_configuration(generator, name)
     return generator_input, generator
+
+
+def construct_discriminator(name: str):
+    inputs = Input((OUTPUT_SIZE,), dtype=DATA_TYPE)
+    outputs = Dense(OUTPUT_SIZE)(inputs)
+    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
+    outputs = Conv1D(filters=int(OUTPUT_SIZE/2), kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = Conv1D(filters=int(OUTPUT_SIZE/2), kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
+    outputs = Dense(1)(outputs)
+    discriminator = Model(inputs, outputs)
+
+    discriminator.compile(DIEGO_OPT, DIEGO_LOSS)
+    plot_network_graphs(discriminator, name)
+    return inputs, discriminator
+
+
+def construct_predictor(name: str):
+    inputs = Input((OUTPUT_SIZE,), dtype=DATA_TYPE)
+    outputs = Dense(OUTPUT_SIZE)(inputs)
+    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
+    outputs = Conv1D(filters=int(OUTPUT_SIZE / 2), kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = Conv1D(filters=int(OUTPUT_SIZE / 2), kernel_size=2, strides=1, activation=linear)(outputs)
+    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
+    outputs = Dense(1)(outputs)
+    predictor = Model(inputs, outputs)
+
+    predictor.compile(PRIYA_OPT, PRIYA_LOSS)
+    plot_network_graphs(predictor, name)
+    return inputs, predictor
 
 
 if __name__ == '__main__':
