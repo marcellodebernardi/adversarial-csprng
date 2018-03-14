@@ -39,12 +39,12 @@ import datetime
 import math
 import numpy as np
 import tensorflow as tf
-from utils import utils, input_utils, operation_utils
+from utils import utils, operation_utils
 from utils.operation_utils import detach_last, set_trainable
 from utils.input_utils import get_generator_dataset, get_discriminator_dataset
 from utils.vis_utils import *
 from keras import Model
-from keras.layers import Input, Dense, Conv1D, MaxPooling1D, Lambda
+from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
 from keras.activations import linear
 from keras.optimizers import adagrad
 from models.activations import modulo
@@ -56,14 +56,14 @@ from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, los
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 
 # HYPER-PARAMETERS
-OUTPUT_SIZE = 4
+OUTPUT_SIZE = 8
 OUTPUT_RANGE = 15
 OUTPUT_BITS = 4
-DATA_TYPE = tf.float32
 BATCH_SIZE = 32 if HPC_TRAIN else 4  # seeds in a single batch
 BATCHES = 32 if HPC_TRAIN else 10  # batches in complete dataset
 LEARNING_RATE = 0.0008
-CLIP_VALUE = 0.01
+CLIP_VALUE = 0.05
+DATA_TYPE = tf.float64
 
 # losses and optimizers
 DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
@@ -88,8 +88,8 @@ REFRESH_DATASET = '-ref' in sys.argv  # refresh dataset at each epoch
 SEND_REPORT = '-noemail' not in sys.argv  # emails results to given addresses
 
 # logging and evaluation
-EVAL_SEED = input_utils.get_random_sequence(1, OUTPUT_RANGE)
-LOG_EVERY_N = 100 if HPC_TRAIN else 10
+EVAL_SEED = np.array([[1, 1], [1, 2], [1, 3]])
+LOG_EVERY_N = 100 if HPC_TRAIN else 1
 
 
 def main():
@@ -120,13 +120,13 @@ def run_discgan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
     # construct models
-    jerry, diego, discgan = construct_discgan()
+    jerry, diego, discgan = construct_discgan(construct_adversary_conv)
 
     # pre-train Diego
     print('PRETRAINING ...')
     diego_x, diego_y = get_discriminator_dataset(
         jerry,
-        get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[0],
+        get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[:-1],
         OUTPUT_SIZE,
         OUTPUT_RANGE)
     plot_pretrain_loss(
@@ -135,7 +135,9 @@ def run_discgan():
 
     # train both networks in turn
     print('TRAINING ...')
-    jerry_x, jerry_y = get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)
+    dataset = get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)
+    jerry_x = np.array([dataset[0], dataset[1]]).transpose()
+    jerry_y = dataset[2]
     diego_x, diego_y = get_discriminator_dataset(jerry, jerry_x, OUTPUT_SIZE, OUTPUT_RANGE)
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
     # iterate over entire dataset
@@ -174,11 +176,11 @@ def run_discgan():
 def run_predgan():
     """Constructs and trains the predictive GAN consisting of
     Janice and priya."""
-    janice, priya, predgan = construct_predgan()
+    janice, priya, predgan = construct_predgan(construct_adversary_conv)
 
     # pretrain priya
     print('PRETRAINING ...')
-    priya_x, priya_y = detach_last(janice.predict(get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[0]))
+    priya_x, priya_y = detach_last(janice.predict(get_generator_dataset(BATCH_SIZE * BATCHES, OUTPUT_RANGE)))
     plot_pretrain_loss(
         priya.fit(priya_x, priya_y, BATCH_SIZE, PRETRAIN_EPOCHS, verbose=1),
         '../output/plots/priya_pretrain_loss.pdf')
@@ -224,14 +226,14 @@ def run_predgan():
     utils.generate_output_file(output_values, OUTPUT_BITS, '../output/sequences/janice.txt')
 
 
-def construct_discgan():
+def construct_discgan(constructor):
     """Defines and compiles the models for Jerry, Diego, and the connected discgan."""
     # define Jerry
     print('Constructing Jerry ...')
     jerry_input, jerry = construct_generator('jerry')
     # define Diego
     print('Constructing Diego ...')
-    diego_input, diego = construct_discriminator('diego')
+    diego_input, diego = constructor(OUTPUT_SIZE, DIEGO_OPT, DIEGO_LOSS, 'diego')
     # define the connected GAN
     print('Constructing connected GAN ...')
     discgan_output = jerry(jerry_input)
@@ -244,14 +246,14 @@ def construct_discgan():
     return jerry, diego, discgan
 
 
-def construct_predgan():
+def construct_predgan(constructor):
     """Defines and compiles the models for Janice, Priya, and the connected predgan. """
     # define janice
     print('Constructing Janice ...')
     janice_input, janice = construct_generator('janice')
     # define priya
     print('Constructing Priya ...')
-    priya_input, priya = construct_predictor('priya')
+    priya_input, priya = constructor(OUTPUT_SIZE - 1, PRIYA_OPT, PRIYA_LOSS, 'priya')
     # connect GAN
     print('Constructing connected GAN ...')
     output_predgan = janice(janice_input)
@@ -267,9 +269,9 @@ def construct_predgan():
 
 
 def construct_generator(name: str):
-    generator_input = Input(shape=(2,), dtype=DATA_TYPE)
-    generator_output = Dense(OUTPUT_SIZE, activation=linear, dtype=DATA_TYPE)(generator_input)
-    generator_output = Dense(OUTPUT_SIZE, activation=linear, dtype=DATA_TYPE)(generator_output)
+    generator_input = Input(shape=(2,))
+    generator_output = Dense(OUTPUT_SIZE, activation=linear)(generator_input)
+    generator_output = Dense(OUTPUT_SIZE, activation=linear)(generator_output)
     generator_output = Dense(OUTPUT_SIZE, activation=modulo(OUTPUT_RANGE))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
 
@@ -279,38 +281,59 @@ def construct_generator(name: str):
     return generator_input, generator
 
 
-def construct_discriminator(name: str):
-    inputs = Input((OUTPUT_SIZE,), dtype=DATA_TYPE)
-    outputs = Dense(OUTPUT_SIZE)(inputs)
-    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
-    outputs = Conv1D(filters=int(OUTPUT_SIZE/2), kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = Conv1D(filters=int(OUTPUT_SIZE/2), kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
-    outputs = Dense(1)(outputs)
+def construct_adversary_conv(input_size, optimizer, loss, name: str):
+    inputs = Input((input_size,))
+    outputs = Reshape(target_shape=(input_size, 1))(inputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = MaxPooling1D(2)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = MaxPooling1D(2)(outputs)
+    outputs = Flatten()(outputs)
+    outputs = Dense(2, activation=linear)(outputs)
+    outputs = Dense(1, activation=linear)(outputs)
     discriminator = Model(inputs, outputs)
+
+    discriminator.compile(optimizer, loss)
+    plot_network_graphs(discriminator, name)
+    return inputs, discriminator
+
+
+def construct_adversary_lstm(input_size, optimizer, loss, name: str):
+    inputs = Input((input_size, ))
+    outputs = Reshape(target_shape=(1, input_size))(inputs)
+    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = Dense(input_size, activation=linear)(outputs)
+    outputs = Dense(2, activation=linear)(outputs)
+    outputs = Dense(1, activation=linear)(outputs)
+    discriminator = Model(inputs, outputs)
+    discriminator.compile(optimizer, loss)
 
     discriminator.compile(DIEGO_OPT, DIEGO_LOSS)
     plot_network_graphs(discriminator, name)
     return inputs, discriminator
 
 
-def construct_predictor(name: str):
-    inputs = Input((OUTPUT_SIZE,), dtype=DATA_TYPE)
-    outputs = Dense(OUTPUT_SIZE)(inputs)
-    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = Conv1D(filters=OUTPUT_SIZE, kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
-    outputs = Conv1D(filters=int(OUTPUT_SIZE / 2), kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = Conv1D(filters=int(OUTPUT_SIZE / 2), kernel_size=2, strides=1, activation=linear)(outputs)
-    outputs = MaxPooling1D(pool_size=2, strides=2)(outputs)
-    outputs = Dense(1)(outputs)
-    predictor = Model(inputs, outputs)
+def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
+    inputs = Input((input_size, ))
+    outputs = Reshape(target_shape=(input_size, 1))(inputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = MaxPooling1D(2)(outputs)
+    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = Dense(2, activation=linear)(outputs)
+    outputs = Dense(1, activation=linear)(outputs)
+    discriminator = Model(inputs, outputs)
+    discriminator.compile(optimizer, loss)
 
-    predictor.compile(PRIYA_OPT, PRIYA_LOSS)
-    plot_network_graphs(predictor, name)
-    return inputs, predictor
+    discriminator.compile(DIEGO_OPT, DIEGO_LOSS)
+    plot_network_graphs(discriminator, name)
+    return inputs, discriminator
 
 
 if __name__ == '__main__':

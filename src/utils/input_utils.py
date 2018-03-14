@@ -27,24 +27,27 @@ def get_generator_dataset(size, max_val) -> np.ndarray:
     dataset is structured as a numpy array of dimensions (2, size). For array[0],
     each element of the inner array is """
     seed = get_random_value(max_val)
-    initial_offset = get_random_value(size)
-    x = []
+    initial_offset = int(get_random_value(size))
+    x = [[], [], []]
     # generate dataset
     for element in tqdm(range(size), 'Building generator inputs ...'):
-        x.append(np.array([seed, element + initial_offset]))
-    return np.array([np.array(x), np.zeros(len(x))])
+        x[0].append(seed)
+        x[1].append(element + initial_offset)
+        x[2].append(0)
+
+    return np.array(x)
 
 
-def get_discriminator_dataset(generator: Model, seeds, sequence_length, max_val) -> (np.ndarray, np.ndarray):
+def get_discriminator_dataset(generator: Model, inputs, sequence_length, max_val) -> (np.ndarray, np.ndarray):
     """Generates a dataset for training Diego (the discriminator). The
     dataset consists half of truly random sequences and half of sequences
     produced by the generator."""
-    dataset = generator.predict(seeds)
-    labels = [0 for i in range(len(seeds))]
+    dataset = generator.predict(np.array([inputs[0], inputs[1]]).transpose())
+    labels = [0 for i in range(len(inputs[0]))]
 
-    for i in tqdm(range(int(len(seeds)/2)), 'Obtaining random sequences ...'):
-        dataset.append(get_random_sequence(sequence_length, max_val))
-        labels.append(1)
+    for i in tqdm(range(int(len(inputs[0]) / 2)), 'Obtaining random sequences ...'):
+        np.append(dataset, get_random_sequence(sequence_length, max_val))
+        np.append(labels, 1)
 
     combined = list(zip(dataset, labels))
     rng.shuffle(combined)
