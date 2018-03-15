@@ -53,4 +53,6 @@ at the conceptual level.
 
 
 ## 5 - TO DO
-1. TensorBoard visualizations, see https://gist.github.com/joelthchao/ef6caa586b647c3c032a4f84d52e3a11
+1. Activations: ReLU, LeakyReLU, tanh?
+2. Optimizers: ???
+3. 

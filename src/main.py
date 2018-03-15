@@ -41,19 +41,21 @@ import numpy as np
 import tensorflow as tf
 from utils.utils import log_to_file, email_report, generate_output_file, save_configuration
 from utils.operation_utils import detach_all_last, set_trainable, flatten
-from utils.input_utils import get_inputs, get_sequences
+from utils.input_utils import get_inputs, get_sequences, get_eval_input
 from utils.vis_utils import *
 from utils.debug_utils import print_gan, print_pretrain, print_epoch
 from keras import Model
 from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
-from keras.activations import linear
-from keras.optimizers import adagrad
+from keras.activations import linear, relu
+from keras.layers.advanced_activations import LeakyReLU
+from keras.optimizers import adagrad, adam
 from models.activations import modulo
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
+ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
@@ -66,13 +68,13 @@ CLIP_VALUE = 0.05
 DATA_TYPE = tf.float64
 
 # losses and optimizers
-DIEGO_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+DIEGO_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DIEGO_LOSS = loss_discriminator
-DISC_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+DISC_GAN_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
-PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+PRIYA_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRIYA_LOSS = loss_predictor
-PRED_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
+PRED_GAN_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 PRED_GAN_LOSS = loss_pred_gan
 UNUSED_OPT = 'adagrad'
 UNUSED_LOSS = 'binary_crossentropy'
@@ -82,14 +84,14 @@ PRETRAIN = '-nopretrain' not in sys.argv
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
 EPOCHS = 100000 if HPC_TRAIN else 40
 PRE_EPOCHS = 1000 if PRETRAIN and HPC_TRAIN else 5 if PRETRAIN else 0
-ADV_MULT = 3
+ADV_MULT = 5
 RECOMPILE = '-rec' in sys.argv
 REFRESH_DATASET = '-ref' in sys.argv
 SEND_REPORT = '-noemail' not in sys.argv
 
 # logging and evaluation
-EVAL_SEED = np.array([[1, 1], [1, 2], [1, 3]])
-LOG_EVERY_N = 100 if HPC_TRAIN else 1
+EVAL_DATA = get_eval_input(10, 50000 if HPC_TRAIN else 10)
+LOG_EVERY_N = 1000 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
 DATA_DIR = '../output/data/'
 SEQN_DIR = '../output/sequences/'
@@ -125,7 +127,7 @@ def run_discgan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
     # construct models
-    jerry, diego, discgan = construct_discgan(construct_adversary_convlstm)
+    jerry, diego, discgan = construct_discgan(select_constructor(ARCHITECTURE))
     print_gan(jerry, diego, discgan)
 
     # pre-train Diego
@@ -168,7 +170,7 @@ def run_discgan():
     plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
 
     # generate outputs for one seed
-    values = flatten(jerry.predict(EVAL_SEED))
+    values = flatten(jerry.predict(EVAL_DATA))
     log_to_file(values, DATA_DIR + 'jerry_eval_sequence.txt')
     generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
     plot_output_histogram(values, PLOT_DIR + 'discgan_jerry_output_distribution.pdf')
@@ -178,7 +180,7 @@ def run_discgan():
 def run_predgan():
     """Constructs and trains the predictive GAN consisting of
     Janice and priya."""
-    janice, priya, predgan = construct_predgan(construct_adversary_convlstm)
+    janice, priya, predgan = construct_predgan(select_constructor(ARCHITECTURE))
     if not HPC_TRAIN:
         print_gan(janice, priya, predgan)
 
@@ -224,7 +226,7 @@ def run_predgan():
     plot_network_weights(flatten(janice.get_weights()), PLOT_DIR + 'janice_weights.pdf')
 
     # generate outputs for one seed
-    values = flatten(janice.predict(EVAL_SEED))
+    values = flatten(janice.predict(EVAL_DATA))
     log_to_file(values, DATA_DIR + 'janice_eval_sequence.txt')
     generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
     plot_output_histogram(values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
@@ -262,6 +264,14 @@ def construct_predgan(constructor):
     predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
     plot_network_graphs(predgan, 'predictive_gan')
     return janice, priya, predgan
+
+
+def select_constructor(name: str):
+    return {
+        'conv': construct_adversary_conv,
+        'lstm': construct_adversary_lstm,
+        'convlstm': construct_adversary_convlstm
+    }[name]
 
 
 def construct_generator(name: str):
