@@ -60,7 +60,7 @@ OUTPUT_SIZE = 8
 MAX_VAL = 15
 OUTPUT_BITS = 4
 BATCH_SIZE = 32 if HPC_TRAIN else 4  # seeds in a single batch
-BATCHES = 32 if HPC_TRAIN else 10  # batches in complete dataset
+BATCHES = 64 if HPC_TRAIN else 10  # batches in complete dataset
 LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.05
 DATA_TYPE = tf.float64
@@ -125,7 +125,7 @@ def run_discgan():
     """Constructs and trains the discriminative GAN consisting of
     Jerry and Diego."""
     # construct models
-    jerry, diego, discgan = construct_discgan(construct_adversary_conv)
+    jerry, diego, discgan = construct_discgan(construct_adversary_convlstm)
     print_gan(jerry, diego, discgan)
 
     # pre-train Diego
@@ -163,8 +163,8 @@ def run_discgan():
     plot_train_loss(jerry_loss, diego_loss, PLOT_DIR + 'discgan_train_loss.pdf')
     log_to_file(jerry_loss, DATA_DIR + 'jerry_loss.txt')
     log_to_file(diego_loss, DATA_DIR + 'diego_loss.txt')
-    log_to_file(jerry.get_weights(), DATA_DIR + '../jerry_weights.txt')
-    log_to_file(diego.get_weights(), DATA_DIR + '../diego_weights.txt')
+    log_to_file(jerry.get_weights(), DATA_DIR + 'jerry_weights.txt')
+    log_to_file(diego.get_weights(), DATA_DIR + 'diego_weights.txt')
     plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
 
     # generate outputs for one seed
@@ -178,7 +178,7 @@ def run_discgan():
 def run_predgan():
     """Constructs and trains the predictive GAN consisting of
     Janice and priya."""
-    janice, priya, predgan = construct_predgan(construct_adversary_conv)
+    janice, priya, predgan = construct_predgan(construct_adversary_convlstm)
     if not HPC_TRAIN:
         print_gan(janice, priya, predgan)
 
@@ -219,8 +219,8 @@ def run_predgan():
     plot_train_loss(janice_loss, priya_loss, PLOT_DIR + 'predgan_train_loss.pdf')
     log_to_file(janice_loss, DATA_DIR + 'janice_loss.txt')
     log_to_file(priya_loss, DATA_DIR + 'priya_loss.txt')
-    log_to_file(janice.get_weights(), DATA_DIR + '../janice_weights.txt')
-    log_to_file(priya.get_weights(), DATA_DIR + '../priya_weights.txt')
+    log_to_file(janice.get_weights(), DATA_DIR + 'janice_weights.txt')
+    log_to_file(priya.get_weights(), DATA_DIR + 'priya_weights.txt')
     plot_network_weights(flatten(janice.get_weights()), PLOT_DIR + 'janice_weights.pdf')
 
     # generate outputs for one seed
@@ -266,8 +266,8 @@ def construct_predgan(constructor):
 
 def construct_generator(name: str):
     generator_input = Input(shape=(2,))
-    generator_output = Dense(OUTPUT_SIZE, activation=linear)(generator_input)
-    generator_output = Dense(OUTPUT_SIZE, activation=linear)(generator_output)
+    generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_input)
+    generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
     generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
 
@@ -298,11 +298,12 @@ def construct_adversary_conv(input_size, optimizer, loss, name: str):
 
 def construct_adversary_lstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(1, input_size))(inputs)
-    outputs = LSTM(input_size, return_sequences=True)(outputs)
-    outputs = LSTM(input_size, return_sequences=True)(outputs)
-    outputs = LSTM(input_size, return_sequences=True)(outputs)
-    outputs = Dense(input_size, activation=linear)(outputs)
+    outputs = Reshape(target_shape=(input_size, 1))(inputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = Flatten()(outputs)
+    outputs = Dense(int(input_size/2), activation=linear)(outputs)
     outputs = Dense(2, activation=linear)(outputs)
     outputs = Dense(1, activation=linear)(outputs)
     discriminator = Model(inputs, outputs)
@@ -318,10 +319,13 @@ def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
     outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
     outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = MaxPooling1D(2)(outputs)
-    outputs = LSTM(input_size, return_sequences=True)(outputs)
-    outputs = LSTM(input_size, return_sequences=True)(outputs)
-    outputs = LSTM(input_size, return_sequences=True)(outputs)
+    outputs = Flatten()(outputs)
+    outputs = Reshape(target_shape=(input_size, 2))(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = Flatten()(outputs)
+    outputs = Dense(4, activation=linear)(outputs)
     outputs = Dense(2, activation=linear)(outputs)
     outputs = Dense(1, activation=linear)(outputs)
     discriminator = Model(inputs, outputs)
