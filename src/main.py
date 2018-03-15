@@ -40,7 +40,7 @@ import math
 import numpy as np
 import tensorflow as tf
 from utils.utils import log_to_file, email_report, generate_output_file, save_configuration
-from utils.operation_utils import detach_all_last, set_trainable, flatten
+from utils.operation_utils import detach_all_last, set_trainable, flatten, extract_batch
 from utils.input_utils import get_inputs, get_sequences, get_eval_input
 from utils.vis_utils import *
 from utils.debug_utils import print_gan, print_pretrain, print_epoch
@@ -87,7 +87,7 @@ PRE_EPOCHS = 1000 if PRETRAIN and HPC_TRAIN else 5 if PRETRAIN else 0
 ADV_MULT = 5
 RECOMPILE = '-rec' in sys.argv
 REFRESH_DATASET = '-ref' in sys.argv
-SEND_REPORT = '-noemail' not in sys.argv
+SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
 EVAL_DATA = get_eval_input(10, 50000 if HPC_TRAIN else 10)
@@ -196,19 +196,25 @@ def run_predgan():
     try:
         for epoch in range(EPOCHS):
             # get data for this epoch
-            janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
-            priya_x, priya_y = detach_all_last(janice.predict(janice_x))
+            janice_inputs = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
 
-            # train both networks on entire dataset
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
-            priya_loss[epoch] = np.mean(
-                priya.fit(priya_x, priya_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            janice_loss[epoch] = np.mean(predgan.fit(janice_x, priya_y, BATCH_SIZE, verbose=0).history['loss'])
+            for batch in range(BATCHES):
+                # generate predictions for this batch
+                janice_x = extract_batch(janice_inputs, batch, BATCH_SIZE)
+                priya_x, priya_y = detach_all_last(janice.predict_on_batch(janice_x))
+
+                # train both networks on entire dataset
+                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
+                for i in range(ADV_MULT):
+                    priya_loss[epoch] += priya.train_on_batch(priya_x, priya_y)
+                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
+                janice_loss[epoch] += predgan.train_on_batch(janice_x, priya_y)
 
             # update and log loss value
+            priya_loss[epoch] /= (BATCHES * ADV_MULT)
+            janice_loss[epoch] /= BATCHES
             if epoch % LOG_EVERY_N == 0:
-                print_epoch(epoch, inputs=janice_x, gen_out=priya_x, gen_loss=janice_loss[epoch],
+                print_epoch(epoch, inputs=janice_inputs, gen_out=priya_x, gen_loss=janice_loss[epoch],
                             opp_loss=priya_loss[epoch])
             # check for NaNs
             if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
@@ -290,15 +296,15 @@ def construct_generator(name: str):
 def construct_adversary_conv(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
     outputs = MaxPooling1D(2)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
     outputs = MaxPooling1D(2)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(2, activation=linear)(outputs)
-    outputs = Dense(1, activation=linear)(outputs)
+    outputs = Dense(2, activation=relu)(outputs)
+    outputs = Dense(1, activation=relu)(outputs)
     discriminator = Model(inputs, outputs)
 
     discriminator.compile(optimizer, loss)
@@ -309,13 +315,13 @@ def construct_adversary_conv(input_size, optimizer, loss, name: str):
 def construct_adversary_lstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(int(input_size/2), activation=linear)(outputs)
-    outputs = Dense(2, activation=linear)(outputs)
-    outputs = Dense(1, activation=linear)(outputs)
+    outputs = Dense(int(input_size/2), activation=relu)(outputs)
+    outputs = Dense(2, activation=relu)(outputs)
+    outputs = Dense(1, activation=relu)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
@@ -327,17 +333,17 @@ def construct_adversary_lstm(input_size, optimizer, loss, name: str):
 def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
     outputs = Flatten()(outputs)
     outputs = Reshape(target_shape=(input_size, 2))(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(4, activation=linear)(outputs)
-    outputs = Dense(2, activation=linear)(outputs)
-    outputs = Dense(1, activation=linear)(outputs)
+    outputs = Dense(4, activation=relu)(outputs)
+    outputs = Dense(2, activation=relu)(outputs)
+    outputs = Dense(1, activation=relu)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 

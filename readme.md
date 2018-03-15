@@ -54,5 +54,5 @@ at the conceptual level.
 
 ## 5 - TO DO
 1. Activations: ReLU, LeakyReLU, tanh?
-2. Optimizers: ???
-3. 
+2. Optimizers: adam, adagrad, sgd
+3. LSTM node number
