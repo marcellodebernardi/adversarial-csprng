@@ -21,6 +21,13 @@ import random as rng
 from keras import Model
 
 
+def get_eval_input(seed, length):
+    """ Returns an input dataset that can be used to produce a full output
+    sequence using a trained generator. This method returns a 2D numpy array
+    where each inner array is an (seed, offset) pair. """
+    return np.array([[seed, offset] for offset in range(length)])
+
+
 def get_inputs(size, max_val) -> np.ndarray:
     """Generates an input dataset for adversarially training the generator. The
     dataset is structured as a numpy array of dimensions (2, size). For array[0],
@@ -63,10 +70,7 @@ def get_random_sequence(sequence_length, max_val, source='random') -> np.ndarray
     :parameter sequence_length: length of each individual sequence of reals
     :parameter source: allows specification of the source of randomness
     """
-    if source == 'random':
-        return np.array([rng.uniform(0, max_val) for i in range(int(sequence_length))], dtype=np.float64)
-    elif source == 'system_random':
-        return np.array([rng.SystemRandom().uniform(0, max_val) for i in range(int(sequence_length))], dtype=np.float64)
+    return np.array([get_random_value(max_val, source) for i in range(int(sequence_length))], dtype=np.float64)
 
 
 def get_random_value(max_val, source='random') -> float:
