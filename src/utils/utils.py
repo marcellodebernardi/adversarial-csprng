@@ -50,7 +50,7 @@ def generate_output_file(values, val_bits, fname=None):
             file.write(str(bin_str) + "")
 
 
-def log_to_file(logs: np.ndarray, fname: str):
+def log_to_file(logs, fname: str):
     """Writes the given data array to the given file. No prettifying."""
     with open(fname, 'w') as file:
         file.write(str(logs))
