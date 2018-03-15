@@ -19,7 +19,6 @@ to be used as inputs to the neural networks.
 import numpy as np
 import random as rng
 from keras import Model
-from tqdm import tqdm
 
 
 def get_inputs(size, max_val) -> np.ndarray:

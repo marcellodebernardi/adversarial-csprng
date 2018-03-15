@@ -17,12 +17,12 @@ pertaining to the trained models, including loss functions, histograms
 of the model weights, etc.
 """
 
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from keras import Model
 from keras.utils import plot_model
-from utils.operation_utils import flatten_irregular_nested_iterable
+from utils.operation_utils import flatten
+import matplotlib
+matplotlib.use('Agg')
 
 
 def plot_pretrain_loss(history, fname):
@@ -50,7 +50,7 @@ def plot_train_loss(generator_loss, adversary_loss, fname):
 
 def plot_output_histogram(values, fname):
     """Plot a histogram of the output values for one seed. """
-    values = flatten_irregular_nested_iterable(values)
+    values = flatten(values)
     plt.hist(values, bins=int(abs((max(values) - min(values))*3)))
     plt.title('Generator Output Frequency Distribution')
     plt.xlabel('Output')
