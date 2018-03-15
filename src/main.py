@@ -39,7 +39,7 @@ import traceback
 import math
 import numpy as np
 import tensorflow as tf
-from utils import utils
+from utils.utils import log_to_file, email_report, generate_output_file, save_configuration
 from utils.operation_utils import detach_all_last, set_trainable, flatten
 from utils.input_utils import get_inputs, get_sequences
 from utils.vis_utils import *
@@ -57,7 +57,7 @@ HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect 
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
-OUTPUT_RANGE = 15
+MAX_VAL = 15
 OUTPUT_BITS = 4
 BATCH_SIZE = 32 if HPC_TRAIN else 4  # seeds in a single batch
 BATCHES = 32 if HPC_TRAIN else 10  # batches in complete dataset
@@ -82,7 +82,7 @@ PRETRAIN = '-nopretrain' not in sys.argv
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
 EPOCHS = 100000 if HPC_TRAIN else 40
 PRE_EPOCHS = 1000 if PRETRAIN and HPC_TRAIN else 5 if PRETRAIN else 0
-ADVERSARY_MULT = 3
+ADV_MULT = 3
 RECOMPILE = '-rec' in sys.argv
 REFRESH_DATASET = '-ref' in sys.argv
 SEND_REPORT = '-noemail' not in sys.argv
@@ -91,6 +91,10 @@ SEND_REPORT = '-noemail' not in sys.argv
 EVAL_SEED = np.array([[1, 1], [1, 2], [1, 3]])
 LOG_EVERY_N = 100 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
+DATA_DIR = '../output/data/'
+SEQN_DIR = '../output/sequences/'
+MODEL_DIR = '../output/saved_models/'
+GRAPH_DIR = '../output/model_graphs/'
 
 
 def main():
@@ -114,7 +118,7 @@ def main():
 
     # send off email report
     if SEND_REPORT:
-        utils.email_report(BATCH_SIZE, BATCHES, EPOCHS, PRE_EPOCHS)
+        email_report(BATCH_SIZE, BATCHES, EPOCHS, PRE_EPOCHS)
 
 
 def run_discgan():
@@ -122,34 +126,26 @@ def run_discgan():
     Jerry and Diego."""
     # construct models
     jerry, diego, discgan = construct_discgan(construct_adversary_conv)
-    if not HPC_TRAIN:
-        print_gan(jerry, diego, discgan)
+    print_gan(jerry, diego, discgan)
 
     # pre-train Diego
-    diego_x, diego_y = get_sequences(jerry, get_inputs(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[:-1], OUTPUT_SIZE,
-                                     OUTPUT_RANGE)
-    if not HPC_TRAIN:
-        print_pretrain(diego_x, diego_y)
+    diego_x, diego_y = get_sequences(jerry, get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1], OUTPUT_SIZE, MAX_VAL)
+    print_pretrain(diego_x, diego_y)
     plot_pretrain_loss(diego.fit(diego_x, diego_y, BATCH_SIZE, PRE_EPOCHS, verbose=1),
                        PLOT_DIR + 'diego_pretrain_loss.pdf')
 
-    # train both networks in turn
-    dataset = get_inputs(BATCH_SIZE * BATCHES, OUTPUT_RANGE)
-    jerry_x = np.array([dataset[0], dataset[1]]).transpose()
-    jerry_y = dataset[2]
-    diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, OUTPUT_RANGE)
+    # main training procedure
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-
-    # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
-            if REFRESH_DATASET:
-                diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, OUTPUT_RANGE)
+            # training data for this epoch
+            seeds, offsets, jerry_y = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
+            jerry_x = np.array([seeds, offsets]).transpose()
+            diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, MAX_VAL)
 
             # alternate train
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-            diego_loss[epoch] = np.mean(
-                diego.fit(diego_x, diego_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
+            diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
             set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
             jerry_loss[epoch] = np.mean(discgan.fit(jerry_x, jerry_y, BATCH_SIZE, verbose=0).history['loss'])
 
@@ -162,14 +158,21 @@ def run_discgan():
 
     except ValueError:
         traceback.print_exc()
+
+    # log training stats
     plot_train_loss(jerry_loss, diego_loss, PLOT_DIR + 'discgan_train_loss.pdf')
+    log_to_file(jerry_loss, DATA_DIR + 'jerry_loss.txt')
+    log_to_file(diego_loss, DATA_DIR + 'diego_loss.txt')
+    log_to_file(jerry.get_weights(), DATA_DIR + '../jerry_weights.txt')
+    log_to_file(diego.get_weights(), DATA_DIR + '../diego_weights.txt')
+    plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
 
     # generate outputs for one seed
     values = flatten(jerry.predict(EVAL_SEED))
+    log_to_file(values, DATA_DIR + 'jerry_eval_sequence.txt')
+    generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
     plot_output_histogram(values, PLOT_DIR + 'discgan_jerry_output_distribution.pdf')
     plot_output_sequence(values, PLOT_DIR + 'discgan_jerry_output_sequence.pdf')
-    plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
-    utils.generate_output_file(values, OUTPUT_BITS, '../output/sequences/jerry.txt')
 
 
 def run_predgan():
@@ -181,32 +184,30 @@ def run_predgan():
 
     # pretrain priya
     priya_x, priya_y = detach_all_last(
-        janice.predict(np.array(get_inputs(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[:-1]).transpose()))
+        janice.predict(np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()))
     plot_pretrain_loss(
         priya.fit(priya_x, priya_y, BATCH_SIZE, PRE_EPOCHS, verbose=1),
         PLOT_DIR + 'priya_pretrain_loss.pdf')
 
     # main training procedure
-    janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, OUTPUT_RANGE)[:-1]).transpose()
-    priya_x, priya_y = detach_all_last(janice.predict(janice_x))
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    # iterate over entire dataset
     try:
         for epoch in range(EPOCHS):
-            if REFRESH_DATASET:
-                # janice_x = get_seed_dataset(BATCH_SIZE, BATCHES, UNIQUE_SEEDS, MAX_VAL)[0]
-                priya_x, priya_y = detach_all_last(janice.predict(janice_x))
+            # get data for this epoch
+            janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
+            priya_x, priya_y = detach_all_last(janice.predict(janice_x))
 
             # train both networks on entire dataset
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
             priya_loss[epoch] = np.mean(
-                priya.fit(priya_x, priya_y, BATCH_SIZE, ADVERSARY_MULT, verbose=0).history['loss'])
+                priya.fit(priya_x, priya_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
             set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
             janice_loss[epoch] = np.mean(predgan.fit(janice_x, priya_y, BATCH_SIZE, verbose=0).history['loss'])
 
             # update and log loss value
-            if not HPC_TRAIN or epoch % LOG_EVERY_N == 0:
-                print_epoch(epoch, gen_loss=janice_loss[epoch], opp_loss=priya_loss[epoch])
+            if epoch % LOG_EVERY_N == 0:
+                print_epoch(epoch, inputs=janice_x, gen_out=priya_x, gen_loss=janice_loss[epoch],
+                            opp_loss=priya_loss[epoch])
             # check for NaNs
             if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
                 raise ValueError()
@@ -214,15 +215,20 @@ def run_predgan():
     except ValueError:
         traceback.print_exc()
 
-    # end of training results collection
+    # log training stats
     plot_train_loss(janice_loss, priya_loss, PLOT_DIR + 'predgan_train_loss.pdf')
-
-    # produce output for one seed
-    output_values = flatten(janice.predict(EVAL_SEED))
-    plot_output_histogram(output_values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
-    plot_output_sequence(output_values, PLOT_DIR + 'predgan_janice_output_sequence.pdf')
+    log_to_file(janice_loss, DATA_DIR + 'janice_loss.txt')
+    log_to_file(priya_loss, DATA_DIR + 'priya_loss.txt')
+    log_to_file(janice.get_weights(), DATA_DIR + '../janice_weights.txt')
+    log_to_file(priya.get_weights(), DATA_DIR + '../priya_weights.txt')
     plot_network_weights(flatten(janice.get_weights()), PLOT_DIR + 'janice_weights.pdf')
-    utils.generate_output_file(output_values, OUTPUT_BITS, '../output/sequences/janice.txt')
+
+    # generate outputs for one seed
+    values = flatten(janice.predict(EVAL_SEED))
+    log_to_file(values, DATA_DIR + 'janice_eval_sequence.txt')
+    generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
+    plot_output_histogram(values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
+    plot_output_sequence(values, PLOT_DIR + 'predgan_janice_output_sequence.pdf')
 
 
 def construct_discgan(constructor):
@@ -262,12 +268,12 @@ def construct_generator(name: str):
     generator_input = Input(shape=(2,))
     generator_output = Dense(OUTPUT_SIZE, activation=linear)(generator_input)
     generator_output = Dense(OUTPUT_SIZE, activation=linear)(generator_output)
-    generator_output = Dense(OUTPUT_SIZE, activation=modulo(OUTPUT_RANGE))(generator_output)
+    generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
 
     generator.compile(UNUSED_OPT, UNUSED_LOSS)
     plot_network_graphs(generator, name)
-    utils.save_configuration(generator, name)
+    save_configuration(generator, name)
     return generator_input, generator
 
 
