@@ -18,7 +18,6 @@ and evaluation of the neural network models involved in this project.
 
 from keras import Model
 import datetime
-import traceback
 
 
 def print_gan(generator: Model, adversary: Model, gan: Model):
@@ -44,7 +43,7 @@ def print_pretrain(x_data, y_labels):
 
 def print_epoch(epoch, inputs=None, gen_out=None, opp_out=None, gen_loss=None, opp_loss=None):
     """ Prints debugging information for a single epoch during training. """
-    print('Epoch ' + str(epoch )+ ' - ' + str(datetime.datetime.utcnow()) + ':')
+    print('Epoch ' + str(epoch) + ' - ' + str(datetime.datetime.utcnow()) + ':')
     if inputs is not None:
         print('Inputs:')
         print(inputs)

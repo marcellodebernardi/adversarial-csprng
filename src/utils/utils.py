@@ -41,7 +41,7 @@ def save_configuration(model, name):
 def generate_output_file(values, val_bits, fname=None):
     """Produces an ASCII output text file consisting of 0s and 1s.
     Such a file can be evaluated by the NIST test suite."""
-    values = operation_utils.flatten_irregular_nested_iterable(values)
+    values = operation_utils.flatten(values)
     binary_strings \
         = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '')) for number in values]
 

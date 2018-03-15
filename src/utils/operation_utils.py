@@ -33,7 +33,7 @@ def set_trainable(model: Model, optimizer, loss, recompile, trainable: bool = Tr
         model.compile(optimizer, loss)
 
 
-def detach_last(generator_output: np.ndarray, n_to_predict=1) -> (np.ndarray, np.ndarray):
+def detach_all_last(generator_output: np.ndarray, n_to_predict=1) -> (np.ndarray, np.ndarray):
     """For an array of outputs produced by a generator, where each element in the
     array is an array of real numbers, splits all the inner array into two, such that
     the first resulting array contains all elements of the original inner array minus
@@ -42,14 +42,14 @@ def detach_last(generator_output: np.ndarray, n_to_predict=1) -> (np.ndarray, np
     outputs = []
 
     for i in range(len(generator_output)):
-        inp, out = split_generator_output(generator_output[i], n_to_predict)
+        inp, out = detach_last(generator_output[i], n_to_predict)
         inputs.append(inp)
         outputs.append(out)
 
     return np.array(inputs), np.array(outputs)
 
 
-def split_generator_output(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
+def detach_last(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.ndarray):
     """Takes the generator output as a numpy array and splits it into two
     separate numpy arrays, the first representing the input to the predictor
     and the second representing the output labels for the predictor."""
@@ -74,7 +74,7 @@ def log(x, base) -> tf.Tensor:
     return numerator / denominator
 
 
-def flatten_irregular_nested_iterable(weight_matrix) -> list:
+def flatten(weight_matrix) -> list:
     """Allows flattening a matrix of iterables where the specific type
     and shape of each iterable is not necessarily the same. Returns
     the individual elements of the original nested iterable in a single
@@ -83,7 +83,7 @@ def flatten_irregular_nested_iterable(weight_matrix) -> list:
     flattened_list = []
     try:
         for element in weight_matrix:
-            flattened_list.extend(flatten_irregular_nested_iterable(element))
+            flattened_list.extend(flatten(element))
         return flattened_list
     except TypeError:
         return weight_matrix
