@@ -71,9 +71,9 @@ DIEGO_LOSS = loss_discriminator
 DISC_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
 DISC_GAN_LOSS = loss_disc_gan
 PRIYA_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-PRIYA_LOSS = loss_predictor(OUTPUT_RANGE)
+PRIYA_LOSS = loss_predictor
 PRED_GAN_OPT = adagrad(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-PRED_GAN_LOSS = loss_pred_gan(OUTPUT_RANGE)
+PRED_GAN_LOSS = loss_pred_gan
 UNUSED_OPT = 'adagrad'
 UNUSED_LOSS = 'binary_crossentropy'
 

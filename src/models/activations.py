@@ -21,12 +21,12 @@ operations.
 import tensorflow as tf
 
 
-def modulo(divisor, activation_function=None):
+def modulo(divisor, with_activation=None):
     """Activation function that uses the given standard activation
         function and then applies a modulo operation to its output."""
     def mod_act(input_value):
-        if activation_function is not None:
-            return activation_function(input_value) % divisor
+        if with_activation is not None:
+            return with_activation(input_value) % divisor
         else:
             return input_value % divisor
     return mod_act
@@ -38,7 +38,10 @@ def absolute(input_value):
 
 
 def diagonal_max(max_bound):
-    """Activation function that scales"""
+    """Activation function that scales the output from the range [-max, max] to
+     the range [0, 1]. Everything below -max is mapped to 0, and everything above
+     max is mapped to 1. Within the range [-max, max], everything is mapped
+     linearly into the [0, 1] range."""
     def activation(input_value):
         input_value = tf.clip_by_value(input_value, -max_bound, max_bound)
         return tf.div(tf.add(input_value, tf.constant(max_bound, dtype=tf.float32)), tf.constant(max_bound * 2, dtype=tf.float32))

@@ -18,33 +18,29 @@ particular, it defines appropriate loss functions for the adversarially
 trained generator, predictor, and discriminator networks.
 """
 
-import utils
 import tensorflow as tf
 
 
 def loss_disc_gan(true, pred):
     """Loss function for the adversarial network, used to train the
     generator."""
-    # return tf.ones(tf.shape(pred))
-    return tf.subtract(tf.ones(tf.shape(pred), dtype=tf.float32), loss_discriminator(true, pred))
+    return tf.negative(loss_discriminator(true, pred))
 
 
 def loss_discriminator(true, pred):
-    """Loss function for the discriminative adversary"""
+    """ Loss function for the discriminative adversary, which computes
+    the absolute difference between the true label and the predicted
+    label of a sequence. """
     return tf.abs(tf.subtract(true, pred))
 
 
-def loss_pred_gan(max_value):
-    def loss(true, pred):
-        return tf.subtract(tf.ones(tf.shape(pred), dtype=tf.float32), tf.div(tf.abs(tf.subtract(true, pred)), max_value))
-    return loss
+def loss_pred_gan(true, pred):
+    return tf.negative(loss_predictor(true, pred))
 
 
-def loss_predictor(max_value):
+def loss_predictor(true, pred):
     """Returns a loss function for the discriminator network.
     The maximum value parameter is used to normalize the distance
     between the predictor's output and the correct output.
     """
-    def loss(true, pred):
-        return tf.div(tf.abs(tf.subtract(true, pred)), max_value)
-    return loss
+    return tf.squared_difference(true, pred)
