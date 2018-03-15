@@ -22,7 +22,7 @@ from keras import Model
 from tqdm import tqdm
 
 
-def get_generator_dataset(size, max_val) -> np.ndarray:
+def get_inputs(size, max_val) -> np.ndarray:
     """Generates an input dataset for adversarially training the generator. The
     dataset is structured as a numpy array of dimensions (2, size). For array[0],
     each element of the inner array is """
@@ -30,7 +30,7 @@ def get_generator_dataset(size, max_val) -> np.ndarray:
     initial_offset = int(get_random_value(size))
     x = [[], [], []]
     # generate dataset
-    for element in tqdm(range(size), 'Building generator inputs ...'):
+    for element in range(size):
         x[0].append(seed)
         x[1].append(element + initial_offset)
         x[2].append(0)
@@ -38,14 +38,14 @@ def get_generator_dataset(size, max_val) -> np.ndarray:
     return np.array(x)
 
 
-def get_discriminator_dataset(generator: Model, inputs, sequence_length, max_val) -> (np.ndarray, np.ndarray):
+def get_sequences(generator: Model, inputs, sequence_length, max_val) -> (np.ndarray, np.ndarray):
     """Generates a dataset for training Diego (the discriminator). The
     dataset consists half of truly random sequences and half of sequences
     produced by the generator."""
     dataset = generator.predict(np.array([inputs[0], inputs[1]]).transpose())
     labels = [0 for i in range(len(inputs[0]))]
 
-    for i in tqdm(range(int(len(inputs[0]) / 2)), 'Obtaining random sequences ...'):
+    for i in range(int(len(inputs[0]) / 2)):
         np.append(dataset, get_random_sequence(sequence_length, max_val))
         np.append(labels, 1)
 
