@@ -59,7 +59,7 @@ def detach_last(generator_output: np.ndarray, n_to_predict) -> (np.ndarray, np.n
     return predictor_inputs, predictor_outputs
 
 
-def get_ith_batch(data: np.ndarray, batch: int, batch_size):
+def extract_batch(data: np.ndarray, batch: int, batch_size):
     """Returns a slice of the given array, corresponding to the ith
     batch of size batch_size."""
     return data[(batch * batch_size): (batch + 1) * batch_size]
