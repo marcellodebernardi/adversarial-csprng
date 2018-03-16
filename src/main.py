@@ -48,6 +48,7 @@ from keras import Model
 from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
 from keras.activations import linear, relu
 from keras.layers.advanced_activations import LeakyReLU
+from keras.callbacks import EarlyStopping
 from keras.optimizers import adagrad, adam
 from models.activations import modulo
 from models.operations import drop_last_value
@@ -131,9 +132,10 @@ def run_discgan():
     print_gan(jerry, diego, discgan)
 
     # pre-train Diego
-    diego_x, diego_y = get_sequences(jerry, get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1], OUTPUT_SIZE, MAX_VAL)
-    print_pretrain(diego_x, diego_y)
-    plot_pretrain_loss(diego.fit(diego_x, diego_y, BATCH_SIZE, PRE_EPOCHS, verbose=1),
+    diego_x, diego_y = get_sequences(jerry, np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose(),
+                                     OUTPUT_SIZE, MAX_VAL)
+    stopping = EarlyStopping(monitor='loss', min_delta=0.0001, patience=10, verbose=0, mode='auto')
+    plot_pretrain_loss(diego.fit(diego_x, diego_y, BATCH_SIZE, PRE_EPOCHS, verbose=1, callbacks=[stopping]),
                        PLOT_DIR + 'diego_pretrain_loss.pdf')
 
     # main training procedure
@@ -141,17 +143,25 @@ def run_discgan():
     try:
         for epoch in range(EPOCHS):
             # training data for this epoch
-            seeds, offsets, jerry_y = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
-            jerry_x = np.array([seeds, offsets]).transpose()
-            diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, MAX_VAL)
+            seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
+            jerry_inputs = np.array([seeds, offsets]).transpose()
 
-            # alternate train
-            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-            diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
-            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_loss[epoch] = np.mean(discgan.fit(jerry_x, jerry_y, BATCH_SIZE, verbose=0).history['loss'])
+            for batch in range(BATCHES):
+                # generate batch data
+                jerry_x = extract_batch(jerry_inputs, batch, int(BATCH_SIZE / 2))
+                jerry_y = extract_batch(jerry_labels, batch, int(BATCH_SIZE / 2))
+                diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, MAX_VAL)
+
+                # alternate train
+                set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
+                for i in range(ADV_MULT):
+                    diego_loss[epoch] += diego.train_on_batch(diego_x, diego_y)
+                set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
+                jerry_loss[epoch] += discgan.train_on_batch(jerry_x, jerry_y)
 
             # log debug info to console
+            diego_loss[epoch] /= (BATCHES * ADV_MULT)
+            jerry_loss[epoch] /= BATCHES
             if not HPC_TRAIN or epoch % LOG_EVERY_N == 0:
                 print_epoch(epoch, gen_loss=jerry_loss[epoch], opp_loss=diego_loss[epoch])
             # check for NaNs
@@ -187,8 +197,9 @@ def run_predgan():
     # pretrain priya
     priya_x, priya_y = detach_all_last(
         janice.predict(np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()))
+    stopping = EarlyStopping(monitor='loss', min_delta=0.0001, patience=10, verbose=0, mode='auto')
     plot_pretrain_loss(
-        priya.fit(priya_x, priya_y, BATCH_SIZE, PRE_EPOCHS, verbose=1),
+        priya.fit(priya_x, priya_y, BATCH_SIZE, PRE_EPOCHS, verbose=1, callbacks=[stopping]),
         PLOT_DIR + 'priya_pretrain_loss.pdf')
 
     # main training procedure
@@ -214,8 +225,7 @@ def run_predgan():
             priya_loss[epoch] /= (BATCHES * ADV_MULT)
             janice_loss[epoch] /= BATCHES
             if epoch % LOG_EVERY_N == 0:
-                print_epoch(epoch, inputs=janice_inputs, gen_out=priya_x, gen_loss=janice_loss[epoch],
-                            opp_loss=priya_loss[epoch])
+                print_epoch(epoch, gen_loss=janice_loss[epoch], opp_loss=priya_loss[epoch])
             # check for NaNs
             if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
                 raise ValueError()
@@ -296,15 +306,15 @@ def construct_generator(name: str):
 def construct_adversary_conv(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
     outputs = MaxPooling1D(2)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
     outputs = MaxPooling1D(2)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(2, activation=relu)(outputs)
-    outputs = Dense(1, activation=relu)(outputs)
+    outputs = Dense(2, activation=linear)(outputs)
+    outputs = Dense(1, activation=linear)(outputs)
     discriminator = Model(inputs, outputs)
 
     discriminator.compile(optimizer, loss)
@@ -315,13 +325,13 @@ def construct_adversary_conv(input_size, optimizer, loss, name: str):
 def construct_adversary_lstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(int(input_size/2), activation=relu)(outputs)
-    outputs = Dense(2, activation=relu)(outputs)
-    outputs = Dense(1, activation=relu)(outputs)
+    outputs = Dense(int(input_size / 2), activation=relu)(outputs)
+    outputs = Dense(2, activation=linear)(outputs)
+    outputs = Dense(1, activation=linear)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
@@ -333,17 +343,17 @@ def construct_adversary_lstm(input_size, optimizer, loss, name: str):
 def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=relu)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
     outputs = Flatten()(outputs)
     outputs = Reshape(target_shape=(input_size, 2))(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=relu)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(4, activation=relu)(outputs)
-    outputs = Dense(2, activation=relu)(outputs)
-    outputs = Dense(1, activation=relu)(outputs)
+    outputs = Dense(4, activation=linear)(outputs)
+    outputs = Dense(2, activation=linear)(outputs)
+    outputs = Dense(1, activation=linear)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
