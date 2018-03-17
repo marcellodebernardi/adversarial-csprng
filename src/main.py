@@ -67,6 +67,8 @@ BATCH_SIZE = 32 if HPC_TRAIN else 4  # seeds in a single batch
 BATCHES = 64 if HPC_TRAIN else 10  # batches in complete dataset
 LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.05
+ALPHA = 0.01
+GEN_WIDTH = 100 if BIG_GENERATOR else 10
 DATA_TYPE = tf.float64
 
 # losses and optimizers
@@ -126,7 +128,8 @@ def main():
 
     # print settings for convenience
     print('TRAINING COMPLETE')
-    print('With ' + ARCHITECTURE + ' adversaries, ' + )
+    print('With ' + ARCHITECTURE + ' adversaries, big generator: ' + str(BIG_GENERATOR) + ', and '
+          + ACTIVATION + 'activation.')
 
 
 def run_discgan():
@@ -297,11 +300,11 @@ def select_constructor(name: str):
 
 def construct_generator(name: str):
     generator_input = Input(shape=(2,))
-    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_input)
-    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_output)
-    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_output)
-    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_output)
-    generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_input)
+    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
+    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
+    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
+    generator_output = Dense(OUTPUT_SIZE, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
 
     generator.compile(UNUSED_OPT, UNUSED_LOSS)
