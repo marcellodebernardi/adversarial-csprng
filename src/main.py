@@ -32,6 +32,18 @@ input the entire sequence produced by Janice, except for the
 last value, which it attempts to predict.
 
 The main function defines these networks and trains them.
+
+Available command line arguments:
+-t              TEST MODE: runs model with reduced size and few iterations
+-nopretrain     SKIP PRETRAINING: does not perform pretraining of the adversary
+-nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
+-nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
+-rec            RECOMPILE: recompiles models when changing trainability of weights
+-big            BIG GENERATOR: increases width of generator hidden layers
+-bound          BOUNDING CLIP ACTIVATION: uses the "bounding clip" activation function for adversary
+-leakybound     LEAKY BOUNDING CLIP ACTIVATION: uses the "leaky bounding clip" activation for adversary
+-lstm           LSTM: uses the lstm-only architecture for the adversary
+-convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
 """
 
 import sys
@@ -46,10 +58,10 @@ from utils.vis_utils import *
 from utils.debug_utils import print_gan, print_epoch
 from keras import Model
 from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
-from keras.activations import linear, relu
+from keras.activations import relu
 from keras.callbacks import EarlyStopping
 from keras.optimizers import adam
-from models.activations import modulo, bounding_clip, leaky_bounding_clip
+from models.activations import bounding_clip, leaky_bounding_clip
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
@@ -57,7 +69,6 @@ from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, los
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
 BIG_GENERATOR = '-big' in sys.argv
-
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
@@ -69,6 +80,8 @@ LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.05
 ALPHA = 0.01
 GEN_WIDTH = 100 if BIG_GENERATOR else 10
+ACTIVATION = leaky_bounding_clip(MAX_VAL, ALPHA) if '-leakybound' in sys.argv else bounding_clip(
+    MAX_VAL) if '-bound' in sys.argv else relu
 DATA_TYPE = tf.float64
 
 # losses and optimizers
@@ -90,7 +103,6 @@ EPOCHS = 100000 if HPC_TRAIN else 40
 PRE_EPOCHS = 1000 if PRETRAIN and HPC_TRAIN else 5 if PRETRAIN else 0
 ADV_MULT = 5
 RECOMPILE = '-rec' in sys.argv
-REFRESH_DATASET = '-ref' in sys.argv
 SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
@@ -316,15 +328,15 @@ def construct_generator(name: str):
 def construct_adversary_conv(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
     outputs = MaxPooling1D(2)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
     outputs = MaxPooling1D(2)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(2, activation=linear)(outputs)
-    outputs = Dense(1, activation=linear)(outputs)
+    outputs = Dense(2, activation=ACTIVATION)(outputs)
+    outputs = Dense(1, activation=ACTIVATION)(outputs)
     discriminator = Model(inputs, outputs)
 
     discriminator.compile(optimizer, loss)
@@ -335,13 +347,13 @@ def construct_adversary_conv(input_size, optimizer, loss, name: str):
 def construct_adversary_lstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(int(input_size / 2), activation=relu)(outputs)
-    outputs = Dense(2, activation=linear)(outputs)
-    outputs = Dense(1, activation=linear)(outputs)
+    outputs = Dense(int(input_size / 2), activation=ACTIVATION)(outputs)
+    outputs = Dense(2, activation=ACTIVATION)(outputs)
+    outputs = Dense(1, activation=ACTIVATION)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
@@ -353,17 +365,17 @@ def construct_adversary_lstm(input_size, optimizer, loss, name: str):
 def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=linear)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
     outputs = Flatten()(outputs)
     outputs = Reshape(target_shape=(input_size, 2))(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=linear)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
+    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(4, activation=linear)(outputs)
-    outputs = Dense(2, activation=linear)(outputs)
-    outputs = Dense(1, activation=linear)(outputs)
+    outputs = Dense(4, activation=ACTIVATION)(outputs)
+    outputs = Dense(2, activation=ACTIVATION)(outputs)
+    outputs = Dense(1, activation=ACTIVATION)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
