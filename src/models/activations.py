@@ -37,23 +37,25 @@ def absolute(input_value):
     return abs(input_value)
 
 
-def bounding_clip(max_bound):
+def bounding_clip(max_bound, negatives=False):
     """Activation function that scales the output from the range [-max, max] to
      the range [0, 1]. Everything below -max is mapped to 0, and everything above
      max is mapped to 1. Within the range [-max, max], everything is mapped
      linearly into the [0, 1] range."""
     def activation(input_value):
-        return tf.clip_by_value(input_value, -max_bound, max_bound)
+        return tf.clip_by_value(input_value, -max_bound if negatives else 0, max_bound)
     return activation
 
 
-def leaky_bounding_clip(max_bound, alpha):
+def leaky_bounding_clip(max_bound, alpha, negatives=False):
     """ A 'leaky' version of the diagonal bounding box activation, which has a
     small gradient alpha for all outputs outside the bounding box. """
+    lower_bound = -max_bound if negatives else 0
+
     def activation(input_value):
         # value was outside box
-        if input_value < -max_bound:
-            return -max_bound + (alpha * (input_value + max_bound))
+        if input_value < lower_bound:
+            return lower_bound + (alpha * (input_value + max_bound))
         # value was inside box
         elif input_value > max_bound:
             return max_bound + (alpha * (input_value - max_bound))
