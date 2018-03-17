@@ -292,8 +292,10 @@ def select_constructor(name: str):
 
 def construct_generator(name: str):
     generator_input = Input(shape=(2,))
-    generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_input)
-    generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_input)
+    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_output)
     generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
 
