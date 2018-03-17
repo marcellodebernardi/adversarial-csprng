@@ -53,6 +53,5 @@ at the conceptual level.
 
 
 ## 5 - TO DO
-1. Activations: ReLU, LeakyReLU, tanh?
-2. Optimizers: adam, adagrad, sgd
+1. Activations: ReLU or modulo for generator; ReLU, DiBoB, or LDiBoB for opponent
 3. LSTM node number

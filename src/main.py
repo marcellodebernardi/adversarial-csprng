@@ -43,20 +43,21 @@ from utils.utils import log_to_file, email_report, generate_output_file, save_co
 from utils.operation_utils import detach_all_last, set_trainable, flatten, extract_batch
 from utils.input_utils import get_inputs, get_sequences, get_eval_input
 from utils.vis_utils import *
-from utils.debug_utils import print_gan, print_pretrain, print_epoch
+from utils.debug_utils import print_gan, print_epoch
 from keras import Model
 from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
 from keras.activations import linear, relu
-from keras.layers.advanced_activations import LeakyReLU
 from keras.callbacks import EarlyStopping
-from keras.optimizers import adagrad, adam
-from models.activations import modulo
+from keras.optimizers import adam
+from models.activations import modulo, bounding_clip, leaky_bounding_clip
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
+BIG_GENERATOR = '-big' in sys.argv
+
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
@@ -122,6 +123,10 @@ def main():
     # send off email report
     if SEND_REPORT:
         email_report(BATCH_SIZE, BATCHES, EPOCHS, PRE_EPOCHS)
+
+    # print settings for convenience
+    print('TRAINING COMPLETE')
+    print('With ' + ARCHITECTURE + ' adversaries, ' + )
 
 
 def run_discgan():
@@ -292,10 +297,10 @@ def select_constructor(name: str):
 
 def construct_generator(name: str):
     generator_input = Input(shape=(2,))
-    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_input)
-    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_output)
-    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_output)
-    generator_output = Dense(100, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_input)
+    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_output)
+    generator_output = Dense(50, activation=modulo(MAX_VAL))(generator_output)
     generator_output = Dense(OUTPUT_SIZE, activation=modulo(MAX_VAL))(generator_output)
     generator = Model(generator_input, generator_output, name=name)
 
