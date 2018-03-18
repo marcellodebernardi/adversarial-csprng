@@ -42,6 +42,9 @@ Available command line arguments:
 -big            BIG GENERATOR: increases width of generator hidden layers
 -lstm           LSTM: uses the lstm-only architecture for the adversary
 -convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
+-batch3         BATCH SIZE 1024: use batches of 1024 elements
+-batch2         BATCH SIZE 256: use bathces of 256 elements
+-batch1         BATCH SIZE 128: use batches of 128 elements
 """
 
 import sys
@@ -66,7 +69,7 @@ from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, los
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
 BIG_GENERATOR = '-big' in sys.argv
-BATCH_LEVEL = 256 if '-batch2' in sys.argv else 128 if '-batch1' in sys.argv else 32
+BATCH_LEVEL = 1024 if '-batch3' else 256 if '-batch2' in sys.argv else 128 if '-batch1' in sys.argv else 32
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
