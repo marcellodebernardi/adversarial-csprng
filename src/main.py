@@ -40,7 +40,6 @@ Available command line arguments:
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
 -rec            RECOMPILE: recompiles models when changing trainability of weights
 -big            BIG GENERATOR: increases width of generator hidden layers
--bound          BOUNDING CLIP ACTIVATION: uses the "bounding clip" activation function for adversary
 -lstm           LSTM: uses the lstm-only architecture for the adversary
 -convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
 """
@@ -67,18 +66,18 @@ from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, los
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
 BIG_GENERATOR = '-big' in sys.argv
+BATCH_LEVEL = 256 if '-batch2' in sys.argv else 128 if '-batch1' in sys.argv else 32
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
 MAX_VAL = 15
 OUTPUT_BITS = 4
-BATCH_SIZE = 32 if HPC_TRAIN else 4  # seeds in a single batch
+BATCH_SIZE = BATCH_LEVEL if HPC_TRAIN else 4  # seeds in a single batch
 BATCHES = 64 if HPC_TRAIN else 10  # batches in complete dataset
 LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.05
 ALPHA = 0.01
 GEN_WIDTH = 100 if BIG_GENERATOR else 10
-LEAKY = '-leaky' in sys.argv
 DATA_TYPE = tf.float64
 
 # losses and optimizers
