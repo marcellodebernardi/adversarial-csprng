@@ -45,20 +45,3 @@ def bounding_clip(max_bound, negatives=False):
     def activation(input_value):
         return tf.clip_by_value(input_value, -max_bound if negatives else 0, max_bound)
     return activation
-
-
-def leaky_bounding_clip(max_bound, alpha, negatives=False):
-    """ A 'leaky' version of the diagonal bounding box activation, which has a
-    small gradient alpha for all outputs outside the bounding box. """
-    lower_bound = -max_bound if negatives else 0
-
-    def activation(input_value):
-        # value was outside box
-        if input_value < lower_bound:
-            return lower_bound + (alpha * (input_value + max_bound))
-        # value was inside box
-        elif input_value > max_bound:
-            return max_bound + (alpha * (input_value - max_bound))
-        else:
-            return input_value
-    return activation
