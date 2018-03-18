@@ -203,6 +203,7 @@ def run_discgan():
     generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
     plot_output_histogram(values, PLOT_DIR + 'discgan_jerry_output_distribution.pdf')
     plot_output_sequence(values, PLOT_DIR + 'discgan_jerry_output_sequence.pdf')
+    save_configuration(jerry, 'jerry')
 
 
 def run_predgan():
@@ -265,6 +266,7 @@ def run_predgan():
     generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
     plot_output_histogram(values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
     plot_output_sequence(values, PLOT_DIR + 'predgan_janice_output_sequence.pdf')
+    save_configuration(janice, 'janice')
 
 
 def construct_discgan(constructor):
