@@ -41,7 +41,6 @@ Available command line arguments:
 -rec            RECOMPILE: recompiles models when changing trainability of weights
 -big            BIG GENERATOR: increases width of generator hidden layers
 -bound          BOUNDING CLIP ACTIVATION: uses the "bounding clip" activation function for adversary
--leakybound     LEAKY BOUNDING CLIP ACTIVATION: uses the "leaky bounding clip" activation for adversary
 -lstm           LSTM: uses the lstm-only architecture for the adversary
 -convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
 """
@@ -58,10 +57,9 @@ from utils.vis_utils import *
 from utils.debug_utils import print_gan, print_epoch
 from keras import Model
 from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
-from keras.activations import relu
+from keras.layers.advanced_activations import LeakyReLU
 from keras.callbacks import EarlyStopping
 from keras.optimizers import adam
-from models.activations import bounding_clip, leaky_bounding_clip
 from models.operations import drop_last_value
 from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
 
@@ -80,8 +78,7 @@ LEARNING_RATE = 0.0008
 CLIP_VALUE = 0.05
 ALPHA = 0.01
 GEN_WIDTH = 100 if BIG_GENERATOR else 10
-ACTIVATION = leaky_bounding_clip(MAX_VAL, ALPHA) if '-leakybound' in sys.argv else bounding_clip(
-    MAX_VAL) if '-bound' in sys.argv else relu
+LEAKY = '-leaky' in sys.argv
 DATA_TYPE = tf.float64
 
 # losses and optimizers
@@ -140,8 +137,7 @@ def main():
 
     # print settings for convenience
     print('TRAINING COMPLETE')
-    print('With ' + ARCHITECTURE + ' adversaries, big generator: ' + str(BIG_GENERATOR) + ', and '
-          + ACTIVATION + 'activation.')
+    print('With ' + ARCHITECTURE + ' adversaries, big generator: ' + str(BIG_GENERATOR) + '.')
 
 
 def run_discgan():
@@ -311,32 +307,43 @@ def select_constructor(name: str):
 
 
 def construct_generator(name: str):
-    generator_input = Input(shape=(2,))
-    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_input)
-    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
-    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
-    generator_output = Dense(GEN_WIDTH, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
-    generator_output = Dense(OUTPUT_SIZE, activation=leaky_bounding_clip(MAX_VAL, ALPHA))(generator_output)
-    generator = Model(generator_input, generator_output, name=name)
+    inputs = Input(shape=(2,))
+    outputs = Dense(GEN_WIDTH)(inputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(GEN_WIDTH)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(GEN_WIDTH)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(GEN_WIDTH)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(OUTPUT_SIZE)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    generator = Model(inputs, outputs, name=name)
 
     generator.compile(UNUSED_OPT, UNUSED_LOSS)
     plot_network_graphs(generator, name)
     save_configuration(generator, name)
-    return generator_input, generator
+    return inputs, generator
 
 
 def construct_adversary_conv(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = MaxPooling1D(2)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same')(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same')(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = MaxPooling1D(2)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(2, activation=ACTIVATION)(outputs)
-    outputs = Dense(1, activation=ACTIVATION)(outputs)
+    outputs = Dense(2)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(1)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     discriminator = Model(inputs, outputs)
 
     discriminator.compile(optimizer, loss)
@@ -347,13 +354,19 @@ def construct_adversary_conv(input_size, optimizer, loss, name: str):
 def construct_adversary_lstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(int(input_size / 2), activation=ACTIVATION)(outputs)
-    outputs = Dense(2, activation=ACTIVATION)(outputs)
-    outputs = Dense(1, activation=ACTIVATION)(outputs)
+    outputs = Dense(int(input_size / 2))(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(2)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(1)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
@@ -365,17 +378,25 @@ def construct_adversary_lstm(input_size, optimizer, loss, name: str):
 def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
     inputs = Input((input_size,))
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same', activation=ACTIVATION)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Flatten()(outputs)
     outputs = Reshape(target_shape=(input_size, 2))(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
-    outputs = LSTM(1, return_sequences=True, activation=ACTIVATION)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = LSTM(1, return_sequences=True)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(4, activation=ACTIVATION)(outputs)
-    outputs = Dense(2, activation=ACTIVATION)(outputs)
-    outputs = Dense(1, activation=ACTIVATION)(outputs)
+    outputs = Dense(4)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(2)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
+    outputs = Dense(1)(outputs)
+    outputs = LeakyReLU(ALPHA)(outputs)
     discriminator = Model(inputs, outputs)
     discriminator.compile(optimizer, loss)
 
