@@ -1,0 +1,57 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/W32TeX)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: report.aux
+White space in argument---line 98 of file report.aux
+ : \citation{[Optimization:
+ :                          Stochastic Gradient Descent] karpathy2017cs231n}
+I'm skipping whatever remains of this command
+The style file: plain.bst
+Database file #1: references.bib.bib
+Warning--to sort, need author or key in forbes2016short
+Warning--to sort, need author or key in tensorflow
+Warning--to sort, need author or key in keras
+Warning--to sort, need author or key in numpy
+Warning--to sort, need author or key in ricard2017generative
+Warning--to sort, need author or key in atienza2017gan
+You've used 35 entries,
+            2118 wiz_defined-function locations,
+            668 strings with 9770 characters,
+and the built_in function-call counts, 10041 in all, are:
+= -- 970
+> -- 454
+< -- 6
++ -- 187
+- -- 148
+* -- 543
+:= -- 1617
+add.period$ -- 114
+call.type$ -- 35
+change.case$ -- 173
+chr.to.int$ -- 0
+cite$ -- 41
+duplicate$ -- 399
+empty$ -- 868
+format.name$ -- 148
+if$ -- 2183
+int.to.chr$ -- 0
+int.to.str$ -- 35
+missing$ -- 27
+newline$ -- 183
+num.names$ -- 58
+pop$ -- 300
+preamble$ -- 1
+purify$ -- 143
+quote$ -- 0
+skip$ -- 291
+stack$ -- 0
+substring$ -- 403
+swap$ -- 92
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 126
+warning$ -- 6
+while$ -- 80
+width$ -- 37
+write$ -- 367
+(There was 1 error message)

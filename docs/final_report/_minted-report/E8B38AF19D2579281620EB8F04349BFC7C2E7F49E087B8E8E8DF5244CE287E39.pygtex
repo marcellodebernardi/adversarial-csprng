@@ -1,0 +1,34 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+ \PYG{c}{\PYGZsh{} main training procedure}
+    \PYG{n}{jerry\PYGZus{}loss}\PYG{p}{,} \PYG{n}{diego\PYGZus{}loss} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{EPOCHS}\PYG{p}{),} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{EPOCHS}\PYG{p}{)}
+    \PYG{k}{try}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{epoch} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{EPOCHS}\PYG{p}{):}
+            \PYG{c}{\PYGZsh{} training data for this epoch}
+            \PYG{n}{seeds}\PYG{p}{,} \PYG{n}{offsets}\PYG{p}{,} \PYG{n}{jerry\PYGZus{}labels} \PYG{o}{=} \PYG{n}{get\PYGZus{}inputs}\PYG{p}{(}\PYG{n}{BATCH\PYGZus{}SIZE} \PYG{o}{*} \PYG{n}{BATCHES}\PYG{p}{,} \PYG{n}{MAX\PYGZus{}VAL}\PYG{p}{)}
+            \PYG{n}{jerry\PYGZus{}inputs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{([}\PYG{n}{seeds}\PYG{p}{,} \PYG{n}{offsets}\PYG{p}{])}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{()}
+
+            \PYG{k}{for} \PYG{n}{batch} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{BATCHES}\PYG{p}{):}
+                \PYG{c}{\PYGZsh{} generate batch data}
+                \PYG{n}{jerry\PYGZus{}x} \PYG{o}{=} \PYG{n}{extract\PYGZus{}batch}\PYG{p}{(}\PYG{n}{jerry\PYGZus{}inputs}\PYG{p}{,} \PYG{n}{batch}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{BATCH\PYGZus{}SIZE} \PYG{o}{/} \PYG{l+m+mi}{2}\PYG{p}{))}
+                \PYG{n}{jerry\PYGZus{}y} \PYG{o}{=} \PYG{n}{extract\PYGZus{}batch}\PYG{p}{(}\PYG{n}{jerry\PYGZus{}labels}\PYG{p}{,} \PYG{n}{batch}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{BATCH\PYGZus{}SIZE} \PYG{o}{/} \PYG{l+m+mi}{2}\PYG{p}{))}
+                \PYG{n}{diego\PYGZus{}x}\PYG{p}{,} \PYG{n}{diego\PYGZus{}y} \PYG{o}{=} \PYG{n}{get\PYGZus{}sequences}\PYG{p}{(}\PYG{n}{jerry}\PYG{p}{,} \PYG{n}{jerry\PYGZus{}x}\PYG{p}{,} \PYG{n}{OUTPUT\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{MAX\PYGZus{}VAL}\PYG{p}{)}
+
+                \PYG{c}{\PYGZsh{} alternate train}
+                \PYG{n}{set\PYGZus{}trainable}\PYG{p}{(}\PYG{n}{diego}\PYG{p}{,} \PYG{n}{DIEGO\PYGZus{}OPT}\PYG{p}{,} \PYG{n}{DIEGO\PYGZus{}LOSS}\PYG{p}{,} \PYG{n}{RECOMPILE}\PYG{p}{)}
+                \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{ADV\PYGZus{}MULT}\PYG{p}{):}
+                    \PYG{n}{diego\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{diego}\PYG{o}{.}\PYG{n}{train\PYGZus{}on\PYGZus{}batch}\PYG{p}{(}\PYG{n}{diego\PYGZus{}x}\PYG{p}{,} \PYG{n}{diego\PYGZus{}y}\PYG{p}{)}
+                \PYG{n}{set\PYGZus{}trainable}\PYG{p}{(}\PYG{n}{diego}\PYG{p}{,} \PYG{n}{DIEGO\PYGZus{}OPT}\PYG{p}{,} \PYG{n}{DIEGO\PYGZus{}LOSS}\PYG{p}{,} \PYG{n}{RECOMPILE}\PYG{p}{,} \PYG{n+nb+bp}{False}\PYG{p}{)}
+                \PYG{n}{jerry\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{discgan}\PYG{o}{.}\PYG{n}{train\PYGZus{}on\PYGZus{}batch}\PYG{p}{(}\PYG{n}{jerry\PYGZus{}x}\PYG{p}{,} \PYG{n}{jerry\PYGZus{}y}\PYG{p}{)}
+
+            \PYG{c}{\PYGZsh{} log debug info to console}
+            \PYG{n}{diego\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{]} \PYG{o}{/=} \PYG{p}{(}\PYG{n}{BATCHES} \PYG{o}{*} \PYG{n}{ADV\PYGZus{}MULT}\PYG{p}{)}
+            \PYG{n}{jerry\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{]} \PYG{o}{/=} \PYG{n}{BATCHES}
+            \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{HPC\PYGZus{}TRAIN} \PYG{o+ow}{or} \PYG{n}{epoch} \PYG{o}{\PYGZpc{}} \PYG{n}{LOG\PYGZus{}EVERY\PYGZus{}N} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                \PYG{n}{print\PYGZus{}epoch}\PYG{p}{(}\PYG{n}{epoch}\PYG{p}{,} \PYG{n}{gen\PYGZus{}loss}\PYG{o}{=}\PYG{n}{jerry\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{],} \PYG{n}{opp\PYGZus{}loss}\PYG{o}{=}\PYG{n}{diego\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{])}
+            \PYG{c}{\PYGZsh{} check for NaNs}
+            \PYG{k}{if} \PYG{n}{math}\PYG{o}{.}\PYG{n}{isnan}\PYG{p}{(}\PYG{n}{jerry\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{])} \PYG{o+ow}{or} \PYG{n}{math}\PYG{o}{.}\PYG{n}{isnan}\PYG{p}{(}\PYG{n}{diego\PYGZus{}loss}\PYG{p}{[}\PYG{n}{epoch}\PYG{p}{]):}
+                \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{()}
+
+    \PYG{k}{except} \PYG{n+ne}{ValueError}\PYG{p}{:}
+        \PYG{n}{traceback}\PYG{o}{.}\PYG{n}{print\PYGZus{}exc}\PYG{p}{()}
+\end{Verbatim}

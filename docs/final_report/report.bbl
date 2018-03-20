@@ -1,0 +1,207 @@
+\begin{thebibliography}{10}
+
+\bibitem{atienza2017gan}
+Gan by example using keras on tensorflow backend.
+\newblock
+  \url{https://towardsdatascience.com/gan-by-example-using-keras-on-tensorflow-backend-1a6d515a60d0}.
+\newblock Accessed: 15/10/2017.
+
+\bibitem{ricard2017generative}
+Generative adversarial networks part 2 - implementation with keras 2.0.
+\newblock
+  \url{http://www.rricard.me/machine/learning/generative/adversarial/networks/keras/tensorflow/2017/04/05/gans-part2.html}.
+\newblock Accessed: 15/10/2017.
+
+\bibitem{keras}
+Keras: The python deep learning library.
+\newblock \url{www.keras.io }.
+\newblock Accessed: 12/08/2017.
+
+\bibitem{numpy}
+Numpy - the fundamental package for scientific computing with python.
+\newblock \url{http://www.numpy.org}.
+\newblock Accessed: 25/02/2018.
+
+\bibitem{forbes2016short}
+A short history of machine learning -- every manager should read.
+\newblock
+  \url{https://www.forbes.com/sites/bernardmarr/2016/02/19/a-short-history-of-machine-learning-every-manager-should-read/#29b44c5c15e7}.
+\newblock Accessed: 17/03/2018.
+
+\bibitem{tensorflow}
+Tensorflow: an open-source software library for machine intelligence.
+\newblock \url{www.tensorflow.org }.
+\newblock Accessed: 12/08/2017.
+
+\bibitem{abadi2016learning}
+Mart{\'\i}n Abadi and David~G Andersen.
+\newblock Learning to protect communications with adversarial neural
+  cryptography.
+\newblock {\em arXiv preprint arXiv:1610.06918}, 2016.
+
+\bibitem{albelwi2017framework}
+Saleh Albelwi and Ausif Mahmood.
+\newblock A framework for designing the architectures of deep convolutional
+  neural networks.
+\newblock {\em Entropy}, 19(6):242, 2017.
+
+\bibitem{amazon2018aws}
+Inc. Amazon.com.
+\newblock Machine learning on aws.
+\newblock \url{https://aws.amazon.com/machine-learning/}.
+\newblock Accessed: 17/03/2018.
+
+\bibitem{anderson2010security}
+Ross~J Anderson.
+\newblock {\em Security engineering: a guide to building dependable distributed
+  systems}.
+\newblock John Wiley \& Sons, 2010.
+
+\bibitem{barker2007recommendation}
+Elaine~B Barker and John~Michael Kelsey.
+\newblock {\em Recommendation for random number generation using deterministic
+  random bit generators (revised)}.
+\newblock US Department of Commerce, Technology Administration, National
+  Institute of Standards and Technology, Computer Security Division,
+  Information Technology Laboratory, 2007.
+
+\bibitem{cormen2009introduction}
+Thomas~H Cormen, Charles~E Leiserson, Ronald~L Rivest, and Clifford Stein.
+\newblock {\em Introduction to algorithms}.
+\newblock MIT press, 2009.
+
+\bibitem{microsoft2018azure}
+Microsoft Corporation.
+\newblock Azure machine learning - open and elastic ai development spanning the
+  cloud and the edge.
+\newblock \url{https://azure.microsoft.com/en-gb/overview/machine-learning/}.
+\newblock Accessed: 17/03/2018.
+
+\bibitem{cover2012elements}
+Thomas~M Cover and Joy~A Thomas.
+\newblock {\em Elements of information theory}.
+\newblock John Wiley \& Sons, 2012.
+
+\bibitem{deng2017developments}
+Lih-Yuan Deng and Dale Bowman.
+\newblock Developments in pseudo-random number generators.
+\newblock {\em Wiley Interdisciplinary Reviews: Computational Statistics},
+  9(5), 2017.
+
+\bibitem{desai2011pseudo}
+VV~Desai, VB~Deshmukh, and DH~Rao.
+\newblock Pseudo random number generator using elman neural network.
+\newblock In {\em Recent Advances in Intelligent Computational Systems (RAICS),
+  2011 IEEE}, pages 251--254. IEEE, 2011.
+
+\bibitem{desai2012pseudo}
+VV~Desai, Ravindra~T Patil, VB~Deshmukh, and DH~Rao.
+\newblock Pseudo random number generator using time delay neural network.
+\newblock {\em World}, 2(10):165--169, 2012.
+
+\bibitem{donald1998art}
+Knuth Donald et~al.
+\newblock The art of computer programming, volume 2: Semi numerical algorithms,
+  1998.
+
+\bibitem{ferguson2010cryptography}
+Niels Ferguson, Bruce Schneier, and Tadayoshi Kohno.
+\newblock Cryptography engineering.
+\newblock {\em Design Princi}, 2010.
+
+\bibitem{goodfellow2016nips}
+Ian Goodfellow.
+\newblock Nips 2016 tutorial: Generative adversarial networks.
+\newblock {\em arXiv preprint arXiv:1701.00160}, 2016.
+
+\bibitem{goodfellow2016deep}
+Ian Goodfellow, Yoshua Bengio, and Aaron Courville.
+\newblock {\em Deep Learning}.
+\newblock MIT Press, 2016.
+\newblock \url{http://www.deeplearningbook.org}.
+
+\bibitem{goodfellow2014generative}
+Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley,
+  Sherjil Ozair, Aaron Courville, and Yoshua Bengio.
+\newblock Generative adversarial nets.
+\newblock In {\em Advances in neural information processing systems}, pages
+  2672--2680, 2014.
+
+\bibitem{karpathy2017cs231n}
+Andrej Karpathy.
+\newblock Lecture notes for cs231n convolutional neural networks for visual
+  recognition, 2017.
+
+\bibitem{kelsey1998cryptanalytic}
+John Kelsey, Bruce Schneier, David Wagner, and Chris Hall.
+\newblock Cryptanalytic attacks on pseudorandom number generators.
+\newblock In {\em Fast Software Encryption}, pages 168--188. Springer, 1998.
+
+\bibitem{klimov2002analysis}
+Alexander Klimov, Anton Mityagin, and Adi Shamir.
+\newblock Analysis of neural cryptography.
+\newblock In {\em International Conference on the Theory and Application of
+  Cryptology and Information Security}, pages 288--298. Springer, 2002.
+
+\bibitem{lavasani2009practical}
+A~Lavasani and T~Eghlidos.
+\newblock Practical next bit test for evaluating pseudorandom sequences.
+\newblock {\em Scientia Iranica. Transaction D, Computer Science \&
+  Engineering, Electrical}, 16(1):19, 2009.
+
+\bibitem{google2018automl}
+Google LLC.
+\newblock Cloud automl alpha - train high quality custom machine learning
+  models with minimum effort and machine learning expertise.
+\newblock \url{https://cloud.google.com/automl/}.
+\newblock Accessed: 17/03/2018.
+
+\bibitem{google2018trends}
+Google LLC.
+\newblock Google trends.
+\newblock \url{https://trends.google.com/trends/}.
+\newblock Accessed: 17/03/2018.
+
+\bibitem{melicher2016fast}
+William Melicher, Blase Ur, Sean~M Segreti, Saranga Komanduri, Lujo Bauer,
+  Nicolas Christin, and Lorrie~Faith Cranor.
+\newblock Fast, lean, and accurate: Modeling password guessability using neural
+  networks.
+\newblock In {\em USENIX Security Symposium}, pages 175--191, 2016.
+
+\bibitem{menezes1996handbook}
+Alfred~J Menezes, Paul~C Van~Oorschot, and Scott~A Vanstone.
+\newblock {\em Handbook of applied cryptography}.
+\newblock CRC press, 1996.
+
+\bibitem{rukhin2001statistical}
+Andrew Rukhin, Juan Soto, James Nechvatal, Miles Smid, and Elaine Barker.
+\newblock A statistical test suite for random and pseudorandom number
+  generators for cryptographic applications.
+\newblock Technical report, Booz-Allen and Hamilton Inc Mclean Va, 2001.
+
+\bibitem{russel2009artificial}
+Stuart Russell and Peter Norvig.
+\newblock {\em Artificial Intelligence: A Modern Approach}.
+\newblock Prentice Hall Press, Upper Saddle River, NJ, USA, 3rd edition, 2009.
+
+\bibitem{sharma2017activation}
+Sagar Sharma.
+\newblock Activation functions: Neural networks.
+\newblock
+  \url{https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6}.
+\newblock Accessed: 19/03/2018.
+
+\bibitem{terr2009math}
+David Terr.
+\newblock mathamazement.com.
+\newblock \url{http://www.mathamazement.com/}.
+\newblock Accessed: 19/03/2018.
+
+\bibitem{tirdad2010hopfield}
+Kayvan Tirdad and Alireza Sadeghian.
+\newblock Hopfield neural networks as pseudo random number generators.
+\newblock In {\em Fuzzy Information Processing Society (NAFIPS), 2010 Annual
+  Meeting of the North American}, pages 1--6. IEEE, 2010.
+
+\end{thebibliography}

@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{drop\PYGZus{}last\PYGZus{}value}\PYG{p}{(}\PYG{n}{original\PYGZus{}size}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{p}{)}
+\end{Verbatim}

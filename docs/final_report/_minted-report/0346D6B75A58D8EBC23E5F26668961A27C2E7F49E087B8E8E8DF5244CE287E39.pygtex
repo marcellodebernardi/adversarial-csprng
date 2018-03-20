@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+  \PYG{k}{while} \PYG{n+nb+bp}{True}\PYG{p}{:}
+    \PYG{n}{weights\PYGZus{}grad} \PYG{o}{=} \PYG{n}{evaluate\PYGZus{}gradient}\PYG{p}{(}\PYG{n}{loss\PYGZus{}fun}\PYG{p}{,} \PYG{n}{data}\PYG{p}{,} \PYG{n}{weights}\PYG{p}{)}
+    \PYG{n}{weights} \PYG{o}{+=} \PYG{o}{\PYGZhy{}} \PYG{n}{step\PYGZus{}size} \PYG{o}{*} \PYG{n}{weights\PYGZus{}grad}  \PYG{c}{\PYGZsh{} parameter update}
+\end{Verbatim}
