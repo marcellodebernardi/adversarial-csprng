@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c}{\PYGZsh{} example of a flatten layer}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Flatten}\PYG{p}{()(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{c}{\PYGZsh{} example of a reshape layer}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Reshape}\PYG{p}{(}\PYG{n}{target\PYGZus{}shape}\PYG{o}{=}\PYG{p}{(}\PYG{n}{input\PYGZus{}size}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{))(}\PYG{n}{outputs}\PYG{p}{)}
+\end{Verbatim}

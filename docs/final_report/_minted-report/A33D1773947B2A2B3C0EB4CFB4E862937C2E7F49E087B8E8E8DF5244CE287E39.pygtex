@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{bounding\PYGZus{}clip}\PYG{p}{(}\PYG{n}{max\PYGZus{}bound}\PYG{p}{,} \PYG{n}{negatives}\PYG{o}{=}\PYG{n+nb+bp}{False}\PYG{p}{)}
+\end{Verbatim}

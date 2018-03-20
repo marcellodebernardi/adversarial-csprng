@@ -1,0 +1,14 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{n}{inputs} \PYG{o}{=} \PYG{n}{Input}\PYG{p}{(}\PYG{n}{shape}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,))}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Dense}\PYG{p}{(}\PYG{n}{GEN\PYGZus{}WIDTH}\PYG{p}{)(}\PYG{n}{inputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{LeakyReLU}\PYG{p}{(}\PYG{n}{ALPHA}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Dense}\PYG{p}{(}\PYG{n}{GEN\PYGZus{}WIDTH}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{LeakyReLU}\PYG{p}{(}\PYG{n}{ALPHA}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Dense}\PYG{p}{(}\PYG{n}{GEN\PYGZus{}WIDTH}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{LeakyReLU}\PYG{p}{(}\PYG{n}{ALPHA}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Dense}\PYG{p}{(}\PYG{n}{GEN\PYGZus{}WIDTH}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{LeakyReLU}\PYG{p}{(}\PYG{n}{ALPHA}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Dense}\PYG{p}{(}\PYG{n}{OUTPUT\PYGZus{}SIZE}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{LeakyReLU}\PYG{p}{(}\PYG{n}{ALPHA}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
+    \PYG{n}{generator} \PYG{o}{=} \PYG{n}{Model}\PYG{p}{(}\PYG{n}{inputs}\PYG{p}{,} \PYG{n}{outputs}\PYG{p}{,} \PYG{n}{name}\PYG{o}{=}\PYG{n}{name}\PYG{p}{)}
+\end{Verbatim}

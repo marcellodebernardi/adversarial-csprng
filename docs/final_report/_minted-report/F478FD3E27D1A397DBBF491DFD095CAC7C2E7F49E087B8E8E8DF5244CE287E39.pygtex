@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{training\PYGZus{}iterations}\PYG{p}{):}
+      \PYG{k}{for} \PYG{n}{k} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{steps}\PYG{p}{):}
+        \PYG{n}{sample} \PYG{n}{mini}\PYG{o}{\PYGZhy{}}\PYG{n}{batch} \PYG{n}{of} \PYG{n}{samples} \PYG{k+kn}{from} \PYG{n+nn}{data} \PYG{n+nn}{distribution}
+        \PYG{n}{sample} \PYG{n}{mini}\PYG{o}{\PYGZhy{}}\PYG{n}{batch} \PYG{n}{of} \PYG{n}{examples} \PYG{k+kn}{from} \PYG{n+nn}{generator}
+        \PYG{n}{updated} \PYG{n}{discriminator} \PYG{n}{by} \PYG{n}{gradient} \PYG{n}{descent}
+      \PYG{n}{sample} \PYG{n}{mini}\PYG{o}{\PYGZhy{}}\PYG{n}{batch} \PYG{n}{of} \PYG{n}{noise} \PYG{k+kn}{from} \PYG{n+nn}{noise} \PYG{n+nn}{distribution}
+      \PYG{n}{update} \PYG{n}{generator} \PYG{n}{by} \PYG{n}{gradient} \PYG{n}{descent}
+\end{Verbatim}

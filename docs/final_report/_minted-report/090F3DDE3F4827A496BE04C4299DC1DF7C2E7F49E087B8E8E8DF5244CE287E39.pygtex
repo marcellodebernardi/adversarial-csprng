@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{layer}\PYG{p}{(}\PYG{n}{x}\PYG{p}{:} \PYG{n}{tf}\PYG{o}{.}\PYG{n}{Tensor}\PYG{p}{)}
+\end{Verbatim}
