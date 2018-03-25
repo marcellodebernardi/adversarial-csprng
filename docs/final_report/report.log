@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  19 MAR 2018 23:52
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  23 MAR 2018 20:29
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -609,31 +609,6 @@ Package: bm 2017/01/16 v1.2c Bold Symbol Support (DPC/FMi)
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 141.
 LaTeX Info: Redefining \bm on input line 207.
 )
-(c:/texlive/2017/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count153
-\lst@gtempboxa=\box47
-\lst@token=\toks43
-\lst@length=\count154
-\lst@currlwidth=\dimen199
-\lst@column=\count155
-\lst@pos=\count156
-\lst@lostspace=\dimen256
-\lst@width=\dimen257
-\lst@newlines=\count157
-\lst@lineno=\count158
-\lst@maxwidth=\dimen258
-
-(c:/texlive/2017/texmf-dist/tex/latex/listings/lstmisc.sty
-File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
-\c@lstnumber=\count159
-\lst@skipnumbers=\count160
-\lst@framebox=\box48
-)
-(c:/texlive/2017/texmf-dist/tex/latex/listings/listings.cfg
-File: listings.cfg 2015/06/04 1.6 listings configuration
-))
-Package: listings 2015/06/04 1.6 (Carsten Heinz)
-
 (c:/texlive/2017/texmf-dist/tex/latex/epigraph/epigraph.sty
 Package: epigraph 2009/09/02 v1.5c typesetting epigraphs
 \beforeepigraphskip=\skip63
@@ -650,13 +625,13 @@ Package: xkeyval 2014/12/03 v2.7a package option processing (HA)
 
 (c:/texlive/2017/texmf-dist/tex/generic/xkeyval/xkeyval.tex
 (c:/texlive/2017/texmf-dist/tex/generic/xkeyval/xkvutils.tex
-\XKV@toks=\toks44
-\XKV@tempa@toks=\toks45
+\XKV@toks=\toks43
+\XKV@tempa@toks=\toks44
 )
-\XKV@depth=\count161
+\XKV@depth=\count153
 File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
 ))
-\c@@todonotes@numberoftodonotes=\count162
+\c@@todonotes@numberoftodonotes=\count154
 )
 (c:/texlive/2017/texmf-dist/tex/latex/dirtytalk/dirtytalk.sty
 Package: dirtytalk 2010/11/21 A package making "quoting" easier
@@ -685,7 +660,7 @@ Package etexcmds Info: Could not find \expanded.
 (etexcmds)             that some package has redefined \expanded.
 (etexcmds)             In the latter case, load this package earlier.
 )))
-\c@dirtytalk@qdepth=\count163
+\c@dirtytalk@qdepth=\count155
 )
 (c:/texlive/2017/texmf-dist/tex/latex/minted/minted.sty
 Package: minted 2017/07/19 v2.5 Yet another Pygments shim for LaTeX
@@ -696,18 +671,18 @@ b
 
 (c:/texlive/2017/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 Package: etoolbox 2018/02/11 v2.5e e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count164
+\etb@tempcnta=\count156
 )
 (c:/texlive/2017/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
 Package: fancyvrb 2008/02/07
 
 Style option: `fancyvrb' v2.7a, with DG/SPQR fixes, and firstline=lastline fix 
 <2008/02/07> (tvz)
-\FV@CodeLineNo=\count165
+\FV@CodeLineNo=\count157
 \FV@InFile=\read2
-\FV@TabBox=\box49
-\c@FancyVerbLine=\count166
-\FV@StepNumber=\count167
+\FV@TabBox=\box47
+\c@FancyVerbLine=\count158
+\FV@StepNumber=\count159
 \FV@OutFile=\write4
 ) (c:/texlive/2017/texmf-dist/tex/latex/upquote/upquote.sty
 Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
@@ -715,43 +690,43 @@ tim
 )
 (c:/texlive/2017/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2005/11/02 line numbers on paragraphs v4.41
-\linenopenalty=\count168
-\output=\toks46
-\linenoprevgraf=\count169
-\linenumbersep=\dimen259
-\linenumberwidth=\dimen260
-\c@linenumber=\count170
-\c@pagewiselinenumber=\count171
-\c@LN@truepage=\count172
-\c@internallinenumber=\count173
-\c@internallinenumbers=\count174
-\quotelinenumbersep=\dimen261
-\bframerule=\dimen262
-\bframesep=\dimen263
-\bframebox=\box50
+\linenopenalty=\count160
+\output=\toks45
+\linenoprevgraf=\count161
+\linenumbersep=\dimen199
+\linenumberwidth=\dimen256
+\c@linenumber=\count162
+\c@pagewiselinenumber=\count163
+\c@LN@truepage=\count164
+\c@internallinenumber=\count165
+\c@internallinenumbers=\count166
+\quotelinenumbersep=\dimen257
+\bframerule=\dimen258
+\bframesep=\dimen259
+\bframebox=\box48
 LaTeX Info: Redefining \\ on input line 3056.
 )
-\c@FV@TrueTabGroupLevel=\count175
-\c@FV@TrueTabCounter=\count176
-\FV@TabBox@Group=\box51
+\c@FV@TrueTabGroupLevel=\count167
+\c@FV@TrueTabCounter=\count168
+\FV@TabBox@Group=\box49
 \FV@TmpLength=\skip67
-\c@FV@HighlightLinesStart=\count177
-\c@FV@HighlightLinesStop=\count178
-\FV@LoopCount=\count179
-\FV@NCharsBox=\box52
-\FV@BreakIndent=\dimen264
-\FV@BreakIndentNChars=\count180
-\FV@BreakSymbolSepLeft=\dimen265
-\FV@BreakSymbolSepLeftNChars=\count181
-\FV@BreakSymbolSepRight=\dimen266
-\FV@BreakSymbolSepRightNChars=\count182
-\FV@BreakSymbolIndentLeft=\dimen267
-\FV@BreakSymbolIndentLeftNChars=\count183
-\FV@BreakSymbolIndentRight=\dimen268
-\FV@BreakSymbolIndentRightNChars=\count184
-\c@FancyVerbLineBreakLast=\count185
-\FV@LineBox=\box53
-\FV@LineIndentBox=\box54
+\c@FV@HighlightLinesStart=\count169
+\c@FV@HighlightLinesStop=\count170
+\FV@LoopCount=\count171
+\FV@NCharsBox=\box50
+\FV@BreakIndent=\dimen260
+\FV@BreakIndentNChars=\count172
+\FV@BreakSymbolSepLeft=\dimen261
+\FV@BreakSymbolSepLeftNChars=\count173
+\FV@BreakSymbolSepRight=\dimen262
+\FV@BreakSymbolSepRightNChars=\count174
+\FV@BreakSymbolIndentLeft=\dimen263
+\FV@BreakSymbolIndentLeftNChars=\count175
+\FV@BreakSymbolIndentRight=\dimen264
+\FV@BreakSymbolIndentRightNChars=\count176
+\c@FancyVerbLineBreakLast=\count177
+\FV@LineBox=\box51
+\FV@LineIndentBox=\box52
 )
 (c:/texlive/2017/texmf-dist/tex/latex/tools/shellesc.sty
 Package: shellesc 2016/06/07 v0.02a unified shell escape interface for LaTeX
@@ -774,38 +749,126 @@ Package: catchfile 2016/05/16 v1.7 Catch the contents of a file (HO)
 (c:/texlive/2017/texmf-dist/tex/generic/xstring/xstring.sty
 (c:/texlive/2017/texmf-dist/tex/generic/xstring/xstring.tex
 \@xs@message=\write5
-\integerpart=\count186
-\decimalpart=\count187
+\integerpart=\count178
+\decimalpart=\count179
 )
 Package: xstring 2013/10/13  v1.7c  String manipulations (C Tellechea)
 )
 (c:/texlive/2017/texmf-dist/tex/latex/framed/framed.sty
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \OuterFrameSep=\skip68
-\fb@frw=\dimen269
-\fb@frh=\dimen270
-\FrameRule=\dimen271
-\FrameSep=\dimen272
+\fb@frw=\dimen265
+\fb@frh=\dimen266
+\FrameRule=\dimen267
+\FrameSep=\dimen268
 )
 (c:/texlive/2017/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count188
-\float@exts=\toks47
-\float@box=\box55
-\@float@everytoks=\toks48
-\@floatcapt=\box56
+\c@float@type=\count180
+\float@exts=\toks46
+\float@box=\box53
+\@float@everytoks=\toks47
+\@floatcapt=\box54
 )
 \minted@appexistsfile=\read3
-\minted@bgbox=\box57
+\minted@bgbox=\box55
 \minted@code=\write6
-\c@minted@FancyVerbLineTemp=\count189
-\c@minted@pygmentizecounter=\count190
-\@float@every@listing=\toks49
-\c@listing=\count191
+\c@minted@FancyVerbLineTemp=\count181
+\c@minted@pygmentizecounter=\count182
+\@float@every@listing=\toks48
+\c@listing=\count183
 )
 runsystem(if not exist _minted-report mkdir _minted-report)...executed.
 
-\c@definition=\count192
+
+(c:/texlive/2017/texmf-dist/tex/latex/neuralnetwork/neuralnetwork.sty
+Package: neuralnetwork 2013/07/18 v1.0 Neural network diagrams, Mark Kuckian Co
+wan, mark@battlesnake.co.uk
+
+(c:/texlive/2017/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+
+(c:/texlive/2017/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+(c:/texlive/2017/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty
+Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
+
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+\c@ALG@line=\count184
+\c@ALG@rem=\count185
+\c@ALG@nested=\count186
+\ALG@tlm=\skip69
+\ALG@thistlm=\skip70
+\c@ALG@Lnr=\count187
+\c@ALG@blocknr=\count188
+\c@ALG@storecount=\count189
+\c@ALG@tmpcounter=\count190
+\ALG@tmplength=\skip71
+)
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzli
+braryshapes.code.tex
+File: tikzlibraryshapes.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
+
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzli
+braryshapes.misc.code.tex
+File: tikzlibraryshapes.misc.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
+
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.m
+isc.code.tex
+File: pgflibraryshapes.misc.code.tex 2013/07/18 v3.0.1a (rcs-revision 1.5)
+))
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzli
+braryshapes.symbols.code.tex
+File: tikzlibraryshapes.symbols.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
+
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.s
+ymbols.code.tex
+File: pgflibraryshapes.symbols.code.tex 2013/09/11 v3.0.1a (rcs-revision 1.6)
+))
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzli
+braryshapes.arrows.code.tex
+File: tikzlibraryshapes.arrows.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
+
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.a
+rrows.code.tex
+File: pgflibraryshapes.arrows.code.tex 2008/06/26 v3.0.1a (rcs-revision 1.1)
+))
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzli
+braryshapes.callouts.code.tex
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.c
+allouts.code.tex))
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzli
+braryshapes.multipart.code.tex
+File: tikzlibraryshapes.multipart.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1
+)
+
+(c:/texlive/2017/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshapes.m
+ultipart.code.tex
+File: pgflibraryshapes.multipart.code.tex 2010/01/07 v3.0.1a (rcs-revision 1.2)
+
+\pgfnodepartlowerbox=\box56
+\pgfnodeparttwobox=\box57
+\pgfnodepartthreebox=\box58
+\pgfnodepartfourbox=\box59
+\pgfnodeparttwentybox=\box60
+\pgfnodepartnineteenbox=\box61
+\pgfnodeparteighteenbox=\box62
+\pgfnodepartseventeenbox=\box63
+\pgfnodepartsixteenbox=\box64
+\pgfnodepartfifteenbox=\box65
+\pgfnodepartfourteenbox=\box66
+\pgfnodepartthirteenbox=\box67
+\pgfnodeparttwelvebox=\box68
+\pgfnodepartelevenbox=\box69
+\pgfnodeparttenbox=\box70
+\pgfnodepartninebox=\box71
+\pgfnodeparteightbox=\box72
+\pgfnodepartsevenbox=\box73
+\pgfnodepartsixbox=\box74
+\pgfnodepartfivebox=\box75
+))))
+\c@definition=\count191
 
 
 Package geometry Warning: Over-specification in `h'-direction.
@@ -845,17 +908,17 @@ LaTeX Font Info:    ... okay on input line 47.
  ABD: EveryShipout initializing macros
 (c:/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count193
-\scratchdimen=\dimen273
-\scratchbox=\box58
-\nofMPsegments=\count194
-\nofMParguments=\count195
-\everyMPshowfont=\toks50
-\MPscratchCnt=\count196
-\MPscratchDim=\dimen274
-\MPnumerator=\count197
-\makeMPintoPDFobject=\count198
-\everyMPtoPDFconversion=\toks51
+\scratchcounter=\count192
+\scratchdimen=\dimen269
+\scratchbox=\box76
+\nofMPsegments=\count193
+\nofMParguments=\count194
+\everyMPshowfont=\toks49
+\MPscratchCnt=\count195
+\MPscratchDim=\dimen270
+\MPnumerator=\count196
+\makeMPintoPDFobject=\count197
+\everyMPtoPDFconversion=\toks50
 ) (c:/texlive/2017/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -910,89 +973,6 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-(c:/texlive/2017/texmf-dist/tex/latex/base/textcomp.sty
-Package: textcomp 2017/04/05 v2.0i Standard LaTeX package
-Package textcomp Info: Sub-encoding information:
-(textcomp)               5 = only ISO-Adobe without \textcurrency
-(textcomp)               4 = 5 + \texteuro
-(textcomp)               3 = 4 + \textohm
-(textcomp)               2 = 3 + \textestimated + \textcurrency
-(textcomp)               1 = TS1 - \textcircled - \t
-(textcomp)               0 = TS1 (full)
-(textcomp)             Font families with sub-encoding setting implement
-(textcomp)             only a restricted character set as indicated.
-(textcomp)             Family '?' is the default used for unknown fonts.
-(textcomp)             See the documentation for details.
-Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 79.
-
-(c:/texlive/2017/texmf-dist/tex/latex/base/ts1enc.def
-File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
-)
-LaTeX Info: Redefining \oldstylenums on input line 334.
-Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 349.
-Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 350.
-Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 351.
-Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 352.
-Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 353.
-Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 354.
-Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 355.
-Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 356.
-Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 357.
-Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 358.
-Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 359.
-Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 360.
-Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 361.
-Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 362.
-Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 363.
-Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 364.
-Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 365.
-Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 366.
-Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 367.
-Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 368.
-Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 369.
-Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 370.
-Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 371.
-Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 372.
-
-Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 373.
-Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 374.
-Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 375.
-Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 376.
-Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 377.
-Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 378.
-Package textcomp Info: Setting lmr sub-encoding to TS1/0 on input line 379.
-Package textcomp Info: Setting lmdh sub-encoding to TS1/0 on input line 380.
-Package textcomp Info: Setting lmss sub-encoding to TS1/0 on input line 381.
-Package textcomp Info: Setting lmssq sub-encoding to TS1/0 on input line 382.
-Package textcomp Info: Setting lmvtt sub-encoding to TS1/0 on input line 383.
-Package textcomp Info: Setting lmtt sub-encoding to TS1/0 on input line 384.
-Package textcomp Info: Setting qhv sub-encoding to TS1/0 on input line 385.
-Package textcomp Info: Setting qag sub-encoding to TS1/0 on input line 386.
-Package textcomp Info: Setting qbk sub-encoding to TS1/0 on input line 387.
-Package textcomp Info: Setting qcr sub-encoding to TS1/0 on input line 388.
-Package textcomp Info: Setting qcs sub-encoding to TS1/0 on input line 389.
-Package textcomp Info: Setting qpl sub-encoding to TS1/0 on input line 390.
-Package textcomp Info: Setting qtm sub-encoding to TS1/0 on input line 391.
-Package textcomp Info: Setting qzc sub-encoding to TS1/0 on input line 392.
-Package textcomp Info: Setting qhvc sub-encoding to TS1/0 on input line 393.
-Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 394.
-Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 395.
-Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 396.
-Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 397.
-Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 398.
-Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 399.
-Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 400.
-Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 401.
-Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 402.
-Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 403.
-Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 404.
-Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 405.
-Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 406.
-Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
-Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
-Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
-)
-\c@lstlisting=\count199
 
 Overfull \hbox (17.73093pt too wide) in paragraph at lines 77--78
 []\OT1/cmr/m/n/14.4 m.e.debernardi@se15.qmul.ac.uk  
@@ -1155,28 +1135,107 @@ Missing character: There is no € in font cmr12!
 Missing character: There is no ™ in font cmr12!
  [20]
 Chapter 3.
-[21
+\openout6 = `report.pyg'.
 
+
+(./_minted-report/241FCF33EAA2EA61285F36559116CBAD7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+<img/generator.png, id=111, 731.73375pt x 189.70876pt>
+File: img/generator.png Graphic file (type png)
+<use img/generator.png>
+Package pdftex.def Info: img/generator.png  used on input line 570.
+(pdftex.def)             Requested size: 455.24411pt x 118.02635pt.
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/0A7A7FC8FCEE4E12836EB41F237EFD597C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/1ED4843BE0C5988D61C17DE14C3FBA1D7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/0A7A7FC8FCEE4E12836EB41F237EFD597C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/1ED4843BE0C5988D61C17DE14C3FBA1D7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+<img/opponent_conv.png, id=112, 761.84625pt x 270.00874pt>
+File: img/opponent_conv.png Graphic file (type png)
+<use img/opponent_conv.png>
+Package pdftex.def Info: img/opponent_conv.png  used on input line 583.
+(pdftex.def)             Requested size: 455.24411pt x 161.34317pt.
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/8AAE1D82DD56C249C0E7A7C02C0960AE7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/8AAE1D82DD56C249C0E7A7C02C0960AE7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+<img/opponent_lstm.png, id=113, 823.075pt x 174.6525pt>
+File: img/opponent_lstm.png Graphic file (type png)
+<use img/opponent_lstm.png>
+Package pdftex.def Info: img/opponent_lstm.png  used on input line 593.
+(pdftex.def)             Requested size: 455.24411pt x 96.60016pt.
+<img/opponent_convlstm.png, id=114, 785.93625pt x 270.00874pt>
+File: img/opponent_convlstm.png Graphic file (type png)
+<use img/opponent_convlstm.png>
+Package pdftex.def Info: img/opponent_convlstm.png  used on input line 604.
+(pdftex.def)             Requested size: 455.24411pt x 156.40329pt.
+ [21
+
+] [22 <./img/generator.png> <./img/opponent_conv.png> <./img/opponent_lstm.png>
 ]
 Missing character: There is no Â in font cmr12!
 Missing character: There is no ´ in font cmr12!
 Missing character: There is no Â in font cmr12!
 Missing character: There is no ´ in font cmr12!
+ [23 <./img/opponent_convlstm.png>]
 \openout4 = `report.pyg'.
 
 
 (./_minted-report/6FE7A95D980E74F7D76BEBADB1CC053D7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex [22])
+E39.pygtex)
 \openout4 = `report.pyg'.
 
 
 (./_minted-report/667D234BAA4D209AA4B8A64DFD2C69CA7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex)
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 613.
+E39.pygtex) [24]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 657.
 
- (c:/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd
-File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-) [23]
+ (c:/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 657.
 \openout6 = `report.pyg'.
 
 
@@ -1201,7 +1260,7 @@ E39.pygtex)
 
 
 (./_minted-report/20FF3AB58C9CD8AD52E24501CC46C84C7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex)
+E39.pygtex) [25]
 \openout4 = `report.pyg'.
 
 
@@ -1221,7 +1280,7 @@ E39.pygtex)
 
 
 (./_minted-report/2F95209C0EB47CDE4C0FB4BFDB8897377C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex [24])
+E39.pygtex)
 \openout4 = `report.pyg'.
 
 
@@ -1236,12 +1295,12 @@ E39.pygtex)
 
 
 (./_minted-report/3815CAAAF6D678434BB0DD353CA1D8487C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex)
+E39.pygtex) [26]
 \openout6 = `report.pyg'.
 
 
 (./_minted-report/BC4E70DAC4A264E62A80B58427011B8D7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [25]
+E39.pygtex)
 \openout6 = `report.pyg'.
 
 
@@ -1266,7 +1325,7 @@ E39.pygtex)
 
 
 (./_minted-report/7BB2296F2C23E3D8D42263634613906A7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex)
+E39.pygtex) [27]
 \openout6 = `report.pyg'.
 
 
@@ -1276,17 +1335,17 @@ E39.pygtex)
 
 
 (./_minted-report/38E5D2095B76575F55EB2D505DD5B4417C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [26]
+E39.pygtex) [28]
 Chapter 4.
-[27
+[29
 
 ]
 Chapter 5.
-[28
+[30
 
 ]
 Chapter 6.
-(./report.bbl [29
+(./report.bbl [31
 
 ]
 Chapter 7.
@@ -1338,23 +1397,23 @@ Underfull \hbox (badness 2318) in paragraph at lines 49--53
 /12 https : / / aws . amazon . com /
  []
 
-[30
+[32
 
-] [31]
-Underfull \hbox (badness 10000) in paragraph at lines 189--194
+] [33]
+Underfull \hbox (badness 10000) in paragraph at lines 195--200
 []\OT1/cmr/m/n/12 Sagar Sharma.  Ac-ti-va-tion func-tions: Neu-ral net-works.  
 $\OT1/cmtt/m/n/12 https : / /
  []
 
 
-Overfull \hbox (18.77249pt too wide) in paragraph at lines 189--194
+Overfull \hbox (18.77249pt too wide) in paragraph at lines 195--200
 \OT1/cmtt/m/n/12 towardsdatascience . com / activation-[]functions-[]neural-[]n
 etworks-[]1cbd9f8d91d6$\OT1/cmr/m/n/12 .
  []
 
-) [32]
+) [34]
 Appendix A.
-[33
+[35
 
 ]
 Appendix B.
@@ -1372,7 +1431,7 @@ E39.pygtex)
 
 
 (./_minted-report/9914B55C912FBA0669AE2AD56336B4C77C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex [34
+E39.pygtex [36
 
 ])
 \openout4 = `report.pyg'.
@@ -1384,16 +1443,16 @@ E39.pygtex)
 
 
 (./_minted-report/E8B38AF19D2579281620EB8F04349BFC7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex [35])
+E39.pygtex [37])
 \openout4 = `report.pyg'.
 
 
 (./_minted-report/5164D5E84F853507392851B55CBD98F77C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex [36]) [37]
+E39.pygtex [38]) [39]
 Appendix C.
-[38
+[40
 
-] [39] (./report.aux)
+] [41] (./report.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -1404,38 +1463,36 @@ runsystem(del report.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 21297 strings out of 492982
- 424824 string characters out of 6136226
- 529188 words of memory out of 5000000
- 24313 multiletter control sequences out of 15000+600000
- 17611 words of font info for 64 fonts, out of 8000000 for 9000
+ 21535 strings out of 492982
+ 452199 string characters out of 6136226
+ 582003 words of memory out of 5000000
+ 24492 multiletter control sequences out of 15000+600000
+ 17274 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,16n,76p,972b,704s stack positions out of 5000i,500n,10000p,200000b,80000s
-{c:/texlive/2017/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}<c:/tex
-live/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy6.pfb><c:/texlive
-/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2017/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb><c:/texlive/2017/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2017/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmitt10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmmi12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6
-.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/t
-exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb><c:/texlive/2
-017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb><c:/texlive/2017/
-texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><c:/texlive/2017/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2017/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmr17.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmr8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c
-:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texlive
-/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2017/tex
-mf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2017/texmf-d
-ist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on report.pdf (42 pages, 2382646 bytes).
+ 62i,16n,76p,972b,702s stack positions out of 5000i,500n,10000p,200000b,80000s
+<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy6.pfb><c
+:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive
+/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb><c:/texlive/2017/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2017/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2017/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmitt10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmmi6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.
+pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb><c:/
+texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb><c:/texl
+ive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><c:/texlive/
+2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2017/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2017/texmf-dist/font
+s/type1/public/amsfonts/cm/cmr17.pfb><c:/texlive/2017/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmr8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmsy10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c
+:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive
+/2017/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on report.pdf (44 pages, 2464994 bytes).
 PDF statistics:
- 245 PDF objects out of 1000 (max. 8388607)
- 166 compressed objects within 2 object streams
+ 255 PDF objects out of 1000 (max. 8388607)
+ 167 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 63 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 83 words of extra memory for PDF output out of 10000 (max. 10000000)
 

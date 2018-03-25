@@ -188,6 +188,8 @@ def run_discgan():
 
     except ValueError:
         traceback.print_exc()
+    except KeyboardInterrupt:
+        traceback.print_exc()
 
     # log training stats
     plot_train_loss(jerry_loss, diego_loss, PLOT_DIR + 'discgan_train_loss.pdf')
@@ -250,6 +252,8 @@ def run_predgan():
                 raise ValueError()
 
     except ValueError:
+        traceback.print_exc()
+    except KeyboardInterrupt:
         traceback.print_exc()
 
     # log training stats

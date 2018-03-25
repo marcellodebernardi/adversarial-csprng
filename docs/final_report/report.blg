@@ -13,45 +13,45 @@ Warning--to sort, need author or key in keras
 Warning--to sort, need author or key in numpy
 Warning--to sort, need author or key in ricard2017generative
 Warning--to sort, need author or key in atienza2017gan
-You've used 35 entries,
+You've used 36 entries,
             2118 wiz_defined-function locations,
-            668 strings with 9770 characters,
-and the built_in function-call counts, 10041 in all, are:
-= -- 970
-> -- 454
+            673 strings with 9848 characters,
+and the built_in function-call counts, 10254 in all, are:
+= -- 991
+> -- 461
 < -- 6
-+ -- 187
-- -- 148
-* -- 543
-:= -- 1617
-add.period$ -- 114
-call.type$ -- 35
-change.case$ -- 173
++ -- 190
+- -- 150
+* -- 548
+:= -- 1653
+add.period$ -- 118
+call.type$ -- 36
+change.case$ -- 177
 chr.to.int$ -- 0
-cite$ -- 41
-duplicate$ -- 399
-empty$ -- 868
-format.name$ -- 148
-if$ -- 2183
+cite$ -- 42
+duplicate$ -- 406
+empty$ -- 890
+format.name$ -- 150
+if$ -- 2230
 int.to.chr$ -- 0
-int.to.str$ -- 35
+int.to.str$ -- 36
 missing$ -- 27
-newline$ -- 183
-num.names$ -- 58
-pop$ -- 300
+newline$ -- 189
+num.names$ -- 60
+pop$ -- 310
 preamble$ -- 1
-purify$ -- 143
+purify$ -- 146
 quote$ -- 0
-skip$ -- 291
+skip$ -- 296
 stack$ -- 0
-substring$ -- 403
-swap$ -- 92
+substring$ -- 408
+swap$ -- 93
 text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 126
+type$ -- 130
 warning$ -- 6
-while$ -- 80
-width$ -- 37
-write$ -- 367
+while$ -- 82
+width$ -- 38
+write$ -- 378
 (There was 1 error message)
