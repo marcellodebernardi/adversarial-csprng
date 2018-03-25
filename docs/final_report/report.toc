@@ -24,51 +24,50 @@
 \contentsline {subsection}{\numberline {2.3.3}Fast, Lean, and Accurate: Modeling Password Guessability Using Neural Networks}{20}
 \contentsline {chapter}{\numberline {3}Design and Implementation}{21}
 \contentsline {section}{\numberline {3.1}Conceptual Design}{21}
-\contentsline {subsection}{\numberline {3.1.1}Discriminative Approach}{21}
-\contentsline {subsection}{\numberline {3.1.2}Predictive Approach}{21}
-\contentsline {subsection}{\numberline {3.1.3}Generative Model}{21}
-\contentsline {subsection}{\numberline {3.1.4}Discriminative and Predictive Models}{21}
-\contentsline {subsubsection}{Convolutional Architecture}{22}
-\contentsline {subsubsection}{LSTM Architecture}{22}
-\contentsline {subsubsection}{Mixed Convolutional and LSTM Architecture}{22}
-\contentsline {subsection}{\numberline {3.1.5}Hyperparameters and Training Parameters}{22}
-\contentsline {section}{\numberline {3.2}Implementation Technologies}{22}
-\contentsline {subsection}{\numberline {3.2.1}Python}{22}
-\contentsline {subsection}{\numberline {3.2.2}TensorFlow}{22}
-\contentsline {subsection}{\numberline {3.2.3}Keras}{22}
-\contentsline {subsection}{\numberline {3.2.4}Software Libraries}{23}
-\contentsline {subsection}{\numberline {3.2.5}Supporting Tools}{23}
-\contentsline {section}{\numberline {3.3}Software Design}{24}
-\contentsline {subsection}{\numberline {3.3.1}Generative Model}{24}
-\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{24}
-\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{25}
-\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{25}
-\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{25}
-\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{25}
-\contentsline {subsection}{\numberline {3.3.7}TensorFlow Functions}{26}
-\contentsline {subsection}{\numberline {3.3.8}Utilities}{26}
-\contentsline {chapter}{\numberline {4}Experiments}{27}
-\contentsline {section}{\numberline {4.1}Discriminative Training}{27}
-\contentsline {subsection}{\numberline {4.1.1}Training Parameters}{27}
-\contentsline {subsection}{\numberline {4.1.2}Results}{27}
-\contentsline {subsection}{\numberline {4.1.3}Analysis}{27}
-\contentsline {section}{\numberline {4.2}Predictive Training}{27}
-\contentsline {subsection}{\numberline {4.2.1}Training Parameters}{27}
-\contentsline {subsection}{\numberline {4.2.2}Results}{27}
-\contentsline {subsection}{\numberline {4.2.3}Analysis}{27}
-\contentsline {chapter}{\numberline {5}Conclusion}{28}
-\contentsline {chapter}{\numberline {6}Further Investigation}{29}
-\contentsline {chapter}{\numberline {7}Bibliography}{30}
-\contentsline {chapter}{\numberline {A}Training Data}{33}
-\contentsline {chapter}{\numberline {B}Code Listings}{34}
-\contentsline {section}{\numberline {B.1}Generator}{34}
-\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{34}
-\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{35}
-\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{35}
-\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{36}
-\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{36}
-\contentsline {chapter}{\numberline {C}Mathematical Notation}{38}
-\contentsline {section}{\numberline {C.1}Set Theory}{38}
-\contentsline {section}{\numberline {C.2}Probability Theory}{38}
-\contentsline {section}{\numberline {C.3}Linear Algebra}{38}
-\contentsline {section}{\numberline {C.4}Neural Networks}{39}
+\contentsline {subsection}{\numberline {3.1.1}Discriminative and Predictive Approaches}{21}
+\contentsline {subsection}{\numberline {3.1.2}Generative Model}{21}
+\contentsline {subsection}{\numberline {3.1.3}Discriminative and Predictive Models}{21}
+\contentsline {subsubsection}{Convolutional Architecture}{23}
+\contentsline {subsubsection}{LSTM Architecture}{23}
+\contentsline {subsubsection}{Mixed Convolutional and LSTM Architecture}{23}
+\contentsline {subsection}{\numberline {3.1.4}Hyperparameters and Training Parameters}{23}
+\contentsline {section}{\numberline {3.2}Implementation Technologies}{23}
+\contentsline {subsection}{\numberline {3.2.1}Python}{24}
+\contentsline {subsection}{\numberline {3.2.2}TensorFlow}{24}
+\contentsline {subsection}{\numberline {3.2.3}Keras}{24}
+\contentsline {subsection}{\numberline {3.2.4}Software Libraries}{25}
+\contentsline {subsection}{\numberline {3.2.5}Supporting Tools}{25}
+\contentsline {section}{\numberline {3.3}Software Design}{25}
+\contentsline {subsection}{\numberline {3.3.1}Generative Model}{25}
+\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{25}
+\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{26}
+\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{27}
+\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{27}
+\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{27}
+\contentsline {subsection}{\numberline {3.3.7}TensorFlow Functions}{27}
+\contentsline {subsection}{\numberline {3.3.8}Utilities}{27}
+\contentsline {chapter}{\numberline {4}Experiments}{29}
+\contentsline {section}{\numberline {4.1}Discriminative Training}{29}
+\contentsline {subsection}{\numberline {4.1.1}Training Parameters}{29}
+\contentsline {subsection}{\numberline {4.1.2}Results}{29}
+\contentsline {subsection}{\numberline {4.1.3}Analysis}{29}
+\contentsline {section}{\numberline {4.2}Predictive Training}{29}
+\contentsline {subsection}{\numberline {4.2.1}Training Parameters}{29}
+\contentsline {subsection}{\numberline {4.2.2}Results}{29}
+\contentsline {subsection}{\numberline {4.2.3}Analysis}{29}
+\contentsline {chapter}{\numberline {5}Conclusion}{30}
+\contentsline {chapter}{\numberline {6}Further Investigation}{31}
+\contentsline {chapter}{\numberline {7}Bibliography}{32}
+\contentsline {chapter}{\numberline {A}Training Data}{35}
+\contentsline {chapter}{\numberline {B}Code Listings}{36}
+\contentsline {section}{\numberline {B.1}Generator}{36}
+\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{36}
+\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{37}
+\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{37}
+\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{38}
+\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{38}
+\contentsline {chapter}{\numberline {C}Mathematical Notation}{40}
+\contentsline {section}{\numberline {C.1}Set Theory}{40}
+\contentsline {section}{\numberline {C.2}Probability Theory}{40}
+\contentsline {section}{\numberline {C.3}Linear Algebra}{40}
+\contentsline {section}{\numberline {C.4}Neural Networks}{41}

@@ -16,12 +16,12 @@
 \usepackage{array}
 \usepackage{mathtools}
 \usepackage{bm}
-\usepackage{listings}
 \usepackage{epigraph}
 \usepackage{amsthm}
 \usepackage{todonotes}
 \usepackage{dirtytalk}
 \usepackage{minted}
+\usepackage{neuralnetwork}
 
 
 %---------------------------------------------------------
@@ -549,22 +549,64 @@ Analogously, one aspect of this investigation is the ability to predict the next
 This section provides an in-depth explanation of the conceptual design of the system and how it relates to the research hypothesis, the technologies used to implement it, and the details of the implementation.
 
 \section{Conceptual Design}\label{section:conceptual_design}
-As stated in section \ref{subsection:aims}, the practical aim of this investigation is to test whether it is possible to train a neural network to output pseudo-random number sequences. This work explores two separate, but similar, approaches to the problem. Both approaches use a form of the generative adversarial network framework. We term the approaches as the \textit{discriminative approach} and the \textit{predictive approach}.
+As stated, the aim of this investigation is to determine whether it is possible to train a neural network to output pseudo-random number sequences by means of an adversarial training process.
 
-In both approaches, a generator is trained by having its outputs scrutinized by an adversary.
 
-\subsection{Discriminative Approach}
-TODO: a more formal discussion of the functions represented by generator and discriminator, etc
-\subsection{Predictive Approach}
-TODO: as previous
+
+
+\subsection{Discriminative and Predictive Adversaries}
+Two distinct approaches to adversarial training are assessed. These approaches are termed the \textit{discriminative approach} and the \textit{predictive approach}. 
+
+
+
 \subsection{Generative Model}
-TODO: architecture of generator
+The generator, \mintinline{python}{jerry}, implements the function $G_{\theta_{G}}(s, o) : \mathbb{R}^2 \rightarrow \mathbb{R}^n$, where $\theta_G$ are the parameters of $G$, $s$ is the seed of the generator, $o$ is an offset into the generator's output sequence, and $n$ is the length of the output sequence.
+
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{img/generator.png}\\
+\caption{Architecture of the generator. Each fully connected feed-forward (FCFF) neural network layer is implemented in Keras using a \mintinline{python}{Dense} layer followed by a \mintinline{python}{LeakyReLU} layer. The network's inputs (two real numbers) and outputs (a sequence of real numbers of length $n$) are also shown. Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:architecture_generator}
+\end{figure}
+
 \subsection{Discriminative and Predictive Models}
 TODO: architecture of opponents, split into three
+
+
+
 \subsubsection{Convolutional Architecture}
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{img/opponent_conv.png}\\
+\caption{Convolutional opponent architecture. \mintinline{python}{Reshape} and \mintinline{python}{Flatten} layers are required in Keras as the \mintinline{python}{Conv1D} takes a two-dimensional input. Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:architecture_conv}
+\end{figure}
+
+
+
 \subsubsection{LSTM Architecture}
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{img/opponent_lstm.png}\\
+\caption{LSTM opponent architecture. Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:architecture_lstm}
+\end{figure}
+
+
+
+
 \subsubsection{Mixed Convolutional and LSTM Architecture}
-\subsection{Hyperparameters and Training Parameters}
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{img/opponent_convlstm.png}\\
+\caption{Mixed convolutional and LSTM opponent architecture. Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:architecture_convlstm}
+\end{figure}
+
+
+
+\subsection{Hyperparameters}
 TODO: hyperparameters like receptive fields, network depth etc, training parameters like epochs etc
 \section{Implementation Technologies}
 The system was developed in version 3.6 of the Python programming language, which is popular in the machine learning field due to its conciseness and the large ecosystem of software libraries for numerical computing. The main software libraries used for this project are TensorFlow, an ´´open source library for numerical computation" which is commonly used for machine learning \cite{tensorflow}. As the TensorFlow API is rich in features and complex, the project also relies on Keras, a library providing higher-level abstractions specifically for neural network design \cite{keras}. Other major software libraries used include NumPy, the fundamental scientific computing package for Python, and its many sub-packages, such as matplotlib for drawing visual graphs\cite{numpy}.

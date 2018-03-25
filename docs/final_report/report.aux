@@ -167,63 +167,77 @@
 \citation{tirdad2010hopfield}
 \citation{melicher2016fast}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}Fast, Lean, and Accurate: Modeling Password Guessability Using Neural Networks}{20}}
+\citation{jgraph2018draw}
+\citation{jgraph2018draw}
+\citation{jgraph2018draw}
+\citation{jgraph2018draw}
+\citation{jgraph2018draw}
+\citation{jgraph2018draw}
+\citation{jgraph2018draw}
 \@writefile{toc}{\contentsline {chapter}{\numberline {3}Design and Implementation}{21}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{chapter:design}{{3}{21}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}Conceptual Design}{21}}
 \newlabel{section:conceptual_design}{{3.1}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Discriminative Approach}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Predictive Approach}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Generative Model}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Discriminative and Predictive Models}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Discriminative and Predictive Approaches}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Generative Model}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Discriminative and Predictive Models}{21}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Architecture of the generator. Each fully connected feed-forward (FCFF) neural network layer is implemented in Keras using a \mintinline {python}{Dense} layer followed by a \mintinline {python}{LeakyReLU} layer. The network's inputs (two real numbers) and outputs (a sequence of real numbers of length $n$) are also shown. Image produced using draw.io \cite  {jgraph2018draw}.}}{22}}
+\newlabel{figure:architecture_generator}{{3.1}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Convolutional opponent architecture. \mintinline {python}{Reshape} and \mintinline {python}{Flatten} layers are required in Keras as the \mintinline {python}{Conv1D} takes a two-dimensional input. Image produced using draw.io \cite  {jgraph2018draw}.}}{22}}
+\newlabel{figure:architecture_conv}{{3.2}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces LSTM opponent architecture. Image produced using draw.io \cite  {jgraph2018draw}.}}{22}}
+\newlabel{figure:architecture_lstm}{{3.3}{22}}
 \citation{tensorflow}
 \citation{keras}
 \citation{numpy}
 \citation{keras}
-\@writefile{toc}{\contentsline {subsubsection}{Convolutional Architecture}{22}}
-\@writefile{toc}{\contentsline {subsubsection}{LSTM Architecture}{22}}
-\@writefile{toc}{\contentsline {subsubsection}{Mixed Convolutional and LSTM Architecture}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.5}Hyperparameters and Training Parameters}{22}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Implementation Technologies}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Python}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}TensorFlow}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Keras}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Mixed convolutional and LSTM opponent architecture. Image produced using draw.io \cite  {jgraph2018draw}.}}{23}}
+\newlabel{figure:architecture_convlstm}{{3.4}{23}}
+\@writefile{toc}{\contentsline {subsubsection}{Convolutional Architecture}{23}}
+\@writefile{toc}{\contentsline {subsubsection}{LSTM Architecture}{23}}
+\@writefile{toc}{\contentsline {subsubsection}{Mixed Convolutional and LSTM Architecture}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Hyperparameters and Training Parameters}{23}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Implementation Technologies}{23}}
 \citation{keras}
 \citation{keras}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Python}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}TensorFlow}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Keras}{24}}
 \citation{ricard2017generative}
 \citation{atienza2017gan}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.4}Software Libraries}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.5}Supporting Tools}{23}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Software Design}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Generative Model}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.4}Software Libraries}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.5}Supporting Tools}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Software Design}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Generative Model}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{26}}
 \citation{keras}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.7}TensorFlow Functions}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.8}Utilities}{26}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Experiments}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.7}TensorFlow Functions}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.8}Utilities}{27}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Experiments}{29}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chapter:experiments}{{4}{27}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Discriminative Training}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Training Parameters}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Results}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Analysis}{27}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Predictive Training}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Training Parameters}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Results}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Analysis}{27}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{28}}
+\newlabel{chapter:experiments}{{4}{29}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Discriminative Training}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Training Parameters}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Results}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Analysis}{29}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Predictive Training}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Training Parameters}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Results}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Analysis}{29}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{30}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chapter:conclusion}{{5}{28}}
+\newlabel{chapter:conclusion}{{5}{30}}
 \bibstyle{plain}
 \bibdata{references.bib}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Further Investigation}{29}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Further Investigation}{31}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibcite{atienza2017gan}{1}
@@ -239,7 +253,7 @@
 \bibcite{barker2007recommendation}{11}
 \bibcite{cormen2009introduction}{12}
 \bibcite{microsoft2018azure}{13}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Bibliography}{30}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Bibliography}{32}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibcite{cover2012elements}{14}
@@ -257,44 +271,56 @@
 \bibcite{lavasani2009practical}{26}
 \bibcite{google2018automl}{27}
 \bibcite{google2018trends}{28}
-\bibcite{melicher2016fast}{29}
-\bibcite{menezes1996handbook}{30}
-\bibcite{rukhin2001statistical}{31}
-\bibcite{russel2009artificial}{32}
-\bibcite{sharma2017activation}{33}
-\bibcite{terr2009math}{34}
-\bibcite{tirdad2010hopfield}{35}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Training Data}{33}}
+\bibcite{jgraph2018draw}{29}
+\bibcite{melicher2016fast}{30}
+\bibcite{menezes1996handbook}{31}
+\bibcite{rukhin2001statistical}{32}
+\bibcite{russel2009artificial}{33}
+\bibcite{sharma2017activation}{34}
+\bibcite{terr2009math}{35}
+\bibcite{tirdad2010hopfield}{36}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Training Data}{35}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Code Listings}{34}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Code Listings}{36}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {B.1}Generator}{34}}
-\newlabel{appendix:generator}{{B.1}{34}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{34}}
-\newlabel{appendix:convolutional}{{B.2}{34}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{35}}
-\newlabel{appendix:lstm}{{B.3}{35}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{35}}
-\newlabel{appendix:convlstm}{{B.4}{35}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{36}}
-\newlabel{appendix:training_discgan}{{B.5}{36}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{36}}
-\newlabel{appendix:training_predgan}{{B.6}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.1}Generator}{36}}
+\newlabel{appendix:generator}{{B.1}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{36}}
+\newlabel{appendix:convolutional}{{B.2}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{37}}
+\newlabel{appendix:lstm}{{B.3}{37}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{37}}
+\newlabel{appendix:convlstm}{{B.4}{37}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{38}}
+\newlabel{appendix:training_discgan}{{B.5}{38}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{38}}
+\newlabel{appendix:training_predgan}{{B.6}{38}}
 \citation{cormen2009introduction}
-\@writefile{toc}{\contentsline {chapter}{\numberline {C}Mathematical Notation}{38}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {C}Mathematical Notation}{40}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{appendix:mathematics}{{C}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {C.1}Set Theory}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {C.2}Probability Theory}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {C.3}Linear Algebra}{38}}
+\newlabel{appendix:mathematics}{{C}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.1}Set Theory}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.2}Probability Theory}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.3}Linear Algebra}{40}}
 \gdef\minted@oldcachelist{,
   default-pyg-prefix.pygstyle,
   default.pygstyle,
   0346D6B75A58D8EBC23E5F26668961A27C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   F478FD3E27D1A397DBBF491DFD095CAC7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  241FCF33EAA2EA61285F36559116CBAD7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  0A7A7FC8FCEE4E12836EB41F237EFD597C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  1ED4843BE0C5988D61C17DE14C3FBA1D7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  0A7A7FC8FCEE4E12836EB41F237EFD597C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  1ED4843BE0C5988D61C17DE14C3FBA1D7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  8AAE1D82DD56C249C0E7A7C02C0960AE7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  8AAE1D82DD56C249C0E7A7C02C0960AE7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   6FE7A95D980E74F7D76BEBADB1CC053D7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   667D234BAA4D209AA4B8A64DFD2C69CA7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   241FCF33EAA2EA61285F36559116CBAD7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
@@ -323,6 +349,6 @@
   EBD91A97485EB6386993AB64D42487FE7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   E8B38AF19D2579281620EB8F04349BFC7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   5164D5E84F853507392851B55CBD98F77C2E7F49E087B8E8E8DF5244CE287E39.pygtex}
-\@writefile{toc}{\contentsline {section}{\numberline {C.4}Neural Networks}{39}}
-\newlabel{eq:sigmoid}{{C.1}{39}}
-\newlabel{eq:tanh}{{C.2}{39}}
+\@writefile{toc}{\contentsline {section}{\numberline {C.4}Neural Networks}{41}}
+\newlabel{eq:sigmoid}{{C.1}{41}}
+\newlabel{eq:tanh}{{C.2}{41}}
