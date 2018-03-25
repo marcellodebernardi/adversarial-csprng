@@ -51,9 +51,8 @@ def get_sequences(generator: Model, inputs: np.ndarray, sequence_length, max_val
     dataset = generator.predict_on_batch(inputs).tolist()
     labels = [0 for i in range(len(inputs))]
 
-    for i in range(int(len(inputs))):
-        dataset.append(get_random_sequence(sequence_length, max_val))
-        labels.append(1)
+    dataset.extend([get_random_sequence(sequence_length, max_val) for i in range(int(len(inputs)))])
+    labels.extend([1 for i in range(int(len(inputs)))])
 
     combined = list(zip(dataset, labels))
     rng.shuffle(combined)
@@ -61,7 +60,7 @@ def get_sequences(generator: Model, inputs: np.ndarray, sequence_length, max_val
     return np.array(dataset), np.array(labels)
 
 
-def get_random_sequence(sequence_length, max_val, source='random') -> np.ndarray:
+def get_random_sequence(sequence_length, max_val) -> np.ndarray:
     """Returns a numpy array of given length containing uniformly distributed
     real numbers in the range [0, max_val]. Such a random sequence is appropriate
     to be used as an input to a discriminator / predictor.
@@ -70,13 +69,10 @@ def get_random_sequence(sequence_length, max_val, source='random') -> np.ndarray
     :parameter sequence_length: length of each individual sequence of reals
     :parameter source: allows specification of the source of randomness
     """
-    return np.array([get_random_value(max_val, source) for i in range(int(sequence_length))], dtype=np.float64)
+    return np.random.uniform(low=0, high=max_val, size=sequence_length)
 
 
-def get_random_value(max_val, source='random') -> float:
+def get_random_value(max_val) -> float:
     """Returns a floating point number between 0 and max_val, obtained from
     the specific source of randomness."""
-    if source == 'random':
-        return rng.uniform(0, max_val)
-    elif source == 'system_random':
-        return rng.SystemRandom().uniform(0, max_val)
+    return np.random.uniform(low=0, high=max_val)

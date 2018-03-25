@@ -39,10 +39,8 @@ Available command line arguments:
 -nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
 -rec            RECOMPILE: recompiles models when changing trainability of weights
--big            BIG GENERATOR: increases width of generator hidden layers
--lstm           LSTM: uses the lstm-only architecture for the adversary
+-lstm           LSTM: uses the lstm-only architecture for the adversaary
 -convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
--batch3         BATCH SIZE 1024: use batches of 1024 elements
 -batch2         BATCH SIZE 256: use bathces of 256 elements
 -batch1         BATCH SIZE 128: use batches of 128 elements
 """
@@ -68,19 +66,18 @@ from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, los
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
-BIG_GENERATOR = '-big' in sys.argv
-BATCH_LEVEL = 1024 if '-batch3' else 256 if '-batch2' in sys.argv else 128 if '-batch1' in sys.argv else 32
+BATCH_LEVEL = 2 if '-batch2' in sys.argv else 1 if '-batch1' in sys.argv else 0
 
 # HYPER-PARAMETERS
 OUTPUT_SIZE = 8
 MAX_VAL = 15
 OUTPUT_BITS = 4
-BATCH_SIZE = BATCH_LEVEL if HPC_TRAIN else 4  # seeds in a single batch
-BATCHES = 64 if HPC_TRAIN else 10  # batches in complete dataset
+BATCH_SIZE = 256 if BATCH_LEVEL == 2 else 128 if BATCH_LEVEL == 1 else 32  # seeds in a single batch
+BATCHES = 4 if BATCH_LEVEL == 2 else 8 if BATCH_LEVEL == 1 else 32  # batches in complete dataset
 LEARNING_RATE = 0.0008
-CLIP_VALUE = 0.05
+CLIP_VALUE = 0.03
 ALPHA = 0.01
-GEN_WIDTH = 100 if BIG_GENERATOR else 10
+GEN_WIDTH = 40 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
 # losses and optimizers
@@ -102,11 +99,12 @@ EPOCHS = 100000 if HPC_TRAIN else 40
 PRE_EPOCHS = 1000 if PRETRAIN and HPC_TRAIN else 5 if PRETRAIN else 0
 ADV_MULT = 5
 RECOMPILE = '-rec' in sys.argv
+REFRESH_INPUTS = '-ref' in sys.argv
 SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
 EVAL_DATA = get_eval_input(10, 50000 if HPC_TRAIN else 10)
-LOG_EVERY_N = 1000 if HPC_TRAIN else 1
+LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
 DATA_DIR = '../output/data/'
 SEQN_DIR = '../output/sequences/'
@@ -139,7 +137,7 @@ def main():
 
     # print settings for convenience
     print('TRAINING COMPLETE')
-    print('With ' + ARCHITECTURE + ' adversaries, big generator: ' + str(BIG_GENERATOR) + '.')
+    print('With ' + ARCHITECTURE + ' adversaries.')
 
 
 def run_discgan():
@@ -158,28 +156,24 @@ def run_discgan():
 
     # main training procedure
     jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
+    seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
+    jerry_inputs = np.array([seeds, offsets]).transpose()
+
     try:
         for epoch in range(EPOCHS):
             # training data for this epoch
-            seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
-            jerry_inputs = np.array([seeds, offsets]).transpose()
+            if REFRESH_INPUTS:
+                seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
+                jerry_inputs = np.array([seeds, offsets]).transpose()
+            diego_x, diego_y = get_sequences(jerry, jerry_inputs, OUTPUT_SIZE, MAX_VAL)
 
-            for batch in range(BATCHES):
-                # generate batch data
-                jerry_x = extract_batch(jerry_inputs, batch, int(BATCH_SIZE / 2))
-                jerry_y = extract_batch(jerry_labels, batch, int(BATCH_SIZE / 2))
-                diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, MAX_VAL)
-
-                # alternate train
-                set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-                for i in range(ADV_MULT):
-                    diego_loss[epoch] += diego.train_on_batch(diego_x, diego_y)
-                set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-                jerry_loss[epoch] += discgan.train_on_batch(jerry_x, jerry_y)
+            # alternate train
+            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
+            diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
+            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
+            jerry_loss[epoch] = discgan.fit(jerry_inputs, jerry_labels, BATCH_SIZE, verbose=0).history['loss'][0]
 
             # log debug info to console
-            diego_loss[epoch] /= (BATCHES * ADV_MULT)
-            jerry_loss[epoch] /= BATCHES
             if not HPC_TRAIN or epoch % LOG_EVERY_N == 0:
                 print_epoch(epoch, gen_loss=jerry_loss[epoch], opp_loss=diego_loss[epoch])
             # check for NaNs
@@ -191,20 +185,21 @@ def run_discgan():
     except KeyboardInterrupt:
         traceback.print_exc()
 
-    # log training stats
-    plot_train_loss(jerry_loss, diego_loss, PLOT_DIR + 'discgan_train_loss.pdf')
-    log_to_file(jerry_loss, DATA_DIR + 'jerry_loss.txt')
-    log_to_file(diego_loss, DATA_DIR + 'diego_loss.txt')
-    log_to_file(jerry.get_weights(), DATA_DIR + 'jerry_weights.txt')
-    log_to_file(diego.get_weights(), DATA_DIR + 'diego_weights.txt')
-    plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
-
     # generate outputs for one seed
     values = flatten(jerry.predict(EVAL_DATA))
     log_to_file(values, DATA_DIR + 'jerry_eval_sequence.txt')
     generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
-    plot_output_histogram(values, PLOT_DIR + 'discgan_jerry_output_distribution.pdf')
-    plot_output_sequence(values, PLOT_DIR + 'discgan_jerry_output_sequence.pdf')
+    # plot_output_histogram(values, PLOT_DIR + 'discgan_jerry_output_distribution.pdf')
+    # plot_output_sequence(values, PLOT_DIR + 'discgan_jerry_output_sequence.pdf')
+
+    # log training stats
+    # plot_train_loss(jerry_loss, diego_loss, PLOT_DIR + 'discgan_train_loss.pdf')
+    log_to_file(jerry_loss, DATA_DIR + 'jerry_loss.txt')
+    log_to_file(diego_loss, DATA_DIR + 'diego_loss.txt')
+    log_to_file(jerry.get_weights(), DATA_DIR + 'jerry_weights.txt')
+    log_to_file(diego.get_weights(), DATA_DIR + 'diego_weights.txt')
+    # plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
+
     save_configuration(jerry, 'jerry')
 
 
@@ -225,51 +220,47 @@ def run_predgan():
 
     # main training procedure
     janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
+    janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
+
     try:
         for epoch in range(EPOCHS):
-            # get data for this epoch
-            janice_inputs = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
+            # get data for this epoch and generate predictions for inputs
+            if REFRESH_INPUTS:
+                janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
+            priya_x, priya_y = detach_all_last(janice.predict(janice_x))
 
-            for batch in range(BATCHES):
-                # generate predictions for this batch
-                janice_x = extract_batch(janice_inputs, batch, BATCH_SIZE)
-                priya_x, priya_y = detach_all_last(janice.predict_on_batch(janice_x))
+            # train both networks on entire dataset
+            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
+            priya_loss[epoch] = np.mean(priya.fit(priya_x, priya_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
+            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
+            janice_loss[epoch] = predgan.fit(janice_x, priya_y, BATCH_SIZE, verbose=0).history['loss'][0]
 
-                # train both networks on entire dataset
-                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
-                for i in range(ADV_MULT):
-                    priya_loss[epoch] += priya.train_on_batch(priya_x, priya_y)
-                set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-                janice_loss[epoch] += predgan.train_on_batch(janice_x, priya_y)
-
-            # update and log loss value
-            priya_loss[epoch] /= (BATCHES * ADV_MULT)
-            janice_loss[epoch] /= BATCHES
+            # log loss value
             if epoch % LOG_EVERY_N == 0:
                 print_epoch(epoch, gen_loss=janice_loss[epoch], opp_loss=priya_loss[epoch])
             # check for NaNs
             if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
                 raise ValueError()
-
     except ValueError:
         traceback.print_exc()
     except KeyboardInterrupt:
         traceback.print_exc()
 
-    # log training stats
-    plot_train_loss(janice_loss, priya_loss, PLOT_DIR + 'predgan_train_loss.pdf')
-    log_to_file(janice_loss, DATA_DIR + 'janice_loss.txt')
-    log_to_file(priya_loss, DATA_DIR + 'priya_loss.txt')
-    log_to_file(janice.get_weights(), DATA_DIR + 'janice_weights.txt')
-    log_to_file(priya.get_weights(), DATA_DIR + 'priya_weights.txt')
-    plot_network_weights(flatten(janice.get_weights()), PLOT_DIR + 'janice_weights.pdf')
-
     # generate outputs for one seed
     values = flatten(janice.predict(EVAL_DATA))
     log_to_file(values, DATA_DIR + 'janice_eval_sequence.txt')
     generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
-    plot_output_histogram(values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
-    plot_output_sequence(values, PLOT_DIR + 'predgan_janice_output_sequence.pdf')
+    # plot_output_histogram(values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
+    # plot_output_sequence(values, PLOT_DIR + 'predgan_janice_output_sequence.pdf')
+
+    # log training stats
+    # plot_train_loss(janice_loss, priya_loss, PLOT_DIR + 'predgan_train_loss.pdf')
+    log_to_file(janice_loss, DATA_DIR + 'janice_loss.txt')
+    log_to_file(priya_loss, DATA_DIR + 'priya_loss.txt')
+    log_to_file(janice.get_weights(), DATA_DIR + 'janice_weights.txt')
+    log_to_file(priya.get_weights(), DATA_DIR + 'priya_weights.txt')
+    # plot_network_weights(flatten(janice.get_weights()), PLOT_DIR + 'janice_weights.pdf')
+
     save_configuration(janice, 'janice')
 
 
@@ -388,19 +379,13 @@ def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
     outputs = Reshape(target_shape=(input_size, 1))(inputs)
     outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
     outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Flatten()(outputs)
     outputs = Reshape(target_shape=(input_size, 2))(outputs)
     outputs = LSTM(1, return_sequences=True)(outputs)
     outputs = LeakyReLU(ALPHA)(outputs)
     outputs = LSTM(1, return_sequences=True)(outputs)
     outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Flatten()(outputs)
-    outputs = Dense(4)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Dense(2)(outputs)
     outputs = LeakyReLU(ALPHA)(outputs)
     outputs = Dense(1)(outputs)
