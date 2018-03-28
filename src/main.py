@@ -68,8 +68,8 @@ GEN_WIDTH = 40 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
 # optimizers
-GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE)
-OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE)
+GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=1, beta2=1)
+OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=1, beta2=1)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
@@ -248,13 +248,13 @@ def adversary_conv(size: int):
     def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
         input_layer = tf.reshape(inputs, [-1, size])
         outputs = tf.expand_dims(input_layer, 2)
-        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
         outputs = max_pooling1d(outputs, pool_size=2, strides=1)
         outputs = flatten(outputs)
-        outputs = fully_connected(outputs, 2, activation=leaky_relu)
+        outputs = fully_connected(outputs, 4, activation=leaky_relu)
         outputs = fully_connected(outputs, 1, activation=leaky_relu)
         return outputs
 
