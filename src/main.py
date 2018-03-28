@@ -41,69 +41,46 @@ Available command line arguments:
 -rec            RECOMPILE: recompiles models when changing trainability of weights
 -lstm           LSTM: uses the lstm-only architecture for the adversaary
 -convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
--batch2         BATCH SIZE 256: use bathces of 256 elements
--batch1         BATCH SIZE 128: use batches of 128 elements
 """
 
 import sys
-import traceback
-import math
-import numpy as np
 import tensorflow as tf
-from utils.utils import log_to_file, email_report, generate_output_file, save_configuration
-from utils.operation_utils import detach_all_last, set_trainable, flatten, extract_batch
-from utils.input_utils import get_inputs, get_sequences, get_eval_input
-from utils.vis_utils import *
-from utils.debug_utils import print_gan, print_epoch
-from keras import Model
-from keras.layers import Input, Dense, Conv1D, MaxPooling1D, LSTM, Lambda, Reshape, Flatten
-from keras.layers.advanced_activations import LeakyReLU
-from keras.callbacks import EarlyStopping
-from keras.optimizers import adam
-from models.operations import drop_last_value
-from models.losses import loss_discriminator, loss_predictor, loss_disc_gan, loss_pred_gan
+import tensorflow.contrib.gan as tfgan
+from tensorflow.python.layers.core import fully_connected, flatten
+from tensorflow.python.layers.pooling import max_pooling1d
+from tensorflow.python.layers.convolutional import conv1d
+from tensorflow.contrib.rnn import LSTMCell, static_rnn
+from tensorflow.python.ops.nn import leaky_relu, sigmoid
+from utils import utils, input, operations, debug
 
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
 ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
-BATCH_LEVEL = 2 if '-batch2' in sys.argv else 1 if '-batch1' in sys.argv else 0
 
-# HYPER-PARAMETERS
+# hyper-parameters
 OUTPUT_SIZE = 8
 MAX_VAL = 15
 OUTPUT_BITS = 4
-BATCH_SIZE = 256 if BATCH_LEVEL == 2 else 128 if BATCH_LEVEL == 1 else 32  # seeds in a single batch
-BATCHES = 4 if BATCH_LEVEL == 2 else 8 if BATCH_LEVEL == 1 else 32  # batches in complete dataset
-LEARNING_RATE = 0.0008
+BATCH_SIZE = 4096 if HPC_TRAIN else 10
+LEARNING_RATE = 0.008
 CLIP_VALUE = 0.03
-ALPHA = 0.01
 GEN_WIDTH = 40 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
-# losses and optimizers
-DIEGO_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-DIEGO_LOSS = loss_discriminator
-DISC_GAN_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-DISC_GAN_LOSS = loss_disc_gan
-PRIYA_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-PRIYA_LOSS = loss_predictor
-PRED_GAN_OPT = adam(lr=LEARNING_RATE, clipvalue=CLIP_VALUE)
-PRED_GAN_LOSS = loss_pred_gan
-UNUSED_OPT = 'adagrad'
-UNUSED_LOSS = 'binary_crossentropy'
+# optimizers
+GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE)
+OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE)
 
 # training settings
-PRETRAIN = '-nopretrain' not in sys.argv
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
-EPOCHS = 100000 if HPC_TRAIN else 40
-PRE_EPOCHS = 1000 if PRETRAIN and HPC_TRAIN else 5 if PRETRAIN else 0
-ADV_MULT = 5
-RECOMPILE = '-rec' in sys.argv
-REFRESH_INPUTS = '-ref' in sys.argv
+STEPS = 150000 if HPC_TRAIN else 40
+PRE_STEPS = 1000 if HPC_TRAIN else 5
+ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
-EVAL_DATA = get_eval_input(10, 50000 if HPC_TRAIN else 10)
+EVAL_BATCHES = int(50000 / BATCH_SIZE) if HPC_TRAIN else 10
+EVAL_DATA = input.get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE)
 LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
 DATA_DIR = '../output/data/'
@@ -115,287 +92,212 @@ GRAPH_DIR = '../output/model_graphs/'
 def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
-    if '-cpu' in sys.argv:
-        with tf.device('/cpu:0'):
-            # train discriminative GAN
-            if TRAIN[0]:
-                run_discgan()
-            # train predictive GAN
-            if TRAIN[1]:
-                run_predgan()
-    else:
-        # train discriminative GAN
-        if TRAIN[0]:
-            run_discgan()
-        # train predictive GAN
-        if TRAIN[1]:
-            run_predgan()
-
-    # send off email report
-    if SEND_REPORT:
-        email_report(BATCH_SIZE, BATCHES, EPOCHS, PRE_EPOCHS)
+    # train discriminative GAN
+    if TRAIN[0]:
+        print('# DISCGAN - batch size: ', BATCH_SIZE)
+        run_discgan()
+    # train predictive GAN
+    if TRAIN[1]:
+        print('# PREDGAN - batch size: ', BATCH_SIZE)
+        run_predgan()
 
     # print settings for convenience
-    print('TRAINING COMPLETE')
-    print('With ' + ARCHITECTURE + ' adversaries.')
+    print('\n[COMPLETE] (' + ARCHITECTURE + ' adversaries)')
 
 
 def run_discgan():
-    """Constructs and trains the discriminative GAN consisting of
-    Jerry and Diego."""
-    # construct models
-    jerry, diego, discgan = construct_discgan(select_constructor(ARCHITECTURE))
-    print_gan(jerry, diego, discgan)
+    """ Constructs and trains the discriminative GAN consisting of
+    Jerry and Diego. """
+    # build the GAN model
+    discgan = tfgan.gan_model(
+        generator_fn=generator,
+        discriminator_fn=make_adversary(ARCHITECTURE, OUTPUT_SIZE),
+        real_data=tf.random_uniform(shape=[BATCH_SIZE, OUTPUT_SIZE]),
+        generator_inputs=input.get_input_tensor(BATCH_SIZE, MAX_VAL)
+    )
 
-    # pre-train Diego
-    diego_x, diego_y = get_sequences(jerry, np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose(),
-                                     OUTPUT_SIZE, MAX_VAL)
-    stopping = EarlyStopping(monitor='loss', min_delta=0.0001, patience=10, verbose=0, mode='auto')
-    plot_pretrain_loss(diego.fit(diego_x, diego_y, BATCH_SIZE, PRE_EPOCHS, verbose=1, callbacks=[stopping]),
-                       PLOT_DIR + 'diego_pretrain_loss.pdf')
+    # Build the GAN loss.
+    discgan_loss = tfgan.gan_loss(
+        discgan,
+        generator_loss_fn=tfgan.losses.minimax_generator_loss,
+        discriminator_loss_fn=tfgan.losses.minimax_discriminator_loss)
 
-    # main training procedure
-    jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
-    jerry_inputs = np.array([seeds, offsets]).transpose()
+    # Create the train ops, which calculate gradients and apply updates to weights.
+    train_ops = tfgan.gan_train_ops(
+        discgan,
+        discgan_loss,
+        generator_optimizer=GEN_OPT,
+        discriminator_optimizer=OPP_OPT)
 
-    try:
-        for epoch in range(EPOCHS):
-            # training data for this epoch
-            if REFRESH_INPUTS:
-                seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
-                jerry_inputs = np.array([seeds, offsets]).transpose()
-            diego_x, diego_y = get_sequences(jerry, jerry_inputs, OUTPUT_SIZE, MAX_VAL)
+    # run session
+    with tf.train.SingularMonitoredSession() as sess:
+        pretrain_steps_fn = tfgan.get_sequential_train_steps(tfgan.GANTrainSteps(0, PRE_STEPS))
+        train_steps_fn = tfgan.get_sequential_train_steps(tfgan.GANTrainSteps(1, ADV_MULT))
+        global_step = tf.train.get_or_create_global_step()
 
-            # alternate train
-            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-            diego_loss[epoch] = np.mean(diego.fit(diego_x, diego_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
-            set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-            jerry_loss[epoch] = discgan.fit(jerry_inputs, jerry_labels, BATCH_SIZE, verbose=0).history['loss'][0]
+        # pretrain discriminator
+        print('\n\nPretraining ... ', end="", flush=True)
+        pretrain_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
+        print('[DONE]\n\n')
 
-            # log debug info to console
-            if not HPC_TRAIN or epoch % LOG_EVERY_N == 0:
-                print_epoch(epoch, gen_loss=jerry_loss[epoch], opp_loss=diego_loss[epoch])
-            # check for NaNs
-            if math.isnan(jerry_loss[epoch]) or math.isnan(diego_loss[epoch]):
-                raise ValueError()
+        # train
+        try:
+            print('Training ...')
+            for step in range(STEPS):
+                train_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
+                if step % LOG_EVERY_N == 0:
+                    sess.run([])
+                    debug.print_step(step, discgan_loss.generator_loss.eval(session=sess),
+                                     discgan_loss.discriminator_loss.eval(session=sess))
+        except KeyboardInterrupt:
+            print('[INTERRUPTED BY USER] -- evaluating')
 
-    except ValueError:
-        traceback.print_exc()
-    except KeyboardInterrupt:
-        traceback.print_exc()
-
-    # generate outputs for one seed
-    values = flatten(jerry.predict(EVAL_DATA))
-    log_to_file(values, DATA_DIR + 'jerry_eval_sequence.txt')
-    generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
-    # plot_output_histogram(values, PLOT_DIR + 'discgan_jerry_output_distribution.pdf')
-    # plot_output_sequence(values, PLOT_DIR + 'discgan_jerry_output_sequence.pdf')
-
-    # log training stats
-    # plot_train_loss(jerry_loss, diego_loss, PLOT_DIR + 'discgan_train_loss.pdf')
-    log_to_file(jerry_loss, DATA_DIR + 'jerry_loss.txt')
-    log_to_file(diego_loss, DATA_DIR + 'diego_loss.txt')
-    log_to_file(jerry.get_weights(), DATA_DIR + 'jerry_weights.txt')
-    log_to_file(diego.get_weights(), DATA_DIR + 'diego_weights.txt')
-    # plot_network_weights(flatten(jerry.get_weights()), PLOT_DIR + 'jerry_weights.pdf')
-
-    save_configuration(jerry, 'jerry')
+        # produce output
+        output = []
+        for batch in range(EVAL_BATCHES):
+            output.append(sess.run(discgan.generated_data, {discgan.generator_inputs: EVAL_DATA[batch]}))
+        utils.generate_output_file(output, MAX_VAL, SEQN_DIR + 'jerry.txt')
+        utils.log_to_file(output, DATA_DIR + 'jerry_eval_sequence.txt')
 
 
 def run_predgan():
-    """Constructs and trains the predictive GAN consisting of
-    Janice and priya."""
-    janice, priya, predgan = construct_predgan(select_constructor(ARCHITECTURE))
-    if not HPC_TRAIN:
-        print_gan(janice, priya, predgan)
+    """ Constructs, trains and evaluates the predictive GAN consisting
+    of Janice and Priya. """
+    # tensor graphs for janice and priya are separated so that optimizers
+    # only work on intended nodes. Values are passed between janice and
+    # priya at runtime using fetches and feeds.
 
-    # pretrain priya
-    priya_x, priya_y = detach_all_last(
-        janice.predict(np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()))
-    stopping = EarlyStopping(monitor='loss', min_delta=0.0001, patience=10, verbose=0, mode='auto')
-    plot_pretrain_loss(
-        priya.fit(priya_x, priya_y, BATCH_SIZE, PRE_EPOCHS, verbose=1, callbacks=[stopping]),
-        PLOT_DIR + 'priya_pretrain_loss.pdf')
+    # janice tensor graph
+    janice_input_t = tf.placeholder(shape=[BATCH_SIZE, 2], dtype=tf.float32)
+    janice_output_t = generator(janice_input_t)
+    janice_true_t = tf.strided_slice(janice_output_t, [0, -0], [BATCH_SIZE, 1], [1, 1])
+    priya_pred_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
+    # priya tensor graph
+    priya_input_t = tf.placeholder(shape=[BATCH_SIZE, OUTPUT_SIZE - 1], dtype=tf.float32)
+    priya_label_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
+    priya_output_t = make_adversary(ARCHITECTURE, OUTPUT_SIZE - 1)(priya_input_t)
 
-    # main training procedure
-    janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
+    # losses and optimizers
+    priya_loss = tf.losses.mean_squared_error(priya_label_t, priya_output_t)
+    janice_loss = -tf.losses.mean_squared_error(janice_true_t, priya_pred_t)
+    janice_optimizer = GEN_OPT.minimize(janice_loss)
+    priya_optimizer = OPP_OPT.minimize(priya_loss)
 
-    try:
-        for epoch in range(EPOCHS):
-            # get data for this epoch and generate predictions for inputs
-            if REFRESH_INPUTS:
-                janice_x = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
-            priya_x, priya_y = detach_all_last(janice.predict(janice_x))
+    # run session
+    with tf.train.SingularMonitoredSession() as sess:
+        # train
+        # the training loop is broken into sections that are connected by
+        # fetches and feeds
+        try:
+            for step in range(STEPS):
+                batch_inputs = input.get_input_numpy(BATCH_SIZE, MAX_VAL)
+                # generate
+                janice_output_n = sess.run([janice_output_t],
+                                           feed_dict={janice_input_t: batch_inputs})
+                priya_input_n, priya_label_n = operations.slice_gen_out(janice_output_n[0])
+                # update priya
+                priya_output_n = None
+                priya_loss_epoch = None
+                for adv in range(ADV_MULT):
+                    _, priya_loss_epoch, priya_output_n = sess.run([priya_optimizer, priya_loss, priya_output_t],
+                                                                   feed_dict={priya_input_t: priya_input_n,
+                                                                              priya_label_t: priya_label_n})
+                # update janice
+                _, janice_loss_epoch = sess.run([janice_optimizer, janice_loss],
+                                                feed_dict={priya_pred_t: priya_output_n,
+                                                           janice_input_t: batch_inputs})
 
-            # train both networks on entire dataset
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
-            priya_loss[epoch] = np.mean(priya.fit(priya_x, priya_y, BATCH_SIZE, ADV_MULT, verbose=0).history['loss'])
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            janice_loss[epoch] = predgan.fit(janice_x, priya_y, BATCH_SIZE, verbose=0).history['loss'][0]
+                if step % LOG_EVERY_N == 0:
+                    debug.print_step(step, janice_loss_epoch, priya_loss_epoch)
+        except KeyboardInterrupt:
+            print('[INTERRUPTED BY USER] -- evaluating')
 
-            # log loss value
-            if epoch % LOG_EVERY_N == 0:
-                print_epoch(epoch, gen_loss=janice_loss[epoch], opp_loss=priya_loss[epoch])
-            # check for NaNs
-            if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
-                raise ValueError()
-    except ValueError:
-        traceback.print_exc()
-    except KeyboardInterrupt:
-        traceback.print_exc()
-
-    # generate outputs for one seed
-    values = flatten(janice.predict(EVAL_DATA))
-    log_to_file(values, DATA_DIR + 'janice_eval_sequence.txt')
-    generate_output_file(values, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
-    # plot_output_histogram(values, PLOT_DIR + 'predgan_janice_output_distribution.pdf')
-    # plot_output_sequence(values, PLOT_DIR + 'predgan_janice_output_sequence.pdf')
-
-    # log training stats
-    # plot_train_loss(janice_loss, priya_loss, PLOT_DIR + 'predgan_train_loss.pdf')
-    log_to_file(janice_loss, DATA_DIR + 'janice_loss.txt')
-    log_to_file(priya_loss, DATA_DIR + 'priya_loss.txt')
-    log_to_file(janice.get_weights(), DATA_DIR + 'janice_weights.txt')
-    log_to_file(priya.get_weights(), DATA_DIR + 'priya_weights.txt')
-    # plot_network_weights(flatten(janice.get_weights()), PLOT_DIR + 'janice_weights.pdf')
-
-    save_configuration(janice, 'janice')
-
-
-def construct_discgan(constructor):
-    """Defines and compiles the models for Jerry, Diego, and the connected discgan."""
-    # define Jerry
-    jerry_input, jerry = construct_generator('jerry')
-    # define Diego
-    diego_input, diego = constructor(OUTPUT_SIZE, DIEGO_OPT, DIEGO_LOSS, 'diego')
-    # define the connected GAN
-    discgan_output = jerry(jerry_input)
-    discgan_output = diego(discgan_output)
-    discgan = Model(jerry_input, discgan_output)
-    discgan.compile(DISC_GAN_OPT, DISC_GAN_LOSS)
-    plot_network_graphs(discgan, 'discriminative_gan')
-    return jerry, diego, discgan
+        # produce output
+        output = []
+        for batch in range(EVAL_BATCHES):
+            output.append(sess.run(janice_output_t, {janice_input_t: EVAL_DATA[batch]}))
+        utils.generate_output_file(output, MAX_VAL, SEQN_DIR + 'janice.txt')
+        utils.log_to_file(output, DATA_DIR + 'janice_eval_sequence.txt')
 
 
-def construct_predgan(constructor):
-    """Defines and compiles the models for Janice, Priya, and the connected predgan. """
-    # define janice
-    janice_input, janice = construct_generator('janice')
-    # define priya
-    priya_input, priya = constructor(OUTPUT_SIZE - 1, PRIYA_OPT, PRIYA_LOSS, 'priya')
-    # connect GAN
-    output_predgan = janice(janice_input)
-    output_predgan = Lambda(
-        drop_last_value(OUTPUT_SIZE, BATCH_SIZE),
-        name='adversarial_drop_last_value')(output_predgan)
-    output_predgan = priya(output_predgan)
-    predgan = Model(janice_input, output_predgan, name='predictive_gan')
-    predgan.compile(PRED_GAN_OPT, PRED_GAN_LOSS)
-    plot_network_graphs(predgan, 'predictive_gan')
-    return janice, priya, predgan
-
-
-def select_constructor(name: str):
+def make_adversary(architecture: str, input_size: int):
     return {
-        'conv': construct_adversary_conv,
-        'lstm': construct_adversary_lstm,
-        'convlstm': construct_adversary_convlstm
-    }[name]
+        'conv': adversary_conv(input_size),
+        'lstm': adversary_lstm(input_size),
+        'convlstm': adversary_convlstm(input_size)
+    }[architecture]
 
 
-def construct_generator(name: str):
-    inputs = Input(shape=(2,))
-    outputs = Dense(GEN_WIDTH)(inputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(GEN_WIDTH)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(GEN_WIDTH)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(GEN_WIDTH)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(OUTPUT_SIZE)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    generator = Model(inputs, outputs, name=name)
-
-    generator.compile(UNUSED_OPT, UNUSED_LOSS)
-    plot_network_graphs(generator, name)
-    save_configuration(generator, name)
-    return inputs, generator
+def generator(noise, weight_decay=2.5e-5, is_training=True) -> tf.Tensor:
+    """ Symbolic tensor operations representing the generator neural network. """
+    input_layer = tf.reshape(noise, [-1, 2])
+    outputs = fully_connected(input_layer, GEN_WIDTH, activation=leaky_relu)
+    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+    outputs = fully_connected(outputs, OUTPUT_SIZE, activation=sigmoid)
+    outputs = tf.scalar_mul(MAX_VAL, outputs)
+    return outputs
 
 
-def construct_adversary_conv(input_size, optimizer, loss, name: str):
-    inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = MaxPooling1D(2)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = MaxPooling1D(2)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Dense(2)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(1)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    discriminator = Model(inputs, outputs)
+def adversary_conv(size: int):
+    """ Returns a function representing the symbolic Tensor operations computed
+        by the convolutional opponent architecture, where the input layer of the
+        network is given as an argument. """
 
-    discriminator.compile(optimizer, loss)
-    plot_network_graphs(discriminator, name)
-    return inputs, discriminator
+    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
+        input_layer = tf.reshape(inputs, [-1, size])
+        outputs = tf.expand_dims(input_layer, 2)
+        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = max_pooling1d(outputs, pool_size=2, strides=1)
+        outputs = flatten(outputs)
+        outputs = fully_connected(outputs, 2, activation=leaky_relu)
+        outputs = fully_connected(outputs, 1, activation=leaky_relu)
+        return outputs
+
+    return closure
 
 
-def construct_adversary_lstm(input_size, optimizer, loss, name: str):
-    inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Dense(int(input_size / 2))(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(2)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(1)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    discriminator = Model(inputs, outputs)
-    discriminator.compile(optimizer, loss)
+def adversary_lstm(size: int):
+    """ Returns a function representing the symbolic Tensor operations computed
+        by the lstm opponent architecture, where the input layer of the
+        network is given as an argument. """
 
-    discriminator.compile(DIEGO_OPT, DIEGO_LOSS)
-    plot_network_graphs(discriminator, name)
-    return inputs, discriminator
+    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
+        input_layer = tf.reshape(inputs, [-1, size])
+        outputs = tf.expand_dims(input_layer, 0)
+        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
+        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
+        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
+        outputs = flatten(outputs)
+        outputs = fully_connected(outputs, 2, activation=leaky_relu)
+        outputs = fully_connected(outputs, 1, activation=leaky_relu)
+        return outputs
+
+    return closure
 
 
-def construct_adversary_convlstm(input_size, optimizer, loss, name: str):
-    inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Reshape(target_shape=(input_size, 2))(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Dense(2)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(1)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    discriminator = Model(inputs, outputs)
-    discriminator.compile(optimizer, loss)
+def adversary_convlstm(size: int):
+    """ Returns a function representing the symbolic Tensor operations computed
+        by the hybrid convolutional-lstm opponent architecture, where the input layer
+        of the network is given as an argument. """
 
-    discriminator.compile(DIEGO_OPT, DIEGO_LOSS)
-    plot_network_graphs(discriminator, name)
-    return inputs, discriminator
+    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
+        input_layer = tf.reshape(inputs, [-1, size])
+        outputs = tf.expand_dims(input_layer, 2)
+        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
+        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
+        outputs = flatten(outputs)
+        outputs = fully_connected(outputs, 2, activation=leaky_relu)
+        outputs = fully_connected(outputs, 1, activation=leaky_relu)
+        return outputs
+
+    return closure
 
 
 if __name__ == '__main__':
