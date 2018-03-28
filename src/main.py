@@ -49,13 +49,11 @@ import tensorflow.contrib.gan as tfgan
 from tensorflow.python.layers.core import fully_connected, flatten
 from tensorflow.python.layers.pooling import max_pooling1d
 from tensorflow.python.layers.convolutional import conv1d
-from tensorflow.contrib.rnn import LSTMCell, static_rnn
 from tensorflow.python.ops.nn import leaky_relu, sigmoid
 from utils import utils, input, operations, debug
 
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
-ARCHITECTURE = 'lstm' if '-lstm' in sys.argv else 'convlstm' if '-convlstm' in sys.argv else 'conv'
 
 # hyper-parameters
 OUTPUT_SIZE = 8
@@ -102,7 +100,7 @@ def main():
         run_predgan()
 
     # print settings for convenience
-    print('\n[COMPLETE] (' + ARCHITECTURE + ' adversaries)')
+    print('\n[COMPLETE] (DISCGAN: ' + str(TRAIN[0]) + ', PREDGAN: ' + str(TRAIN[1]) + ')')
 
 
 def run_discgan():
@@ -111,7 +109,7 @@ def run_discgan():
     # build the GAN model
     discgan = tfgan.gan_model(
         generator_fn=generator,
-        discriminator_fn=make_adversary(ARCHITECTURE, OUTPUT_SIZE),
+        discriminator_fn=adversary_conv(OUTPUT_SIZE),
         real_data=tf.random_uniform(shape=[BATCH_SIZE, OUTPUT_SIZE]),
         generator_inputs=input.get_input_tensor(BATCH_SIZE, MAX_VAL)
     )
@@ -137,7 +135,10 @@ def run_discgan():
 
         # pretrain discriminator
         print('\n\nPretraining ... ', end="", flush=True)
-        pretrain_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
+        try:
+            pretrain_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
+        except KeyboardInterrupt:
+            pass
         print('[DONE]\n\n')
 
         # train
@@ -175,7 +176,7 @@ def run_predgan():
     # priya tensor graph
     priya_input_t = tf.placeholder(shape=[BATCH_SIZE, OUTPUT_SIZE - 1], dtype=tf.float32)
     priya_label_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
-    priya_output_t = make_adversary(ARCHITECTURE, OUTPUT_SIZE - 1)(priya_input_t)
+    priya_output_t = adversary_conv(OUTPUT_SIZE - 1)(priya_input_t)
 
     # losses and optimizers
     priya_loss = tf.losses.mean_squared_error(priya_label_t, priya_output_t)
@@ -220,21 +221,17 @@ def run_predgan():
         utils.log_to_file(output, DATA_DIR + 'janice_eval_sequence.txt')
 
 
-def make_adversary(architecture: str, input_size: int):
-    return {
-        'conv': adversary_conv(input_size),
-        'lstm': adversary_lstm(input_size),
-        'convlstm': adversary_convlstm(input_size)
-    }[architecture]
-
-
 def generator(noise, weight_decay=2.5e-5, is_training=True) -> tf.Tensor:
     """ Symbolic tensor operations representing the generator neural network. """
     input_layer = tf.reshape(noise, [-1, 2])
     outputs = fully_connected(input_layer, GEN_WIDTH, activation=leaky_relu)
     outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+    outputs = tf.expand_dims(outputs, 2)
+    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+    outputs = flatten(outputs)
     outputs = fully_connected(outputs, OUTPUT_SIZE, activation=sigmoid)
     outputs = tf.scalar_mul(MAX_VAL, outputs)
     return outputs
@@ -248,52 +245,13 @@ def adversary_conv(size: int):
     def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
         input_layer = tf.reshape(inputs, [-1, size])
         outputs = tf.expand_dims(input_layer, 2)
-        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=8, kernel_size=2, strides=1, activation=leaky_relu)
+        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
+        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
         outputs = max_pooling1d(outputs, pool_size=2, strides=1)
         outputs = flatten(outputs)
         outputs = fully_connected(outputs, 4, activation=leaky_relu)
-        outputs = fully_connected(outputs, 1, activation=leaky_relu)
-        return outputs
-
-    return closure
-
-
-def adversary_lstm(size: int):
-    """ Returns a function representing the symbolic Tensor operations computed
-        by the lstm opponent architecture, where the input layer of the
-        network is given as an argument. """
-
-    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
-        input_layer = tf.reshape(inputs, [-1, size])
-        outputs = tf.expand_dims(input_layer, 0)
-        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
-        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
-        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
-        outputs = flatten(outputs)
-        outputs = fully_connected(outputs, 2, activation=leaky_relu)
-        outputs = fully_connected(outputs, 1, activation=leaky_relu)
-        return outputs
-
-    return closure
-
-
-def adversary_convlstm(size: int):
-    """ Returns a function representing the symbolic Tensor operations computed
-        by the hybrid convolutional-lstm opponent architecture, where the input layer
-        of the network is given as an argument. """
-
-    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
-        input_layer = tf.reshape(inputs, [-1, size])
-        outputs = tf.expand_dims(input_layer, 2)
-        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = conv1d(outputs, filters=2, kernel_size=2, strides=1, activation=leaky_relu)
-        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
-        outputs = static_rnn(LSTMCell(size, activation=leaky_relu), outputs, sequence_length=size)
-        outputs = flatten(outputs)
-        outputs = fully_connected(outputs, 2, activation=leaky_relu)
         outputs = fully_connected(outputs, 1, activation=leaky_relu)
         return outputs
 
