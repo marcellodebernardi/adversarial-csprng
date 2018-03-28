@@ -24,7 +24,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from utils import operation_utils, input_utils
+from utils import operations, input
 from keras import Model
 
 
@@ -34,16 +34,13 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def save_configuration(model, name):
-    model.save('../output/saved_models/' + str(name) + '.h5', overwrite=True)
-
-
 def generate_output_file(values, val_bits, fname=None):
     """Produces an ASCII output text file consisting of 0s and 1s.
     Such a file can be evaluated by the NIST test suite."""
-    values = operation_utils.flatten(values)
+    values = operations.flatten(values)
     binary_strings \
-        = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '')) for number in values]
+        = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '').replace('-', '')) for
+           number in values]
 
     with open(fname, 'w') as file:
         for bin_str in binary_strings:
@@ -54,20 +51,6 @@ def log_to_file(logs, fname: str):
     """Writes the given data array to the given file. No prettifying."""
     with open(fname, 'w') as file:
         file.write(str(logs))
-
-
-def log_adversary_predictions(gan: Model):
-    inputs = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
-    outputs = gan.predict(inputs)
-    print(outputs)
-
-    inputs = np.array([11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
-    outputs = gan.predict(inputs)
-    print(outputs)
-
-    with open('../output/logs/' + str(gan.name) + '.txt', 'w') as file:
-        for pred in outputs:
-            file.write(str(pred) + " ")
 
 
 def email_report(batch_size, batches, epochs, pretrain_epochs) -> bool:

@@ -20,9 +20,7 @@ of the model weights, etc.
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
-from keras import Model
-from keras.utils import plot_model
-from utils.operation_utils import flatten
+from utils.operations import flatten
 
 
 def plot_pretrain_loss(history, fname):
