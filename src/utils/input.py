@@ -42,7 +42,7 @@ def get_input_numpy(batch_size, max_val) -> np.ndarray:
         ))
 
 
-def get_eval_input_numpy(seed, length, batch_size) -> np.ndarray:
+def get_eval_input_numpy(seed, length, batch_size, max_val) -> np.ndarray:
     """ Returns an input dataset that can be used to produce a full output
     sequence using a trained generator. This method returns a 2D numpy array
     where each inner array is an (seed, offset) pair. """
