@@ -22,26 +22,41 @@ import tensorflow as tf
 
 
 def modulo(divisor, with_activation=None):
-    """Activation function that uses the given standard activation
-        function and then applies a modulo operation to its output."""
-    def mod_act(input_value):
+    """ Activation function that uses the given standard activation
+        function and then applies a modulo operation to its output. """
+
+    def mod_act(input_value: tf.Tensor) -> tf.Tensor:
         if with_activation is not None:
-            return with_activation(input_value) % divisor
-        else:
-            return input_value % divisor
+            input_value = with_activation(input_value)
+        return tf.mod(input_value, divisor)
+
     return mod_act
 
 
-def absolute(input_value):
-    """Returns the absolute value of the given input."""
-    return abs(input_value)
-
-
 def bounding_clip(max_bound, negatives=False):
-    """Activation function that scales the output from the range [-max, max] to
-     the range [0, 1]. Everything below -max is mapped to 0, and everything above
-     max is mapped to 1. Within the range [-max, max], everything is mapped
-     linearly into the [0, 1] range."""
-    def activation(input_value):
+    """ Activation function that scales the output from the range [-max, max] to
+        the range [0, 1]. Everything below -max is mapped to 0, and everything above
+        max is mapped to 1. Within the range [-max, max], everything is mapped
+        linearly into the [0, 1] range."""
+
+    def activation(input_value: tf.Tensor) -> tf.Tensor:
         return tf.clip_by_value(input_value, -max_bound if negatives else 0, max_bound)
+
+    return activation
+
+
+def leaky_bounding_clip(max_bound, negatives=False, alpha=0.01):
+    lower_bound = tf.constant(-max_bound if negatives else 0)
+    max_bound = tf.constant(max_bound)
+
+    def activation(input_value: tf.Tensor) -> tf.Tensor:
+        return tf.cond(
+            tf.less(input_value, lower_bound),
+            lambda: tf.add(lower_bound, tf.mul(tf.sub(input_value, lower_bound), alpha)),
+            tf.cond(
+                tf.greater(input_value, max_bound),
+                lambda: tf.add(max_bound, tf.mul(tf.sub(input_value, max_bound), alpha)),
+                lambda: input_value)
+        )
+
     return activation

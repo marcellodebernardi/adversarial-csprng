@@ -50,6 +50,7 @@ from tensorflow.python.layers.core import fully_connected, flatten
 from tensorflow.python.layers.pooling import max_pooling1d
 from tensorflow.python.layers.convolutional import conv1d
 from tensorflow.python.ops.nn import leaky_relu, sigmoid
+from activations import modulo
 from utils import utils, input, operations, debug
 
 # main settings
@@ -78,7 +79,7 @@ SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
 EVAL_BATCHES = int(50000 / BATCH_SIZE) if HPC_TRAIN else 10
-EVAL_DATA = input.get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE)
+EVAL_DATA = input.get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE, MAX_VAL)
 LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
 DATA_DIR = '../output/data/'
@@ -156,7 +157,9 @@ def run_discgan():
         # produce output
         output = []
         for batch in range(EVAL_BATCHES):
-            output.append(sess.run(discgan.generated_data, {discgan.generator_inputs: EVAL_DATA[batch]}))
+            j_out = sess.run(discgan.generated_data, {discgan.generator_inputs: EVAL_DATA[batch]})
+            print(EVAL_DATA[batch])
+            print(j_out)
         utils.generate_output_file(output, MAX_VAL, SEQN_DIR + 'jerry.txt')
         utils.log_to_file(output, DATA_DIR + 'jerry_eval_sequence.txt')
 
@@ -216,7 +219,9 @@ def run_predgan():
         # produce output
         output = []
         for batch in range(EVAL_BATCHES):
-            output.append(sess.run(janice_output_t, {janice_input_t: EVAL_DATA[batch]}))
+            j_out = sess.run(janice_output_t, {janice_input_t: EVAL_DATA[batch]})
+            print(EVAL_DATA[batch])
+            print(j_out)
         utils.generate_output_file(output, MAX_VAL, SEQN_DIR + 'janice.txt')
         utils.log_to_file(output, DATA_DIR + 'janice_eval_sequence.txt')
 
@@ -232,7 +237,7 @@ def generator(noise, weight_decay=2.5e-5, is_training=True) -> tf.Tensor:
     outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
     outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
     outputs = flatten(outputs)
-    outputs = fully_connected(outputs, OUTPUT_SIZE, activation=sigmoid)
+    outputs = fully_connected(outputs, OUTPUT_SIZE, activation=modulo(MAX_VAL))
     outputs = tf.scalar_mul(MAX_VAL, outputs)
     return outputs
 
