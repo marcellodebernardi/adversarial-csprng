@@ -35,12 +35,8 @@ The main function defines these networks and trains them.
 
 Available command line arguments:
 -t              TEST MODE: runs model with reduced size and few iterations
--nopretrain     SKIP PRETRAINING: does not perform pretraining of the adversary
 -nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
--rec            RECOMPILE: recompiles models when changing trainability of weights
--lstm           LSTM: uses the lstm-only architecture for the adversaary
--convlstm       CONVOLUTIONAL LSTM: uses the convolution + lstm mixed architecture for adversary
 """
 
 import sys
@@ -49,8 +45,8 @@ import tensorflow.contrib.gan as tfgan
 from tensorflow.python.layers.core import fully_connected, flatten
 from tensorflow.python.layers.pooling import max_pooling1d
 from tensorflow.python.layers.convolutional import conv1d
-from tensorflow.python.ops.nn import leaky_relu, sigmoid
-from activations import modulo
+from tensorflow.python.ops.nn import leaky_relu
+from models.activations import modulo
 from utils import utils, input, operations, debug
 
 # main settings
@@ -226,7 +222,7 @@ def run_predgan():
         utils.log_to_file(output, DATA_DIR + 'janice_eval_sequence.txt')
 
 
-def generator(noise, weight_decay=2.5e-5, is_training=True) -> tf.Tensor:
+def generator(noise) -> tf.Tensor:
     """ Symbolic tensor operations representing the generator neural network. """
     input_layer = tf.reshape(noise, [-1, 2])
     outputs = fully_connected(input_layer, GEN_WIDTH, activation=leaky_relu)
