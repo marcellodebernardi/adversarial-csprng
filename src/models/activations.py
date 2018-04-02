@@ -31,32 +31,3 @@ def modulo(divisor, with_activation=None):
         return tf.mod(input_value, divisor)
 
     return mod_act
-
-
-def bounding_clip(max_bound, negatives=False):
-    """ Activation function that scales the output from the range [-max, max] to
-        the range [0, 1]. Everything below -max is mapped to 0, and everything above
-        max is mapped to 1. Within the range [-max, max], everything is mapped
-        linearly into the [0, 1] range."""
-
-    def activation(input_value: tf.Tensor) -> tf.Tensor:
-        return tf.clip_by_value(input_value, -max_bound if negatives else 0, max_bound)
-
-    return activation
-
-
-def leaky_bounding_clip(max_bound, negatives=False, alpha=0.01):
-    lower_bound = tf.constant(-max_bound if negatives else 0)
-    max_bound = tf.constant(max_bound)
-
-    def activation(input_value: tf.Tensor) -> tf.Tensor:
-        return tf.cond(
-            tf.less(input_value, lower_bound),
-            lambda: tf.add(lower_bound, tf.mul(tf.sub(input_value, lower_bound), alpha)),
-            tf.cond(
-                tf.greater(input_value, max_bound),
-                lambda: tf.add(max_bound, tf.mul(tf.sub(input_value, max_bound), alpha)),
-                lambda: input_value)
-        )
-
-    return activation

@@ -53,7 +53,7 @@ def get_eval_input_numpy(seed, length, batch_size, max_val) -> np.ndarray:
         batch = []
         for item in range(batch_size):
             batch.append([seed, offset])
-            offset += 1
+            offset = offset + 1 if offset + 1 <= max_val else 0
         data.append(batch)
 
     return np.array(data)
