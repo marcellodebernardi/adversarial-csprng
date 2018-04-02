@@ -114,8 +114,8 @@ def run_discgan():
     # Build the GAN loss.
     discgan_loss = tfgan.gan_loss(
         discgan,
-        generator_loss_fn=tfgan.losses.minimax_generator_loss,
-        discriminator_loss_fn=tfgan.losses.minimax_discriminator_loss)
+        generator_loss_fn=tfgan.losses.least_squares_generator_loss,
+        discriminator_loss_fn=tfgan.losses.least_squares_discriminator_loss)
 
     # Create the train ops, which calculate gradients and apply updates to weights.
     train_ops = tfgan.gan_train_ops(
@@ -228,12 +228,8 @@ def generator(noise) -> tf.Tensor:
     input_layer = tf.reshape(noise, [-1, 2])
     outputs = fully_connected(input_layer, GEN_WIDTH, activation=leaky_relu)
     outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = tf.expand_dims(outputs, 2)
-    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-    outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-    outputs = flatten(outputs)
+    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
     outputs = fully_connected(outputs, OUTPUT_SIZE, activation=modulo(MAX_VAL))
     return outputs
 
