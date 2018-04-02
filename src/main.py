@@ -56,10 +56,10 @@ HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect 
 OUTPUT_SIZE = 8
 MAX_VAL = 15
 OUTPUT_BITS = 4
-BATCH_SIZE = 4096 if HPC_TRAIN else 10
+BATCH_SIZE = 2046 if HPC_TRAIN else 10
 LEARNING_RATE = 0.008
 CLIP_VALUE = 0.03
-GEN_WIDTH = 40 if HPC_TRAIN else 10
+GEN_WIDTH = 30 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
 # optimizers
@@ -156,7 +156,7 @@ def run_discgan():
             j_out = sess.run(discgan.generated_data, {discgan.generator_inputs: EVAL_DATA[batch]})
             print(EVAL_DATA[batch])
             print(j_out)
-        utils.generate_output_file(output, MAX_VAL, SEQN_DIR + 'jerry.txt')
+        utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
         utils.log_to_file(output, DATA_DIR + 'jerry_eval_sequence.txt')
 
 
@@ -216,9 +216,10 @@ def run_predgan():
         output = []
         for batch in range(EVAL_BATCHES):
             j_out = sess.run(janice_output_t, {janice_input_t: EVAL_DATA[batch]})
+            output.extend(j_out)
             print(EVAL_DATA[batch])
             print(j_out)
-        utils.generate_output_file(output, MAX_VAL, SEQN_DIR + 'janice.txt')
+        utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
         utils.log_to_file(output, DATA_DIR + 'janice_eval_sequence.txt')
 
 
@@ -234,7 +235,6 @@ def generator(noise) -> tf.Tensor:
     outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
     outputs = flatten(outputs)
     outputs = fully_connected(outputs, OUTPUT_SIZE, activation=modulo(MAX_VAL))
-    outputs = tf.scalar_mul(MAX_VAL, outputs)
     return outputs
 
 
