@@ -68,8 +68,9 @@ OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
+EVAL_EVERY_N = 15000 if HPC_TRAIN else 10
 STEPS = 150000 if HPC_TRAIN else 40
-PRE_STEPS = 1000 if HPC_TRAIN else 5
+PRE_STEPS = 100 if HPC_TRAIN else 5
 ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
 
@@ -80,7 +81,6 @@ LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
 DATA_DIR = '../output/data/'
 SEQN_DIR = '../output/sequences/'
-MODEL_DIR = '../output/saved_models/'
 GRAPH_DIR = '../output/model_graphs/'
 
 
@@ -140,6 +140,7 @@ def run_discgan():
 
         # train
         try:
+            evaluation_counter = 0
             print('Training ...')
             for step in range(STEPS):
                 train_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
@@ -147,17 +148,15 @@ def run_discgan():
                     sess.run([])
                     debug.print_step(step, discgan_loss.generator_loss.eval(session=sess),
                                      discgan_loss.discriminator_loss.eval(session=sess))
+                if step % EVAL_EVERY_N == 0:
+                    evaluate(sess, discgan.generated_data, discgan.generator_inputs, evaluation_counter, 'jerry')
+                    evaluation_counter += 1
+
         except KeyboardInterrupt:
             print('[INTERRUPTED BY USER] -- evaluating')
 
         # produce output
-        output = []
-        for batch in range(EVAL_BATCHES):
-            j_out = sess.run(discgan.generated_data, {discgan.generator_inputs: EVAL_DATA[batch]})
-            print(EVAL_DATA[batch])
-            print(j_out)
-        utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + 'jerry.txt')
-        utils.log_to_file(output, DATA_DIR + 'jerry_eval_sequence.txt')
+        evaluate(sess, discgan.generated_data, discgan.generator_inputs, -1, 'jerry')
 
 
 def run_predgan():
@@ -189,6 +188,8 @@ def run_predgan():
         # the training loop is broken into sections that are connected by
         # fetches and feeds
         try:
+            evaluation_counter = 0
+
             for step in range(STEPS):
                 batch_inputs = input.get_input_numpy(BATCH_SIZE, MAX_VAL)
                 # generate
@@ -209,18 +210,15 @@ def run_predgan():
 
                 if step % LOG_EVERY_N == 0:
                     debug.print_step(step, janice_loss_epoch, priya_loss_epoch)
+                if step % EVAL_EVERY_N == 0:
+                    evaluate(sess, janice_output_t, janice_input_t, evaluation_counter, 'janice')
+                    evaluation_counter += 1
+
         except KeyboardInterrupt:
             print('[INTERRUPTED BY USER] -- evaluating')
 
         # produce output
-        output = []
-        for batch in range(EVAL_BATCHES):
-            j_out = sess.run(janice_output_t, {janice_input_t: EVAL_DATA[batch]})
-            output.extend(j_out)
-            print(EVAL_DATA[batch])
-            print(j_out)
-        utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + 'janice.txt')
-        utils.log_to_file(output, DATA_DIR + 'janice_eval_sequence.txt')
+        evaluate(sess, janice_output_t, janice_input_t, -1, 'janice')
 
 
 def generator(noise) -> tf.Tensor:
@@ -253,6 +251,15 @@ def adversary_conv(size: int):
         return outputs
 
     return closure
+
+
+def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str):
+    output = []
+    for batch in range(EVAL_BATCHES):
+        j_out = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
+        output.extend(j_out)
+    utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + str(iteration) + '_' + name + '.txt')
+    utils.log_to_file(output, DATA_DIR + name + '_eval_sequence.txt')
 
 
 if __name__ == '__main__':
