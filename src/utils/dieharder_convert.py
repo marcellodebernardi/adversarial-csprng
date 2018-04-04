@@ -18,17 +18,24 @@ generators into the format required by the dieharder test suite.
 
 import sys
 import glob
+from tqdm import tqdm
 
 
 def main():
     """ Constructs the neural networks, trains them, and logs
     all relevant information."""
-    for filename in glob.glob(sys.argv[0]):
+    for filename in tqdm(glob.glob(sys.argv[1]), 'converting: '):
         new_filename = filename[:-4] + '_edited.txt'
 
         # for each file, open and create edited
-        with open(filename) as file, open(new_filename) as new_file:
+        with open(filename) as file, open(new_filename, 'w') as new_file:
             data = file.read()
+
+            # file header
+            new_file.write('#==========\n' + '# dieharder test\n' + '#==========\n'
+                           + 'type: d\n'
+                           + 'count: ' + str(len(data) % 32) + '\n'
+                           + 'numbit: 32\n')
 
             while len(data) > 31:
                 new_file.write(str(int(data[0:31], 2)) + '\n')
