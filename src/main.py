@@ -37,7 +37,6 @@ Available command line arguments:
 -t              TEST MODE: runs model with reduced size and few iterations
 -nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
--learn2         HIGH LEARNING RATE
 """
 
 import sys
@@ -52,14 +51,14 @@ from utils import utils, input, operations, debug
 
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
-LEARN_LEVEL = 2 if '-highlr' in sys.argv else 0 if 'lowlr' in sys.argv else 1
+LEARN_LEVEL = 3 if '-veryhighlr' in sys.argv else 2 if '-highlr' in sys.argv else 0 if '-lowlr' in sys.argv else 1
 
 # hyper-parameters
 OUTPUT_SIZE = 8
-MAX_VAL = 4294967295
-OUTPUT_BITS = 32
+MAX_VAL = 65535
+OUTPUT_BITS = 16
 BATCH_SIZE = 2046 if HPC_TRAIN else 10
-LEARNING_RATE = 0.5 if LEARN_LEVEL == 2 else 0.02 if LEARN_LEVEL == 1 else 0.008
+LEARNING_RATE = {3: 0.2, 2: 0.1, 1: 0.02, 0: 0.008}[LEARN_LEVEL]
 GEN_WIDTH = 30 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
@@ -76,7 +75,7 @@ ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
-EVAL_BATCHES = int(200000 / BATCH_SIZE) if HPC_TRAIN else 10
+EVAL_BATCHES = int(400000 / BATCH_SIZE) if HPC_TRAIN else 10
 EVAL_DATA = input.get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE, MAX_VAL)
 LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
