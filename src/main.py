@@ -259,7 +259,7 @@ def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str)
         j_out = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
         output.extend(j_out)
     utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + str(iteration) + '_' + name + '.txt')
-    utils.log_to_file(output, DATA_DIR + name + '_eval_sequence.txt')
+    utils.log_to_file(output, SEQN_DIR + str(iteration) + '_' + name + '_eval_sequence.txt')
 
 
 if __name__ == '__main__':

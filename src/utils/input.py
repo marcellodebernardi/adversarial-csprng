@@ -27,7 +27,7 @@ def get_input_tensor(batch_size, max_val) -> tf.Tensor:
     return tf.transpose(
         tf.stack(
             [tf.fill([batch_size], tf.random_uniform(shape=[], minval=0, maxval=max_val)),
-             tf.random_uniform(shape=[batch_size], minval=0, maxval=max_val)],
+             tf.random_uniform(shape=[batch_size], minval=0, maxval=batch_size)],
         ))
 
 
@@ -38,7 +38,7 @@ def get_input_numpy(batch_size, max_val) -> np.ndarray:
     return np.transpose(
         np.stack(
             [np.full([batch_size], fill_value=np.random.uniform(size=[], low=0, high=max_val)),
-             np.random.uniform(size=[batch_size], low=0, high=max_val)]
+             np.random.uniform(size=[batch_size], low=0, high=batch_size)]
         ))
 
 
@@ -53,7 +53,7 @@ def get_eval_input_numpy(seed, length, batch_size, max_val) -> np.ndarray:
         batch = []
         for item in range(batch_size):
             batch.append([seed, offset])
-            offset = offset + 1 if offset + 1 <= max_val else 0
+            offset = offset + 1
         data.append(batch)
 
     return np.array(data)
