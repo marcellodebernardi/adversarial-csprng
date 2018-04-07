@@ -18,14 +18,12 @@ into text files and emailing a report after training.
 """
 
 import sys
-import numpy as np
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from utils import operations, input
-from keras import Model
+from utils import operations
 
 
 def eprint(*args, **kwargs):
@@ -50,7 +48,7 @@ def generate_output_file(values, val_bits, fname=None):
 def log_to_file(logs, fname: str):
     """Writes the given data array to the given file. No prettifying."""
     with open(fname, 'w') as file:
-        file.write(str(logs))
+        file.write(str(operations.flatten(logs)))
 
 
 def email_report(batch_size, batches, epochs, pretrain_epochs) -> bool:

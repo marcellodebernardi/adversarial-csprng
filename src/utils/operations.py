@@ -24,28 +24,33 @@ from keras import Model
 
 
 def slice_gen_out(generator_output: np.ndarray) -> (np.ndarray, np.ndarray):
-    """For an array of outputs produced by a generator, where each element in the
-    array is an array of real numbers, splits all the inner array into two, such that
-    the first resulting array contains all elements of the original inner array minus
-    n_to_predict items, and the second contains the last n_to_predict items."""
+    """ For an array of outputs produced by a generator, where each element in the
+        array is an array of real numbers, splits all the inner array into two, such that
+        the first resulting array contains all elements of the original inner array minus
+        n_to_predict items, and the second contains the last n_to_predict items.
+    """
     data = generator_output
     return data[:, :-1], np.reshape(data[:, -1], [len(generator_output), 1])
 
 
 def log(x, base) -> tf.Tensor:
-    """Allows computing element-wise logarithms on a Tensor, in
-    any base. TensorFlow itself only has a natural logarithm
-    operation."""
+    """ Allows computing element-wise logarithms on a Tensor, in
+        any base. TensorFlow itself only has a natural logarithm
+        operation.
+    """
     numerator = tf.log(x)
     denominator = tf.log(tf.constant(base, dtype=numerator.dtype))
     return numerator / denominator
 
 
 def flatten(weight_matrix) -> list:
-    """Allows flattening a matrix of iterables where the specific type
-    and shape of each iterable is not necessarily the same. Returns
-    the individual elements of the original nested iterable in a single
-    flat list.
+    """ Allows flattening a matrix of iterables where the specific type
+        and shape of each iterable is not necessarily the same. Returns
+        the individual elements of the original nested iterable in a single
+        flat list.
+
+        Note that this operation's implementation is rather slow, and should
+        be avoided unless necessary.
     """
     flattened_list = []
     try:

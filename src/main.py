@@ -40,6 +40,7 @@ Available command line arguments:
 """
 
 import sys
+import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.gan as tfgan
 from tensorflow.python.layers.core import fully_connected, flatten
@@ -138,16 +139,26 @@ def run_discgan():
             pass
         print('[DONE]\n\n')
 
+        losses_jerry = []
+        losses_diego = []
+
         # train
         try:
             evaluation_counter = 0
-            print('Training ...')
+
             for step in range(STEPS):
+                # get loss
                 train_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
+
+                # if performed right number of steps, log
                 if step % LOG_EVERY_N == 0:
                     sess.run([])
-                    debug.print_step(step, discgan_loss.generator_loss.eval(session=sess),
-                                     discgan_loss.discriminator_loss.eval(session=sess))
+                    gen_l = discgan_loss.generator_loss.eval(session=sess)
+                    disc_l = discgan_loss.discriminator_loss.eval(session=sess)
+
+                    debug.print_step(step, gen_l, disc_l)
+                    losses_jerry.append(gen_l)
+                    losses_diego.append(disc_l)
                 if step % EVAL_EVERY_N == 0:
                     evaluate(sess, discgan.generated_data, discgan.generator_inputs, evaluation_counter, 'jerry')
                     evaluation_counter += 1
@@ -156,6 +167,8 @@ def run_discgan():
             print('[INTERRUPTED BY USER] -- evaluating')
 
         # produce output
+        utils.log_to_file(losses_jerry, PLOT_DIR + '/jerry_loss.txt')
+        utils.log_to_file(losses_diego, PLOT_DIR + '/diego_loss.txt')
         evaluate(sess, discgan.generated_data, discgan.generator_inputs, -1, 'jerry')
 
 
@@ -184,9 +197,11 @@ def run_predgan():
 
     # run session
     with tf.train.SingularMonitoredSession() as sess:
-        # train
-        # the training loop is broken into sections that are connected by
-        # fetches and feeds
+        losses_janice = []
+        losses_priya = []
+
+        # train - the training loop is broken into sections that
+        # are connected by fetches and feeds
         try:
             evaluation_counter = 0
 
@@ -208,8 +223,11 @@ def run_predgan():
                                                 feed_dict={priya_pred_t: priya_output_n,
                                                            janice_input_t: batch_inputs})
 
+                # log and evaluate
                 if step % LOG_EVERY_N == 0:
                     debug.print_step(step, janice_loss_epoch, priya_loss_epoch)
+                    losses_janice.append(janice_loss_epoch)
+                    losses_priya.append(priya_loss_epoch)
                 if step % EVAL_EVERY_N == 0:
                     evaluate(sess, janice_output_t, janice_input_t, evaluation_counter, 'janice')
                     evaluation_counter += 1
@@ -218,6 +236,8 @@ def run_predgan():
             print('[INTERRUPTED BY USER] -- evaluating')
 
         # produce output
+        utils.log_to_file(losses_janice, PLOT_DIR + '/janice_loss.txt')
+        utils.log_to_file(losses_priya, PLOT_DIR + '/priya_loss.txt')
         evaluate(sess, janice_output_t, janice_input_t, -1, 'janice')
 
 
