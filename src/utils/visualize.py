@@ -60,23 +60,8 @@ def plot_output_histogram(values, fname):
 def plot_output_sequence(values, fname):
     """Plot a line displaying the sequence of output values
     for a trained generator, for one seed, in temporal order."""
-    plt.plot(values)
+    plt.plot(flatten(values))
     plt.ylabel('Output')
     plt.xlabel('Position in Sequence')
     plt.savefig(fname)
     plt.clf()
-
-
-def plot_network_weights(weights, fname):
-    """Plots a histogram of network weights."""
-    plt.hist(weights, bins=int(abs((max(weights) - min(weights)))*3))
-    plt.ylabel('Frequency')
-    plt.xlabel('Weight')
-    plt.savefig(fname)
-    plt.clf()
-
-
-def plot_network_graphs(model: Model, name: str):
-    """Draws visualizations of the network structure as well as the
-    shape of each layer."""
-    plot_model(model, '../output/model_graphs/' + name + '.png', show_shapes=True)
