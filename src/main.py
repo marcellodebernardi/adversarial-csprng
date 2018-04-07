@@ -68,14 +68,14 @@ OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
-EVAL_EVERY_N = 15000 if HPC_TRAIN else 10
+EVAL_EVERY_N = 50000 if HPC_TRAIN else 10
 STEPS = 150000 if HPC_TRAIN else 40
 PRE_STEPS = 100 if HPC_TRAIN else 5
 ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
-EVAL_BATCHES = int(400000 / BATCH_SIZE) if HPC_TRAIN else 10
+EVAL_BATCHES = 600 if HPC_TRAIN else 10
 EVAL_DATA = input.get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE, MAX_VAL)
 LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
