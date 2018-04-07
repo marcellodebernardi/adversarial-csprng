@@ -7,10 +7,12 @@
       <w>convolutional</w>
       <w>crossentropy</w>
       <w>dataset</w>
+      <w>dieharder</w>
       <w>discgan</w>
       <w>eprint</w>
       <w>keras</w>
       <w>lstm</w>
+      <w>nist</w>
       <w>nopretrain</w>
       <w>pramesh</w>
       <w>pred</w>

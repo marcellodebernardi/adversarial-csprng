@@ -18,6 +18,7 @@ into text files and emailing a report after training.
 """
 
 import sys
+import numpy as np
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -27,26 +28,26 @@ from utils import operations
 
 
 def eprint(*args, **kwargs):
-    """Prints to standard error."""
+    """ Prints to standard error. """
     # from https://stackoverflow.com/questions/5574702/how-to-print-to-stderr-in-python
     print(*args, file=sys.stderr, **kwargs)
 
 
-def generate_output_file(values, val_bits, fname=None):
-    """Produces an ASCII output text file consisting of 0s and 1s.
-    Such a file can be evaluated by the NIST test suite."""
+def generate_output_hex(values, fname=None):
+    """
+    Produces an ASCII output text file containing hexadecimal representations
+    of each number produces by the generator.
+    """
     values = operations.flatten(values)
-    binary_strings \
-        = [('{:0>' + str(val_bits) + '}').format(bin(round(float(number))).replace('0b', '').replace('-', '')) for
-           number in values]
+    values = [hex(np.uint16(i)) for i in values]
 
     with open(fname, 'w') as file:
-        for bin_str in binary_strings:
-            file.write(str(bin_str) + "")
+        for hex_val in values:
+            file.write(str(hex_val) + "\n")
 
 
 def log_to_file(logs, fname: str):
-    """Writes the given data array to the given file. No prettifying."""
+    """ Writes the given data array to the given file. No prettifying. """
     with open(fname, 'w') as file:
         file.write(str(operations.flatten(logs)))
 

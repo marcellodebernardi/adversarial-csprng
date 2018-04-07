@@ -29,7 +29,7 @@ def main():
         return
 
     generator = load_model(sys.argv[0])
-    utils.generate_output_file(
+    utils.generate_output_hex(
         generator.predict(EVAL_SEED),
         VAL_BITS,
         '../output/testbed_sequences/' + generator.name + 'txt')

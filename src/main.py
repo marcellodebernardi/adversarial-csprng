@@ -76,7 +76,7 @@ ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
 
 # logging and evaluation
-EVAL_BATCHES = 600 if HPC_TRAIN else 10
+EVAL_BATCHES = 400 if HPC_TRAIN else 10
 EVAL_DATA = input.get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE, MAX_VAL)
 LOG_EVERY_N = 10 if HPC_TRAIN else 1
 PLOT_DIR = '../output/plots/'
@@ -278,8 +278,7 @@ def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str)
     for batch in range(EVAL_BATCHES):
         j_out = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
         output.extend(j_out)
-    utils.generate_output_file(output, OUTPUT_BITS, SEQN_DIR + str(iteration) + '_' + name + '.txt')
-    utils.log_to_file(output, SEQN_DIR + str(iteration) + '_' + name + '_eval_sequence.txt')
+    utils.generate_output_hex(output, SEQN_DIR + str(iteration) + '_' + name + '.txt')
 
 
 if __name__ == '__main__':

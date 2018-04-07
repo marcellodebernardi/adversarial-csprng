@@ -12,8 +12,7 @@
 # =================================================================
 
 """
-Converts a binary ASCII file as outputted by the DISCGAN and PREDGAN
-generators into the format required by the dieharder test suite.
+For storage limitation reasons, the .
 """
 
 import sys
@@ -22,24 +21,21 @@ from tqdm import tqdm
 
 
 def main():
-    """ Constructs the neural networks, trains them, and logs
-    all relevant information."""
-    for filename in tqdm(glob.glob(sys.argv[1]), 'converting: '):
-        new_filename = filename[:-4] + '_edited.txt'
+    for filename in tqdm(glob.glob(sys.argv[1]), 'decoding (dieharder): '):
+        new_filename = filename[:-4] + '_dieharder.txt'
 
         # for each file, open and create edited
         with open(filename) as file, open(new_filename, 'w') as new_file:
-            data = file.read()
+            data = file.readlines()
 
             # file header
             new_file.write('#==========\n' + '# dieharder test\n' + '#==========\n'
                            + 'type: d\n'
-                           + 'count: ' + str(len(data) % 32) + '\n'
-                           + 'numbit: 32\n')
+                           + 'count: ' + str(len(data)) + '\n'
+                           + 'numbit: 16\n')
 
-            while len(data) > 31:
-                new_file.write(str(int(data[0:31], 2)) + '\n')
-                data = data[32:]
+            for number in data:
+                new_file.write(str(int(number, 16)) + '\n')
 
 
 if __name__ == '__main__':
