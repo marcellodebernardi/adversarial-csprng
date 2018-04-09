@@ -18,8 +18,10 @@ into text files and emailing a report after training.
 """
 
 import sys
+import os
 import numpy as np
 from smtplib import SMTP
+from tqdm import tqdm
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -33,22 +35,28 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def generate_output_hex(values, fname=None):
+def generate_output_hex(values, filename=None):
     """
     Produces an ASCII output text file containing hexadecimal representations
     of each number produces by the generator.
     """
+    if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
+
     values = operations.flatten(values)
     values = [hex(np.uint16(i)) for i in values]
 
-    with open(fname, 'w+') as file:
-        for hex_val in values:
+    with open(filename, 'w+') as file:
+        for hex_val in tqdm(values, 'Writing to file ... '):
             file.write(str(hex_val) + "\n")
 
 
-def log_to_file(logs, fname: str):
+def log_to_file(logs, filename: str):
     """ Writes the given data array to the given file. No prettifying. """
-    with open(fname, 'w+') as file:
+    if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
+
+    with open(filename, 'w+') as file:
         file.write(str(operations.flatten(logs)))
 
 

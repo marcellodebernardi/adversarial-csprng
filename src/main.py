@@ -276,11 +276,13 @@ def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str)
     """ Evaluates the model by running it on the evaluation input and producing
     a file of the outputs.
     """
+    print('\n----------\n' + 'Running evaluation ...\n')
     output = []
     for batch in range(EVAL_BATCHES):
         j_out = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
         output.extend(j_out)
     utils.generate_output_hex(output, SEQN_DIR + str(iteration) + '_' + name + '.txt')
+    print('[DONE]\n' + '----------\n\n')
 
 
 if __name__ == '__main__':
