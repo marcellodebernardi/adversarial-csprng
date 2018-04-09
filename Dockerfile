@@ -12,7 +12,7 @@ ADD requirements.txt /
 RUN pip3 install -r requirements.txt
 
 # copy project to docker image
-ADD ./ adversarial-csprng/
+ADD src /adversarial-csprng/src
 
 # add missing directories
 RUN cd adversarial-csprng
