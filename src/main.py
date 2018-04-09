@@ -40,7 +40,6 @@ Available command line arguments:
 """
 
 import sys
-import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.gan as tfgan
 from tensorflow.python.layers.core import fully_connected, flatten
@@ -274,6 +273,9 @@ def adversary_conv(size: int):
 
 
 def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str):
+    """ Evaluates the model by running it on the evaluation input and producing
+    a file of the outputs.
+    """
     output = []
     for batch in range(EVAL_BATCHES):
         j_out = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
