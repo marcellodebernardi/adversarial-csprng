@@ -51,14 +51,14 @@ from utils import utils, input, operations, debug
 
 # main settings
 HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
-LEARN_LEVEL = 3 if '-veryhighlr' in sys.argv else 2 if '-highlr' in sys.argv else 0 if '-lowlr' in sys.argv else 1
+LEARN_LEVEL = 2 if '-highlr' in sys.argv else 0 if '-lowlr' in sys.argv else 1
 
 # hyper-parameters
 OUTPUT_SIZE = 8
 MAX_VAL = 65535
 OUTPUT_BITS = 16
 BATCH_SIZE = 2046 if HPC_TRAIN else 10
-LEARNING_RATE = {3: 0.2, 2: 0.1, 1: 0.02, 0: 0.008}[LEARN_LEVEL]
+LEARNING_RATE = {2: 0.1, 1: 0.02, 0: 0.008}[LEARN_LEVEL]
 GEN_WIDTH = 30 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
@@ -68,8 +68,7 @@ OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
-EVAL_EVERY_N = 50000 if HPC_TRAIN else 10
-STEPS = 150000 if HPC_TRAIN else 40
+STEPS = 2000000 if '-long' in sys.argv else 200000 if HPC_TRAIN else 40
 PRE_STEPS = 100 if HPC_TRAIN else 5
 ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
@@ -138,12 +137,12 @@ def run_discgan():
             pass
         print('[DONE]\n\n')
 
+        # train
         losses_jerry = []
         losses_diego = []
 
-        # train
         try:
-            evaluation_counter = 0
+            evaluate(sess, discgan.generated_data, discgan.generator_inputs, 0, 'jerry')
 
             for step in range(STEPS):
                 # get loss
@@ -158,9 +157,6 @@ def run_discgan():
                     debug.print_step(step, gen_l, disc_l)
                     losses_jerry.append(gen_l)
                     losses_diego.append(disc_l)
-                if step % EVAL_EVERY_N == 0:
-                    evaluate(sess, discgan.generated_data, discgan.generator_inputs, evaluation_counter, 'jerry')
-                    evaluation_counter += 1
 
         except KeyboardInterrupt:
             print('[INTERRUPTED BY USER] -- evaluating')
@@ -168,7 +164,7 @@ def run_discgan():
         # produce output
         utils.log_to_file(losses_jerry, PLOT_DIR + '/jerry_loss.txt')
         utils.log_to_file(losses_diego, PLOT_DIR + '/diego_loss.txt')
-        evaluate(sess, discgan.generated_data, discgan.generator_inputs, -1, 'jerry')
+        evaluate(sess, discgan.generated_data, discgan.generator_inputs, 1, 'jerry')
 
 
 def run_predgan():
@@ -189,8 +185,8 @@ def run_predgan():
     priya_output_t = adversary_conv(OUTPUT_SIZE - 1)(priya_input_t)
 
     # losses and optimizers
-    priya_loss = tf.losses.mean_squared_error(priya_label_t, priya_output_t)
-    janice_loss = -tf.losses.mean_squared_error(janice_true_t, priya_pred_t)
+    priya_loss = tf.losses.absolute_difference(priya_label_t, priya_output_t)
+    janice_loss = -tf.losses.absolute_difference(janice_true_t, priya_pred_t)
     janice_optimizer = GEN_OPT.minimize(janice_loss)
     priya_optimizer = OPP_OPT.minimize(priya_loss)
 
@@ -198,11 +194,10 @@ def run_predgan():
     with tf.train.SingularMonitoredSession() as sess:
         losses_janice = []
         losses_priya = []
-
         # train - the training loop is broken into sections that
         # are connected by fetches and feeds
         try:
-            evaluation_counter = 0
+            evaluate(sess, janice_output_t, janice_input_t, 0, 'janice')
 
             for step in range(STEPS):
                 batch_inputs = input.get_input_numpy(BATCH_SIZE, MAX_VAL)
@@ -227,9 +222,6 @@ def run_predgan():
                     debug.print_step(step, janice_loss_epoch, priya_loss_epoch)
                     losses_janice.append(janice_loss_epoch)
                     losses_priya.append(priya_loss_epoch)
-                if step % EVAL_EVERY_N == 0:
-                    evaluate(sess, janice_output_t, janice_input_t, evaluation_counter, 'janice')
-                    evaluation_counter += 1
 
         except KeyboardInterrupt:
             print('[INTERRUPTED BY USER] -- evaluating')
@@ -237,7 +229,7 @@ def run_predgan():
         # produce output
         utils.log_to_file(losses_janice, PLOT_DIR + '/janice_loss.txt')
         utils.log_to_file(losses_priya, PLOT_DIR + '/priya_loss.txt')
-        evaluate(sess, janice_output_t, janice_input_t, -1, 'janice')
+        evaluate(sess, janice_output_t, janice_input_t, 1, 'janice')
 
 
 def generator(noise) -> tf.Tensor:
@@ -256,7 +248,7 @@ def adversary_conv(size: int):
         by the convolutional opponent architecture, where the input layer of the
         network is given as an argument. """
 
-    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True):
+    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True) -> tf.Tensor:
         input_layer = tf.reshape(inputs, [-1, size])
         outputs = tf.expand_dims(input_layer, 2)
         outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)

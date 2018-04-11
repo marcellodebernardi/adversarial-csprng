@@ -265,12 +265,12 @@ A solution to many of the problems inherent to the use of truly random number ge
 	
 
 
-\subsection{Cryptographic Requirements}
+\subsection{Cryptographic Randomness Requirements}\label{subsection:crypto_requirements}
 TODO: a reasonable list of the security requirements of a PRNG in order to be termed a CSPRNG. I have multiple sources on this, but no one good source.
 
 
 
-\subsection{Testing Pseudo-Random Sequences}
+\subsection{Testing Pseudo-Random Sequences}\label{subsection:testing_prngs}
 The \textbf{National Institute of Standards and Technology}, part of the U.S. Department of Commerce, sets out guidelines for the testing of RNGs and PRNGs in its publication 800-22, \textit{A Statistical Test Suite for Random and Psuedorandom Number Generators for Cryptographic Applications}, by Rukhin et al. This work refers to revision 1a of the publication.
 
 Rukhin et all point out that, since the properties of random sequences can be described in probabilistic terms, their degree of ``randomness" can be evaluated by various statistical tests, as the likely outcome of such a test is known a priori. These tests search for particular patterns in sequences which would indicate non-randomness. No set of statistical tests can be considered complete, as there is an infinite number of tests \cite[p. 1-2]{rukhin2001statistical}.
@@ -474,7 +474,7 @@ According to Goodfellow et al, as of 2016 the most successful type of RNN for pr
 
 
 
-\subsection{Generative Adversarial Networks}
+\subsection{Generative Adversarial Networks}\label{subsection:generativeadversarial}
 We may classify machine learning models as either being \textit{discriminative} or \textit{generative}. Examples of discriminative models are neural networks that map images to class labels \cite[p. 1]{goodfellow2014generative}. Generative models, on the other hand, rather than mapping inputs from a training set to class labels, learn to mimic the training set. That is, for a training set of data points drawn from a distribution $p_{data}$, a generative model learns to represent $p_{model}$, an approximation of $p_{data}$ \cite{goodfellow2016nips}.
 
 Goodfellow et al introduced \textbf{generative adversarial networks} (GANs) in 2014, succinctly defining them as a "framework for estimating generative models via an adversarial process", where a discriminative model is used to train a generative model by scrutinizing its outputs \cite{goodfellow2014generative}.
@@ -549,13 +549,9 @@ Analogously, one aspect of this investigation is the ability to predict the next
 This section provides an in-depth explanation of the conceptual design of the system and how it relates to the research hypothesis, the technologies used to implement it, and the details of the implementation.
 
 \section{Conceptual Design}\label{section:conceptual_design}
-As stated, the aim of this investigation is to determine whether it is possible to train a neural network to output pseudo-random number sequences by means of an adversarial training process.
+As stated, the aim of this investigation is to determine whether it is possible to train a neural network to output pseudo-random number sequences by means of an adversarial training process involving two neural networks, a generator $G$ and an adversary $D$. The goal of this process is to enable the generator to learn a function $G(s, S) : \mathbb{R}^2 \rightarrow \mathbb{R}^n$ which approximates some arbitrary function $prng(s, S) : \mathbb{R}^2 \rightarrow \mathbb{R}^n$, where $prng$ is a function whose outputs fulfill a set of criteria for randomness (subsection \ref{subsection:eval_and_randomness}).
 
-
-
-
-\subsection{Discriminative and Predictive Adversaries}
-Two distinct approaches to adversarial training are assessed. These approaches are termed the \textit{discriminative approach} and the \textit{predictive approach}. 
+Two distinct approaches are considered. These approaches are termed the \textit{discriminative approach} and the \textit{predictive approach}, and differ in the task performed by the generator's adversary.
 
 
 
@@ -573,9 +569,6 @@ The generator, \mintinline{python}{jerry}, implements the function $G_{\theta_{G
 \subsection{Discriminative and Predictive Models}
 TODO: architecture of opponents, split into three
 
-
-
-\subsubsection{Convolutional Architecture}
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{img/opponent_conv.png}\\
@@ -585,78 +578,34 @@ TODO: architecture of opponents, split into three
 
 
 
-\subsubsection{LSTM Architecture}
-\begin{figure}
-\centering
-\includegraphics[width=1\textwidth]{img/opponent_lstm.png}\\
-\caption{LSTM opponent architecture. Image produced using draw.io \cite{jgraph2018draw}.}
-\label{figure:architecture_lstm}
-\end{figure}
+
+\subsection{Evaluation and Randomness Requirements}\label{subsection:eval_and_randomness}
+The randomness requirements of a cryptographically secure pseudo-random number generator, as well as techniques for assessing whether a potential CSPRNG fulfills them, were discussed in subsections \ref{subsection:crypto_requirements} and \ref{subsection:testing_prngs}, respectively.
 
 
 
 
-\subsubsection{Mixed Convolutional and LSTM Architecture}
-\begin{figure}
-\centering
-\includegraphics[width=1\textwidth]{img/opponent_convlstm.png}\\
-\caption{Mixed convolutional and LSTM opponent architecture. Image produced using draw.io \cite{jgraph2018draw}.}
-\label{figure:architecture_convlstm}
-\end{figure}
 
-
-
-\subsection{Hyperparameters}
-TODO: hyperparameters like receptive fields, network depth etc, training parameters like epochs etc
 \section{Implementation Technologies}
-The system was developed in version 3.6 of the Python programming language, which is popular in the machine learning field due to its conciseness and the large ecosystem of software libraries for numerical computing. The main software libraries used for this project are TensorFlow, an ´´open source library for numerical computation" which is commonly used for machine learning \cite{tensorflow}. As the TensorFlow API is rich in features and complex, the project also relies on Keras, a library providing higher-level abstractions specifically for neural network design \cite{keras}. Other major software libraries used include NumPy, the fundamental scientific computing package for Python, and its many sub-packages, such as matplotlib for drawing visual graphs\cite{numpy}.
+The system was developed using version 3.6 of the Python programming language, which is popular in the machine learning field due to its conciseness and the large ecosystem of software libraries for numerical computing \cite{numpy}. In addition to NumPy, which is ubiquitous in numerical computation using Python \cite{numpy}, the main software librariy used for this project is TensorFlow. The latter is an ``open source library for numerical computation" released by Google, which is commonly used for machine learning \cite{tensorflow}. Most of the code in the implementation deals with abstractions defined in the TensorFlow API.
 
-Other potential options would have included the use of C++ as the development language, but this was not considered viable due to the author's lack of experience with the language, as well as the use of other machine learning libraries for Python such as PyTorch or Theano.
+While Python and the TensorFlow library are popular in the machine learning community, alternatives abound. Programming languages considered for the project included Java and C++, both of which have popular deep learning libraries. Furthermore, TensorFlow is not the only machine learning library available for Python: viable options include Theano, PyTorch, CNTK, and scikit-learn.
 
-\subsection{Python}
-\subsection{TensorFlow}
-\subsection{Keras}
-The Keras library is used in this project to simplify development and enable faster prototyping in its early stages. It provides a further layer of abstraction over the TensorFlow API, using it to perform the computations specified in Keras \cite{keras}.
+Choosing a language, a software library, or a software framework for a particular task is not always straightforward. In this case, Python and TensorFlow were selected due to Python's legibility and simplicity, which supports rapid prototyping, as well as TensorFlow's popularity in the machine learning field, which ensures the availability of abundant documentation, tutorials, and more \cite{bhatia2017why}. The use of these particular technologies is not a critical aspect of this research.
 
-The Keras API revolves around the concepts of a \textit{Model}, a class representing a neural network, and of layers. A model consists of a number of layers, and is generally constructed as follows:
+Development of the project was carried out using a mix of free as well as proprietary tools, including the Jetbrains PyCharm integrated development environment and Microsoft's free code editor VSCode. Early tests of the implementation's performance were executed on virtual machines in Google's, Amazon's, and Digital Ocean's cloud services, with a mix of CPU-focused and GPU-focused instance types.
 
-\begin{minted}{python}
-	inputs = Input(shape=(784,))
+Training of the model was carried out on an HPC cluster, access to which was provided by the School of Electronic Engineering and Computer Science at Queen Mary University of London. The cluster consists of 5 machines, each with 64 CPU cores, 256 GB RAM, and no GPUs.
 
-	x = Dense(64, activation='relu')(inputs)
-	x = Dense(64, activation='relu')(x)
-	predictions = Dense(10, activation='softmax')(x)
 
-	model = Model(inputs=inputs, outputs=predictions)
-	model.compile(optimizer='rmsprop',
-             	 loss='categorical_crossentropy',
-              	 metrics=['accuracy'])
-\end{minted}
+\subsection{Introduction to TensorFlow}
+An introductory guide to the central concepts and functionality of TensorFlow is provided on the software library's website \cite{tensorflow2018intro}. The TensorFlow version used in this project is 1.6.
 
-where \textit{Input} is a class specifying the input layer of the neural network, and \textit{Dense} is a class specifying a fully connected feed-forward layer, which can either be a hidden layer or the network's output layer. The layer objects returned by these constructors are callable with another layer as argument, which specifies the layer from which input is taken. Finally, a \textit{Model} is specified in terms of the input layer and the sequence of hidden layers producing its output, and compiled into an executable binary using TensorFlow \cite{keras}.
+The central concept is that of the \textit{tensor}, an $n$-dimensional generalization of vectors and matrices. Tensors have properties such as \textit{rank} and \textit{shape}, which specify the number of dimensions of a tensor as well as its size in each dimension \cite{tensorflow2018intro}. TensorFlow programs perform a series of operations on tensors.
 
-The Keras API is heavily oriented towards supervised learning, providing the following methods for training a network, among others:
+At the highest level of abstraction, a TensorFlow program consists of a \textit{Computational Graph} and a \textit{Session}. The former is a directed graph consisting of tensor operations applied to a set of inputs, and defines the topology of a machine learning model. The operations specified in the graph are not computed by the Python interpreter, but rather are first compiled and then executed in TensorFlow's C++ runtime. The Python application interface to the runtime is defined by a TensorFlow Session \cite{tensorflow2018graphs}. When interacting with a session, the act of passing specific inputs to a model for a particular session is referred to as \textit{feeding}, while retrieving the value of a tensor in the graph at a particular time during execution is referred to as \textit{fetching} \cite{tensorflow2018intro}.
 
-\begin{minted}{python}
-    model.fit(data, labels)
-    model.train_on_batch(data_batch, batch_labels)
-    model.predict(data)
-\end{minted}
-
-which are used to train the network on the entire dataset, to train the network on a single batch, and to produce outputs for the given set of inputs, respectively \cite{keras}. This framework is problematic for generative adversarial networks, where the loss function of the generator is not based on labels for the inputs, but rather on the loss value produced by the discriminator. The design choices made to address this issue are discussed later.
-
-\subsection{Software Libraries}
-Numpy, Graphviz, etc
-
-\subsection{Supporting Tools}
-Development of the project was carried out using the following software and tools:
-
-\begin{itemize}
-\item Jetbrains Pycharm (IDE)
-\item Amazon Web Services cloud compute instances
-\item Google Cloud Platform cloud compute instances
-\item DigitalOcean cloud compute instances
-\end{itemize}
+The package \mintinline{python}{tf.contrib.gan} in TensorFlow's Python API enables the programmer to easily define generative adversarial networks.
 
 
 \section{Software Design}
@@ -665,46 +614,47 @@ This section outlines the design and implementation of the actual software. The 
 
 
 \subsection{Generative Model}
-The generator $G$, \mintinline{python}{jerry}, has the same implementation for both the discriminative and predictive approaches, consisting of five fully connected feed-forward layers with leaky ReLU activations. Each such layer is added to the model using Keras' functional API as follows:
+The generator $G$, known in the code as \mintinline{python}{jerry} or \mintinline{python}{janice}, has the same implementation for both the discriminative and predictive approaches. The model's architecture is defined in TensorFlow as follows:
 
 \begin{minted}{python}
-    outputs = Dense(GEN_WIDTH)(inputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
+input_layer = tf.reshape(noise, [-1, 2])
+outputs = fully_connected(input_layer, GEN_WIDTH, activation=leaky_relu)
+outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
+outputs = fully_connected(outputs, OUTPUT_SIZE, activation=modulo(MAX_VAL))
+return outputs
 \end{minted} 
 
-\mintinline{python}{GEN_WIDTH} is a parameter for the width of the generator. The value of this parameter is obtained from the user by command-line argument. The default value is 10. The full definition of the generator is in appendix \ref{appendix:generator}.
+\mintinline{python}{GEN_WIDTH} parameterizes the number of units in each layer. The \mintinline{python}{reshape} operation is used to cast input tensors to an appropriate size. The second argument specifies the shape to which input tensors are cast, where the first value is the tensor's size in the \textit{batch dimension}, and any following values represent the dimensionality of the input samples. The batch dimension refers to the number of input samples in a single batch. In TensorFlow \mintinline{python}{-1} is a special flag signifying dynamic batch size, which allows the model to process its inputs in batches of any size, rather than a fixed size.
+
+The last fully connected layer's \mintinline{python}{modulo} activation function is detailed in subsection \ref{subsection:custom_ops}.
 
 
 \subsection{Discriminative and Predictive Models}
-The discriminator $D$, \mintinline{python}{diego}, and the predictor $P$, \mintinline{python}{priya}, share the same architecture for simplicity, with the exception of the width of the input layer. The discriminator's input layer has width $n$, where $n$ is the size of the generator's output layer. The predictor's input layer has width $n - 1$, as explained in section \ref{section:conceptual_design}.
+The discriminator $D$, \mintinline{python}{diego}, and the predictor $P$, \mintinline{python}{priya}, share the same architecture with the exception of the width of the input layer (\mintinline{python}{OUTPUT_SIZE} for \mintinline{python}{diego}, \mintinline{python}{OUTPUT_SIZE - 1} for \mintinline{python}{priya}). This is explained in section \ref{section:conceptual_design}.
 
-The three separate architectural styles (convolutional, LSTM, and hybrid) are constructed from a few different types of layers. The code for each of these layers is given below, while the entire code for each architecture is in appendices \ref{appendix:convolutional}, \ref{appendix:lstm}, and \ref{appendix:convlstm}.
-
-A convolutional layer for one-dimensional inputs, followed by a pooling layer, is defined in Keras as follows:
+The convolutional architecture of the adversaries is implemented as follows:
 
 \begin{minted}{python}
-    # leaky ReLU convolutional layer
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-     # max pooling layer which downsamples by a factor of 2
-    outputs = MaxPooling1D(2)(outputs)
+input_layer = tf.reshape(inputs, [-1, size])
+outputs = tf.expand_dims(input_layer, 2)
+outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, 
+                 padding='same', activation=leaky_relu)
+outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, 
+                 padding='same', activation=leaky_relu)
+outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, 
+                 padding='same', activation=leaky_relu)
+outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, 
+                 padding='same', activation=leaky_relu)
+outputs = max_pooling1d(outputs, pool_size=2, strides=1)
+outputs = flatten(outputs)
+outputs = fully_connected(outputs, 4, activation=leaky_relu)
+outputs = fully_connected(outputs, 1, activation=leaky_relu)
+return outputs
 \end{minted}
 
-\mintinline{python}{Flatten} and \mintinline{python}{Reshape} layers are used to modify the shape of tensors in order to connect layers of different shapes. For example, a convolutional layer's output has a higher number of dimensions than its input, and so must eventually be reshaped to "squeeze" the output back to one dimension.
-
-\begin{minted}{python}
-    # example of a flatten layer
-    outputs = Flatten()(outputs)
-    # example of a reshape layer
-    outputs = Reshape(target_shape=(input_size, 2))(outputs)
-\end{minted}
-
-Finally, LSTM layers are defined as follows:
-
-\begin{minted}{python}
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-\end{minted}
+The operations \mintinline{python}{flatten} and \mintinline{python}{reshape} are used to modify the shape of tensors in order to connect layers with different shapes. Unlike the generator, where a custom activation function is used in order to introduce more non-linearity, all layers in the adversary model use the popular leaky rectified linear unit activation.
 
 
 
@@ -726,14 +676,14 @@ TODO: how the utility functions work and how the training data is structured
 TODO: the training procedure
 \subsection{Training Procedure for the Predictive GAN}
 TODO: the training procedure
-\subsection{TensorFlow Functions}
-The \mintinline{python}{models} package contains modules implementing functionality that is not a part of the Keras API, including custom loss functions, activation functions, and neural network layers. Keras supports such custom procedures, as long as they are written using the back-end library Keras is running on \cite{keras}. A few notable examples are highlighted here.
+\subsection{Custom Tensor Operations}\label{subsection:custom_ops}
+The \mintinline{python}{models} package contains modules implementing functionality that is not a part of the TensorFlow API, including custom activation functions and tensor operations. A few notable examples are highlighted here.
 
-\mintinline{python}{drop_last_value(original_size, batch_size)} is a closure returning a callable function \mintinline{python}{layer(x: tf.Tensor)}, which in turn can be used with Keras' "lambda layer" functionality to implement a custom layer in a neural network. This layer defines an operation which drops the last value in an input Tensor, and is used to connect the generator's output layer to the predictor's input layer in the predictive GAN.
+\mintinline{python}{drop_last_value(original_size, batch_size)} is a closure returning a callable function \mintinline{python}{layer(x: tf.Tensor)}, which in turn can be used as part of TensorFlow's computational graph. The function defines an operation which drops the last value in a tensor's second dimension, and is used to connect the generator's output layer to the predictor's input layer in the predictive GAN.
 
 \mintinline{python}{modulo(divisor, withActivation=None)} is a closure returning a custom activation function that computes the modulus $\mod{divisor}$ of its input. It is also possible to use it in conjunction with another activation function, which can be passed to the second parameter.
 
-Similarly, \mintinline{python}{bounding_clip(max_bound, negatives=False)} is a closure returning another custom activation function similar to the ReLU activation. The bounding clip activation clips all inputs to the range $[0, 1]$.
+
 \subsection{Utilities}
 A number of utility modules are defined to abstract the details of auxiliary procedures, such as logging, producing plots of training results, or generating samples of pseudo-random numbers for training the neural networks. An overview of the role of each utility module within the system is given below. A more detailed view of the functionality of these modules can be obtained from the source code and its documentation.
 
@@ -750,14 +700,43 @@ The remaining modules provide miscellaneous functionality such as error printing
 % EXPERIMENTS
 %----------------------------------------------------------
 \chapter{Experiments}\label{chapter:experiments}
-\section{Discriminative Training}
-\subsection{Training Parameters}
-\subsection{Results}
-\subsection{Analysis}
-\section{Predictive Training}
-\subsection{Training Parameters}
-\subsection{Results}
-\subsection{Analysis}
+This section outlines the training and evaluation procedure followed in order to test this work's hypothesis. A large number of "throwaway" tests was performed over an extended period of time to empirically identify good training setups, ranging from parameters such as learning rate to major design choices in neural network architecture. Finally, the models were trained multiple times in order to produce output samples, which were evaluated using the dieharder test suite.
+
+
+\section{Training and Evaluation Procedure}
+The general experimental procedure entails adversarially training the generator and the opponent for a fixed number of iterations, and producing a text file of output samples from the generator, both before training and when training is complete. These text files are analyzed by dieharder in order to assess whether training improved the generator's performance in the statistical randomness tests.
+
+
+
+- alternating training in general
+- first pretrain ( ON WHAT DATA
+- then main train (ON WHAT DATA)
+- evaluate periodically (HOW, ON WHAT DATA)
+- final evaluation
+
+\section{Training and Evaluation Parameters}
+
+
+\section{Neural Network Hyperparameters}
+The learning algorithm's hyperparameters were selected by running a number of shorter tests, in order to identify how different hyperparameters affected the performance of the model. This process relied entirely on the author's intuition and exploratory testing. Automated hyperparameter optimization was not performed.
+
+Some of the most significant hyperparameters include the networks' learning rate and their degree of decay, the generator width, the adversary width, the input batch size, and the generator output size. Their values, and the heuristics by which they were chosen, are given below.
+
+\begin{enumerate}
+\item \mintinline{python}{LEARNING_RATE: 0.02} - 
+\item \mintinline{python}{OPTIMIZER_DECAY_ALPHA: 0.999} - 
+\item \mintinline{python}{OPTIMIZER_DECAY_BETA: 0.999} - 
+\item \mintinline{python}{GEN_WIDTH: 30} - 
+\item \mintinline{python}{CONV_WIDTH} - 
+\item \mintinline{python}{} - 
+\item \mintinline{python}{} - 
+\end{enumerate}
+
+
+A number of other hyperparameters, in particular those parameterizing the convolutional layers, are not considered here.
+
+
+\section{Results}
 
 
 %----------------------------------------------------------

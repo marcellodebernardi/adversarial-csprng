@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{Dense}\PYG{p}{(}\PYG{n}{GEN\PYGZus{}WIDTH}\PYG{p}{)(}\PYG{n}{inputs}\PYG{p}{)}
-    \PYG{n}{outputs} \PYG{o}{=} \PYG{n}{LeakyReLU}\PYG{p}{(}\PYG{n}{ALPHA}\PYG{p}{)(}\PYG{n}{outputs}\PYG{p}{)}
-\end{Verbatim}

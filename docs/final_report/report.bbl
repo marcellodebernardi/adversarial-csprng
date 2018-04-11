@@ -12,10 +12,11 @@ Generative adversarial networks part 2 - implementation with keras 2.0.
   \url{http://www.rricard.me/machine/learning/generative/adversarial/networks/keras/tensorflow/2017/04/05/gans-part2.html}.
 \newblock Accessed: 15/10/2017.
 
-\bibitem{keras}
-Keras: The python deep learning library.
-\newblock \url{www.keras.io }.
-\newblock Accessed: 12/08/2017.
+\bibitem{bhatia2017why}
+Google's tensorflow gaining popularity. why?
+\newblock
+  \url{https://analyticsindiamag.com/googles-tensorflow-gaining-popularity/}.
+\newblock Accessed: 04/11/2018.
 
 \bibitem{numpy}
 Numpy - the fundamental package for scientific computing with python.
@@ -32,6 +33,16 @@ A short history of machine learning -- every manager should read.
 Tensorflow: an open-source software library for machine intelligence.
 \newblock \url{www.tensorflow.org }.
 \newblock Accessed: 12/08/2017.
+
+\bibitem{tensorflow2018graphs}
+Tensorflow: Graphs and sessions.
+\newblock \url{https://www.tensorflow.org/programmers_guide/graphs}.
+\newblock Accessed: 11/04/2018.
+
+\bibitem{tensorflow2018intro}
+Tensorflow: Introduction.
+\newblock \url{https://www.tensorflow.org/programmers_guide/low_level_intro}.
+\newblock Accessed: 11/04/2018.
 
 \bibitem{abadi2016learning}
 Mart{\'\i}n Abadi and David~G Andersen.
