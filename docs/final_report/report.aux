@@ -68,8 +68,10 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces A high-level view of the operation of a PRNG \cite  {kelsey1998cryptanalytic}.}}{9}}
 \newlabel{figure:prng_high_level}{{2.1}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1.4}Pseudo-Random Number Generators}{9}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.5}Cryptographic Requirements}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.5}Cryptographic Randomness Requirements}{9}}
+\newlabel{subsection:crypto_requirements}{{2.1.5}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1.6}Testing Pseudo-Random Sequences}{9}}
+\newlabel{subsection:testing_prngs}{{2.1.6}{9}}
 \citation{rukhin2001statistical}
 \citation{terr2009math}
 \citation{terr2009math}
@@ -156,6 +158,7 @@
 \citation{goodfellow2014generative}
 \citation{goodfellow2014generative}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2.7}Generative Adversarial Networks}{18}}
+\newlabel{subsection:generativeadversarial}{{2.2.7}{18}}
 \newlabel{eq:gan_train}{{2.10}{18}}
 \citation{abadi2016learning}
 \citation{desai2012pseudo}
@@ -171,66 +174,50 @@
 \citation{jgraph2018draw}
 \citation{jgraph2018draw}
 \citation{jgraph2018draw}
-\citation{jgraph2018draw}
-\citation{jgraph2018draw}
-\citation{jgraph2018draw}
 \@writefile{toc}{\contentsline {chapter}{\numberline {3}Design and Implementation}{21}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{chapter:design}{{3}{21}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}Conceptual Design}{21}}
 \newlabel{section:conceptual_design}{{3.1}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Discriminative and Predictive Approaches}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Generative Model}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Discriminative and Predictive Models}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Generative Model}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Discriminative and Predictive Models}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Evaluation and Randomness Requirements}{21}}
+\newlabel{subsection:eval_and_randomness}{{3.1.3}{21}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Architecture of the generator. Each fully connected feed-forward (FCFF) neural network layer is implemented in Keras using a \mintinline {python}{Dense} layer followed by a \mintinline {python}{LeakyReLU} layer. The network's inputs (two real numbers) and outputs (a sequence of real numbers of length $n$) are also shown. Image produced using draw.io \cite  {jgraph2018draw}.}}{22}}
 \newlabel{figure:architecture_generator}{{3.1}{22}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Convolutional opponent architecture. \mintinline {python}{Reshape} and \mintinline {python}{Flatten} layers are required in Keras as the \mintinline {python}{Conv1D} takes a two-dimensional input. Image produced using draw.io \cite  {jgraph2018draw}.}}{22}}
 \newlabel{figure:architecture_conv}{{3.2}{22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces LSTM opponent architecture. Image produced using draw.io \cite  {jgraph2018draw}.}}{22}}
-\newlabel{figure:architecture_lstm}{{3.3}{22}}
-\citation{tensorflow}
-\citation{keras}
 \citation{numpy}
-\citation{keras}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Mixed convolutional and LSTM opponent architecture. Image produced using draw.io \cite  {jgraph2018draw}.}}{23}}
-\newlabel{figure:architecture_convlstm}{{3.4}{23}}
-\@writefile{toc}{\contentsline {subsubsection}{Convolutional Architecture}{23}}
-\@writefile{toc}{\contentsline {subsubsection}{LSTM Architecture}{23}}
-\@writefile{toc}{\contentsline {subsubsection}{Mixed Convolutional and LSTM Architecture}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Hyperparameters and Training Parameters}{23}}
+\citation{numpy}
+\citation{tensorflow}
+\citation{bhatia2017why}
+\citation{tensorflow2018intro}
+\citation{tensorflow2018intro}
+\citation{tensorflow2018graphs}
+\citation{tensorflow2018intro}
 \@writefile{toc}{\contentsline {section}{\numberline {3.2}Implementation Technologies}{23}}
-\citation{keras}
-\citation{keras}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Python}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}TensorFlow}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Keras}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Introduction to TensorFlow}{23}}
 \citation{ricard2017generative}
 \citation{atienza2017gan}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.4}Software Libraries}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.5}Supporting Tools}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Software Design}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Generative Model}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{26}}
-\citation{keras}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.7}TensorFlow Functions}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.8}Utilities}{27}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Experiments}{29}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Software Design}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Generative Model}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.7}Custom Tensor Operations}{26}}
+\newlabel{subsection:custom_ops}{{3.3.7}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.8}Utilities}{26}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Experiments}{28}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chapter:experiments}{{4}{29}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Discriminative Training}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Training Parameters}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Results}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.3}Analysis}{29}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Predictive Training}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Training Parameters}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Results}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Analysis}{29}}
+\newlabel{chapter:experiments}{{4}{28}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Training and Evaluation Procedure}{28}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Training and Evaluation Parameters}{28}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Neural Network Hyperparameters}{28}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Results}{29}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{30}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -242,43 +229,45 @@
 \@writefile{lot}{\addvspace {10\p@ }}
 \bibcite{atienza2017gan}{1}
 \bibcite{ricard2017generative}{2}
-\bibcite{keras}{3}
+\bibcite{bhatia2017why}{3}
 \bibcite{numpy}{4}
 \bibcite{forbes2016short}{5}
 \bibcite{tensorflow}{6}
-\bibcite{abadi2016learning}{7}
-\bibcite{albelwi2017framework}{8}
-\bibcite{amazon2018aws}{9}
-\bibcite{anderson2010security}{10}
-\bibcite{barker2007recommendation}{11}
-\bibcite{cormen2009introduction}{12}
-\bibcite{microsoft2018azure}{13}
+\bibcite{tensorflow2018graphs}{7}
+\bibcite{tensorflow2018intro}{8}
+\bibcite{abadi2016learning}{9}
+\bibcite{albelwi2017framework}{10}
+\bibcite{amazon2018aws}{11}
+\bibcite{anderson2010security}{12}
+\bibcite{barker2007recommendation}{13}
 \@writefile{toc}{\contentsline {chapter}{\numberline {7}Bibliography}{32}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\bibcite{cover2012elements}{14}
-\bibcite{deng2017developments}{15}
-\bibcite{desai2011pseudo}{16}
-\bibcite{desai2012pseudo}{17}
-\bibcite{donald1998art}{18}
-\bibcite{ferguson2010cryptography}{19}
-\bibcite{goodfellow2016nips}{20}
-\bibcite{goodfellow2016deep}{21}
-\bibcite{goodfellow2014generative}{22}
-\bibcite{karpathy2017cs231n}{23}
-\bibcite{kelsey1998cryptanalytic}{24}
-\bibcite{klimov2002analysis}{25}
-\bibcite{lavasani2009practical}{26}
-\bibcite{google2018automl}{27}
-\bibcite{google2018trends}{28}
-\bibcite{jgraph2018draw}{29}
-\bibcite{melicher2016fast}{30}
-\bibcite{menezes1996handbook}{31}
-\bibcite{rukhin2001statistical}{32}
-\bibcite{russel2009artificial}{33}
-\bibcite{sharma2017activation}{34}
-\bibcite{terr2009math}{35}
-\bibcite{tirdad2010hopfield}{36}
+\bibcite{cormen2009introduction}{14}
+\bibcite{microsoft2018azure}{15}
+\bibcite{cover2012elements}{16}
+\bibcite{deng2017developments}{17}
+\bibcite{desai2011pseudo}{18}
+\bibcite{desai2012pseudo}{19}
+\bibcite{donald1998art}{20}
+\bibcite{ferguson2010cryptography}{21}
+\bibcite{goodfellow2016nips}{22}
+\bibcite{goodfellow2016deep}{23}
+\bibcite{goodfellow2014generative}{24}
+\bibcite{karpathy2017cs231n}{25}
+\bibcite{kelsey1998cryptanalytic}{26}
+\bibcite{klimov2002analysis}{27}
+\bibcite{lavasani2009practical}{28}
+\bibcite{google2018automl}{29}
+\bibcite{google2018trends}{30}
+\bibcite{jgraph2018draw}{31}
+\bibcite{melicher2016fast}{32}
+\bibcite{menezes1996handbook}{33}
+\bibcite{rukhin2001statistical}{34}
+\bibcite{russel2009artificial}{35}
+\bibcite{sharma2017activation}{36}
+\bibcite{terr2009math}{37}
+\bibcite{tirdad2010hopfield}{38}
 \@writefile{toc}{\contentsline {chapter}{\numberline {A}Training Data}{35}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -321,28 +310,39 @@
   742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   8AAE1D82DD56C249C0E7A7C02C0960AE7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  6FE7A95D980E74F7D76BEBADB1CC053D7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  667D234BAA4D209AA4B8A64DFD2C69CA7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  CDDA6DC946A472082B95C9B35C935E717C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   241FCF33EAA2EA61285F36559116CBAD7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  0F5CEFA8370FF2FAFEF10B5CF5B2C8D37C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  DA898703B7A047FEC91A00946BDB33767C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  9687E97308B3EE6011878DF982BFA4727C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   470C1201BA4FAAB322FAC8FD6663615F7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  9D468F0F487AD6BAC55B984E50CAF3BB7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  EB844645E8E61DE0A4CF4B991E65E63E7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  F3B9BACFCFEAD73E0AE49B341E8E3A527C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   30ABE6287F1B3112C6A42D605B84C0F87C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   20FF3AB58C9CD8AD52E24501CC46C84C7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  96124A8E093CCC28031C676CC8AB83137C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  2F95209C0EB47CDE4C0FB4BFDB8897377C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  72FE05AE8E57F8A28046743ADEDC78ED7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  FC158F94C02041F0DE8136BBDAFF87F37C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  30ABE6287F1B3112C6A42D605B84C0F87C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  DA933CDAC9C8F936D1675308EED9A1017C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  20FF3AB58C9CD8AD52E24501CC46C84C7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  9CDB0EFE09A8295DBCAF1E387E06C7157C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  684B83286E503589996B08CBEC11F9A57C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  9D468F0F487AD6BAC55B984E50CAF3BB7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   F1C84F8167B4ED8A289218AC27A768DD7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   3815CAAAF6D678434BB0DD353CA1D8487C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   BC4E70DAC4A264E62A80B58427011B8D7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   F82D86802EB00649D1302D4B2AD0C11A7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   090F3DDE3F4827A496BE04C4299DC1DF7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   4CABC0EE807D64644CF35F9838EE66157C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  A33D1773947B2A2B3C0EB4CFB4E862937C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   7BB2296F2C23E3D8D42263634613906A7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   CC8F4CB50C34B9656FB22C920A967C4C7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   38E5D2095B76575F55EB2D505DD5B4417C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  977C575EF57AA823F92F25A2D4C8E60B7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  B93AECBB216C0B6DFB7774B39A0C70EF7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  8A6C74665C9A6CB90F9EF54ECC93AF767C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  3EDFF26758793F47CCD2986B898FB2A17C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  414D83DCFA26D6CFE6473DFD93D61EC47C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
+  68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   B721F2FD0C2484502B723AAEA86A00067C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   793EE9ECA4E3E41EA42F6648FE4D79027C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   9914B55C912FBA0669AE2AD56336B4C77C2E7F49E087B8E8E8DF5244CE287E39.pygtex,

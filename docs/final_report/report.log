@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  23 MAR 2018 20:29
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  11 APR 2018 20:08
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -885,10 +885,10 @@ runsystem(del report.aex)...executed.
 
 (./report.aux
 
-LaTeX Warning: Label `figure:conv_pooling' multiply defined.
-
-
 LaTeX Warning: Label `eq:dynamic_system' multiply defined.
+
+
+LaTeX Warning: Label `figure:conv_pooling' multiply defined.
 
 )
 \openout1 = `report.aux'.
@@ -1143,7 +1143,7 @@ E39.pygtex)
 <img/generator.png, id=111, 731.73375pt x 189.70876pt>
 File: img/generator.png Graphic file (type png)
 <use img/generator.png>
-Package pdftex.def Info: img/generator.png  used on input line 570.
+Package pdftex.def Info: img/generator.png  used on input line 564.
 (pdftex.def)             Requested size: 455.24411pt x 118.02635pt.
 \openout6 = `report.pyg'.
 
@@ -1168,7 +1168,7 @@ E39.pygtex)
 <img/opponent_conv.png, id=112, 761.84625pt x 270.00874pt>
 File: img/opponent_conv.png Graphic file (type png)
 <use img/opponent_conv.png>
-Package pdftex.def Info: img/opponent_conv.png  used on input line 583.
+Package pdftex.def Info: img/opponent_conv.png  used on input line 574.
 (pdftex.def)             Requested size: 455.24411pt x 161.34317pt.
 \openout6 = `report.pyg'.
 
@@ -1199,57 +1199,48 @@ E39.pygtex)
 
 
 (./_minted-report/8AAE1D82DD56C249C0E7A7C02C0960AE7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex) [21
+
+] [22 <./img/generator.png> <./img/opponent_conv.png>] [23]
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/CDDA6DC946A472082B95C9B35C935E717C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
-<img/opponent_lstm.png, id=113, 823.075pt x 174.6525pt>
-File: img/opponent_lstm.png Graphic file (type png)
-<use img/opponent_lstm.png>
-Package pdftex.def Info: img/opponent_lstm.png  used on input line 593.
-(pdftex.def)             Requested size: 455.24411pt x 96.60016pt.
-<img/opponent_convlstm.png, id=114, 785.93625pt x 270.00874pt>
-File: img/opponent_convlstm.png Graphic file (type png)
-<use img/opponent_convlstm.png>
-Package pdftex.def Info: img/opponent_convlstm.png  used on input line 604.
-(pdftex.def)             Requested size: 455.24411pt x 156.40329pt.
- [21
-
-] [22 <./img/generator.png> <./img/opponent_conv.png> <./img/opponent_lstm.png>
-]
-Missing character: There is no Â in font cmr12!
-Missing character: There is no ´ in font cmr12!
-Missing character: There is no Â in font cmr12!
-Missing character: There is no ´ in font cmr12!
- [23 <./img/opponent_convlstm.png>]
-\openout4 = `report.pyg'.
-
-
-(./_minted-report/6FE7A95D980E74F7D76BEBADB1CC053D7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex)
-\openout4 = `report.pyg'.
-
-
-(./_minted-report/667D234BAA4D209AA4B8A64DFD2C69CA7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [24]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 657.
-
- (c:/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
-File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 657.
 \openout6 = `report.pyg'.
 
 
 (./_minted-report/241FCF33EAA2EA61285F36559116CBAD7C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/DA898703B7A047FEC91A00946BDB33767C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
 \openout4 = `report.pyg'.
 
 
-(./_minted-report/0F5CEFA8370FF2FAFEF10B5CF5B2C8D37C2E7F49E087B8E8E8DF5244CE287
+(./_minted-report/9687E97308B3EE6011878DF982BFA4727C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
 \openout6 = `report.pyg'.
 
 
 (./_minted-report/470C1201BA4FAAB322FAC8FD6663615F7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/9D468F0F487AD6BAC55B984E50CAF3BB7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/EB844645E8E61DE0A4CF4B991E65E63E7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/F3B9BACFCFEAD73E0AE49B341E8E3A527C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
 \openout6 = `report.pyg'.
 
@@ -1260,31 +1251,41 @@ E39.pygtex)
 
 
 (./_minted-report/20FF3AB58C9CD8AD52E24501CC46C84C7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [25]
-\openout4 = `report.pyg'.
-
-
-(./_minted-report/96124A8E093CCC28031C676CC8AB83137C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
 \openout6 = `report.pyg'.
 
 
-(./_minted-report/D0A92E9AE8085D509B5902092E3BAFA07C2E7F49E087B8E8E8DF5244CE287
+(./_minted-report/FC158F94C02041F0DE8136BBDAFF87F37C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
 \openout6 = `report.pyg'.
 
 
-(./_minted-report/742E972295C34C97622DDA3852C1CFAC7C2E7F49E087B8E8E8DF5244CE287
+(./_minted-report/30ABE6287F1B3112C6A42D605B84C0F87C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/DA933CDAC9C8F936D1675308EED9A1017C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/20FF3AB58C9CD8AD52E24501CC46C84C7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex) [24]
 \openout4 = `report.pyg'.
 
 
-(./_minted-report/2F95209C0EB47CDE4C0FB4BFDB8897377C2E7F49E087B8E8E8DF5244CE287
+(./_minted-report/9CDB0EFE09A8295DBCAF1E387E06C7157C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
-\openout4 = `report.pyg'.
+\openout6 = `report.pyg'.
 
 
-(./_minted-report/72FE05AE8E57F8A28046743ADEDC78ED7C2E7F49E087B8E8E8DF5244CE287
+(./_minted-report/684B83286E503589996B08CBEC11F9A57C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/9D468F0F487AD6BAC55B984E50CAF3BB7C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
 \openout4 = `report.pyg'.
 
@@ -1295,7 +1296,7 @@ E39.pygtex)
 
 
 (./_minted-report/3815CAAAF6D678434BB0DD353CA1D8487C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [26]
+E39.pygtex) [25]
 \openout6 = `report.pyg'.
 
 
@@ -1319,13 +1320,8 @@ E39.pygtex)
 \openout6 = `report.pyg'.
 
 
-(./_minted-report/A33D1773947B2A2B3C0EB4CFB4E862937C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex)
-\openout6 = `report.pyg'.
-
-
 (./_minted-report/7BB2296F2C23E3D8D42263634613906A7C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [27]
+E39.pygtex)
 \openout6 = `report.pyg'.
 
 
@@ -1335,11 +1331,65 @@ E39.pygtex)
 
 
 (./_minted-report/38E5D2095B76575F55EB2D505DD5B4417C2E7F49E087B8E8E8DF5244CE287
-E39.pygtex) [28]
+E39.pygtex) [26] [27]
 Chapter 4.
-[29
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/977C575EF57AA823F92F25A2D4C8E60B7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+runsystem(pygmentize -l python -f latex -P commandprefix=PYG -F tokenmerge -o _
+minted-report/B93AECBB216C0B6DFB7774B39A0C70EF7C2E7F49E087B8E8E8DF5244CE287E39.
+pygtex report.pyg)...executed.
+
+
+(./_minted-report/B93AECBB216C0B6DFB7774B39A0C70EF7C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex) [28
 
 ]
+\openout6 = `report.pyg'.
+
+runsystem(pygmentize -l python -f latex -P commandprefix=PYG -F tokenmerge -o _
+minted-report/8A6C74665C9A6CB90F9EF54ECC93AF767C2E7F49E087B8E8E8DF5244CE287E39.
+pygtex report.pyg)...executed.
+
+
+(./_minted-report/8A6C74665C9A6CB90F9EF54ECC93AF767C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+runsystem(pygmentize -l python -f latex -P commandprefix=PYG -F tokenmerge -o _
+minted-report/3EDFF26758793F47CCD2986B898FB2A17C2E7F49E087B8E8E8DF5244CE287E39.
+pygtex report.pyg)...executed.
+
+
+(./_minted-report/3EDFF26758793F47CCD2986B898FB2A17C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+runsystem(pygmentize -l python -f latex -P commandprefix=PYG -F tokenmerge -o _
+minted-report/414D83DCFA26D6CFE6473DFD93D61EC47C2E7F49E087B8E8E8DF5244CE287E39.
+pygtex report.pyg)...executed.
+
+
+(./_minted-report/414D83DCFA26D6CFE6473DFD93D61EC47C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+runsystem(pygmentize -l python -f latex -P commandprefix=PYG -F tokenmerge -o _
+minted-report/68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287E39.
+pygtex report.pyg)...executed.
+
+
+(./_minted-report/68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex)
+\openout6 = `report.pyg'.
+
+
+(./_minted-report/68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287
+E39.pygtex) [29]
 Chapter 5.
 [30
 
@@ -1368,31 +1418,31 @@ Underfull \hbox (badness 10000) in paragraph at lines 10--14
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 26--30
+Underfull \hbox (badness 10000) in paragraph at lines 27--31
 []\OT1/cmr/m/n/12 A short his-tory of ma-chine learn-ing -- ev-ery man-ager sho
 uld
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 26--30
+Underfull \hbox (badness 10000) in paragraph at lines 27--31
 \OT1/cmr/m/n/12 read.  $\OT1/cmtt/m/n/12 https : / / www . forbes . com / sites
  / bernardmarr / 2016 / 02 / 19 /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 26--30
+Underfull \hbox (badness 10000) in paragraph at lines 27--31
 \OT1/cmtt/m/n/12 a-[]short-[]history-[]of-[]machine-[]learning-[]every-[]manage
 r-[]should-[]read /
  []
 
 
-Underfull \hbox (badness 1142) in paragraph at lines 32--35
+Underfull \hbox (badness 1142) in paragraph at lines 33--36
 []\OT1/cmr/m/n/12 Tensorflow: an open-source soft-ware li-brary for ma-chine in
 -tel-li-gence.  $\OT1/cmtt/m/n/12 www .
  []
 
 
-Underfull \hbox (badness 2318) in paragraph at lines 49--53
+Underfull \hbox (badness 2318) in paragraph at lines 60--64
 []\OT1/cmr/m/n/12 Inc. Ama-zon.com.  Ma-chine learn-ing on aws.  $\OT1/cmtt/m/n
 /12 https : / / aws . amazon . com /
  []
@@ -1400,13 +1450,13 @@ Underfull \hbox (badness 2318) in paragraph at lines 49--53
 [32
 
 ] [33]
-Underfull \hbox (badness 10000) in paragraph at lines 195--200
+Underfull \hbox (badness 10000) in paragraph at lines 206--211
 []\OT1/cmr/m/n/12 Sagar Sharma.  Ac-ti-va-tion func-tions: Neu-ral net-works.  
 $\OT1/cmtt/m/n/12 https : / /
  []
 
 
-Overfull \hbox (18.77249pt too wide) in paragraph at lines 195--200
+Overfull \hbox (18.77249pt too wide) in paragraph at lines 206--211
 \OT1/cmtt/m/n/12 towardsdatascience . com / activation-[]functions-[]neural-[]n
 etworks-[]1cbd9f8d91d6$\OT1/cmr/m/n/12 .
  []
@@ -1463,10 +1513,10 @@ runsystem(del report.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 21535 strings out of 492982
- 452199 string characters out of 6136226
- 582003 words of memory out of 5000000
- 24492 multiletter control sequences out of 15000+600000
+ 21548 strings out of 492982
+ 454952 string characters out of 6136226
+ 584885 words of memory out of 5000000
+ 24479 multiletter control sequences out of 15000+600000
  17274 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,16n,76p,972b,702s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1489,10 +1539,10 @@ ts/cm/cmsy10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cms
 y8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c
 :/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive
 /2017/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on report.pdf (44 pages, 2464994 bytes).
+Output written on report.pdf (44 pages, 2421995 bytes).
 PDF statistics:
- 255 PDF objects out of 1000 (max. 8388607)
+ 251 PDF objects out of 1000 (max. 8388607)
  167 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 83 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 73 words of extra memory for PDF output out of 10000 (max. 10000000)
 
