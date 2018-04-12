@@ -63,8 +63,8 @@ GEN_WIDTH = 30 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
 # optimizers
-GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
-OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
+GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.999999, beta2=0.999999)
+OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.999999, beta2=0.999999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
