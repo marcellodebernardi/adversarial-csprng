@@ -5,5 +5,4 @@ tensorflow
 numpy
 keras
 tqdm
-quantumrandom
 h5py
