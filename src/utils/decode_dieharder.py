@@ -31,11 +31,14 @@ def main():
             # file header
             new_file.write('#==========\n' + '# dieharder test\n' + '#==========\n'
                            + 'type: d\n'
-                           + 'count: ' + str(len(data)) + '\n'
-                           + 'numbit: 16\n')
+                           + 'count: ' + str(int(len(data) / 2)) + '\n'
+                           + 'numbit: 32\n')
 
-            for number in data:
-                new_file.write(str(int(number, 16)) + '\n')
+            for number in range(len(data)):
+                if number % 2 == 0:
+                    new_file.write(str(int(data[number], 16)))
+                else:
+                    new_file.write(str(int(data[number], 16)) + '\n')
 
 
 if __name__ == '__main__':
