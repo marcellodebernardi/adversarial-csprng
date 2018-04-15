@@ -22,8 +22,8 @@ rm 1_janice.txt
 
 p_value=0.02
 # run dieharder for jerry
-dieharder -g 202 -f 1_jerry_dieharder.txt -a -m $2 > result_jerry_1.txt
-dieharder -g 202 -f 0_jerry_dieharder.txt -a -m $2 > result_jerry_0.txt
+dieharder -g 202 -f 1_jerry_dieharder.txt -a -m ${p_value} > result_jerry_1.txt
+dieharder -g 202 -f 0_jerry_dieharder.txt -a -m ${p_value} > result_jerry_0.txt
 
 # run dieharder for janice
 dieharder -g 202 -f 1_janice_dieharder.txt -a -m ${p_value} > result_jerry_1.txt
