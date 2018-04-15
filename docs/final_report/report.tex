@@ -40,6 +40,11 @@
 %----------------------------------------------------------
 %----------------------------------------------------------
 
+%----------------------------------------------------------
+% COMMANDS
+%----------------------------------------------------------
+\newcommand\mdoubleplus{\mathbin{+\mkern-10mu+}}
+
 
 
 
@@ -138,47 +143,41 @@ Acknowledgements come here!
 % INTRODUCTION
 %-------------------------------------------------
 \chapter{Introduction}
-The availability of massive datasets during the last decade has made machine learning, and deep learning in particular, tremendously successful at solving problems throughout all areas of life \cite{russel2009artificial}. Major technology companies such as Google, Amazon, Microsoft and Facebook now all provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
+\epigraph{From where we stand the rain seems random. If we could stand somewhere else, we would see the order in it.}{Tony Hillerman, Coyote Waits}
+
+A random number may informally be defined as a variable whose value is unpredictable, by virtue of the fact that all possible values are equally likely to appear \cite[p. 7]{barker2007recommendation}. This notion of unpredictability, or randomness, is crucial to computer security, as it is a fundamental element of many cryptographic systems such as encryption algorithms, where security guarantees often rely on an adversary not knowing the randomly selected value of some parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. The task of obtaining unpredictable values for use in such applications is carried out by systems known as ``random number generators", which may be implemented either as specialized hardware, software, or as a combination of both \cite[p. 196, 172]{menezes1996handbook}. If the implementation is fundamentally deterministic, we refer to the system as a ``pseudo-random number generator" \cite[p. 169]{menezes1996handbook}. In many cryptographic systems, this ``randomness source" is a single point of failure, which means that the generator's implementation is a critical aspect of the overall design \cite[p. 2]{kelsey1998cryptanalytic}. Indeed, how to implement a good generator is a question considered by several books, from Donald Knuth's seminal \textit{The Art of Computer Programming, Volume II: Seminumerical Algorithms} \cite{donald1998art} to textbooks such as Katz and Lindell's \textit{Introduction to Modern Cryptography} \cite{katz2014introduction}, as well as an active area of research.
+
+Recent years have seen machine learning methods achieve a tremendous amount of success in solving problems throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with ``deep neural networks", a parametric representation of a highly non-linear function consisting of computational units called ``neurons", usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now all provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
+
+This work seeks to apply a recently formulated deep learning method known as ``generative adversarial networks" to the problem of generating seemingly random numbers for use in cryptographic systems.
+
 
 \begin{figure}
 \centering
 \includegraphics[width=0.95\textwidth]{img/google_trends_dl.png}\\
-\caption{Search interest for "deep learning" as an example of interest in machine learning. Data source: Google Trends (www.google.com/trends) \cite{google2018trends}}
+\caption{Search interest for ``deep learning" as a simple metric of public interest in machine learning. Data source: Google Trends (www.google.com/trends) \cite{google2018trends}}
 \label{figure:googletrends_dl}
 \end{figure}
 
-At the same time, 
 
-\todo{stuff about security}
+\section{Aims and Motivation}\label{subsection:aims}
+The precise aim of this research is to determine whether \textbf{a neural network can be trained to output sequences of numbers which appear to be randomly generated}, and, by extension, whether \textbf{such a neural network could be used as a pseudo-random number generator in a cryptographic context}. 
 
+The motivation for this work is two-fold. On one hand, it presents a significant challenge from the perspective of deep learning. While neural networks have been extremely successful in supervised learning of regression and classification models, as well as in producing new data mimicing an existing dataset \cite{goodfellow2014generative}, attempts to produce seemingly random outputs have shown poor results. However, previous research efforts have often resorted to complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior. This work undertakes the task differently; the similarly adversarial nature of generating random numbers for cryptographic use and of training generative adversarial networks results in an approach that is conceptually both simple and elegant.
 
-\section{Motivation}
-The motivation for this work is two-fold. 
-
-On the one hand, it presents a significant challenge from the perspective of deep learning. Neural networks have been extremely successful at learning functions to label data and perform predictions, as well as at learning how to output data mimicing a given dataset (such as images) \cite{goodfellow2014generative}. However, as outlined in section \ref{section:related_work}, attempts to produce seeming randomness in neural networks have shown somewhat poor results, and have not gained much attention.
-
-On the other hand, this investigation is also valuable from the perspective of computer security. The ability to obtain a pseudo-random number generator "ad-hoc" by training a neural network could enable, for example, the re-initialization of a compromised PRNG into a secure state beyond what is possible by re-seeding a standard PRNG; retraining the network to a different (but satisfactory) state, while prohibitively time-consuming, would change its exact outputs in an unpredictable manner.
-
-The undertaking of this investigation is motivated by the (unproven) conjecture that the function represented by a standard PRNG's algorithm can be approximated by a neural network of sufficient complexity.
-
-
-\section{Aims}\label{subsection:aims}
-The aim of this research is to determine whether \textbf{a neural network can be trained to output sequences of numbers which appear to be randomly distributed}, and, by extension, whether \textbf{such a neural network could be used as a pseudo-random number generator in a cryptographic context}.
-
-In order to provide a conclusion for this research question, this investigation has entailed a \textbf{review of existing literature}, the design and development of a \textbf{prototype machine learning model}, \textbf{training of the model} on an HPC cluster, and finally \textbf{evaluation of the model} to determine whether training successfully resulted in a model capable of producing pseudo-random number sequences.
-
+On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several desirable properties. This includes the ability to perform ad-hoc modifications to the generator by means of training, the ability to arbitrarily extend the length of generated number sequences without necessarily damaging their unpredictability by increasing the dimensionality of the network's input, as well as the ability to easily recover from state compromise attacks.
 
 
 \section{Report Structure}
 The report is structured as outlined below, with additional appendices at the end of the document.
 
-Section \ref{chapter:background} outlines the \textbf{theoretical background} required to understand this research, as well as a literature review to capture the current state of the art in the field. The subsections are written as cohesive, self-contained units, allowing the reader to skip subsections they are already familiar with.
+Section \ref{chapter:background} outlines the theoretical background required to understand this research, as well as a literature review to capture the current state of the art in the field. The subsections are written as cohesive, self-contained units, allowing the reader to skip subsections they are already familiar with.
 
-Section \ref{chapter:design} presents a \textbf{detailed view of the system} developed as part of this research, both at a conceptual level as well as in code. Each subsection deals with a component of the system.
+Section \ref{chapter:design} presents a detailed view of the system developed as part of this research, both at a conceptual level as well as in code. Each subsection deals with a component of the system.
 
-Section \ref{chapter:experiments} reports the \textbf{experiments} carried out on the implementation, including the full experimental setup as well each experiment's results. These results are then analyzed.
+Section \ref{chapter:experiments} reports the experiments carried out on the implementation, including the full experimental setup as well each experiment's results. These results are then analyzed.
 
-Finally, section \ref{chapter:conclusion} makes a \textbf{conclusion} on the central research question on the basis of the results.
+Finally, section \ref{chapter:conclusion} makes a conclusion on the central research question on the basis of the results.
 
 
 
@@ -225,17 +224,6 @@ The following intuitive formulation of entropy was given by Ferguson et al. Entr
 
 
 
-\subsection{Applications of Random Numbers}
-Random numbers have several important applications in computing, primarily in cryptography, where many algorithms make use of randomness, \cite[p. 137]{ ferguson2010cryptography} and in science, where simulations of random processes are frequently used\cite{deng2017developments}. A few important examples are considered here.
-
-The \textbf{RSA (Rivest-Shamir-Adleman) algorithm}, as explained by Anderson [p. 171]\cite{anderson2010security}, is the most commonly used algorithm for performing public-key encryption and digital signatures. The RSA algorithm relies on two randomly chosen large prime numbers $p$ and $q$, which act as the private keys used by the two communicating parties. As these values must be kept secret from any third parties, they need to be selected randomly in such a manner than an attacker cannot predict them.
-
-The \textbf{HTTP digest access authentication protocol} \todo{find RFC}
-
-\textbf{Monte Carlo methods} \todo{MCTS}
-
-
-
 \subsection{Random Number Generators}
 In order to obtain sequences of random numbers for use in applications such as those mentioned above, random number generators are used.
 
@@ -249,7 +237,7 @@ According to Ferguson, Schneier, and Kohno, there are several problems related t
 
 
 
-\subsection{Pseudo-Random Number Generators}
+\subsection{Pseudo-Random Number Generators}\label{subsection:prngs}
 A solution to many of the problems inherent to the use of truly random number generators is to use a pseudo-random number generator \cite[p. 140]{ferguson2010cryptography}.
 
 \begin{definition}
@@ -262,15 +250,33 @@ A solution to many of the problems inherent to the use of truly random number ge
 \caption{A high-level view of the operation of a PRNG \cite{kelsey1998cryptanalytic}.}
 \label{figure:prng_high_level}
 \end{figure}
-	
 
 
-\subsection{Cryptographic Randomness Requirements}\label{subsection:crypto_requirements}
-TODO: a reasonable list of the security requirements of a PRNG in order to be termed a CSPRNG. I have multiple sources on this, but no one good source.
+\todo{stuff about how PRNG state changes based on previous outputs}
 
 
 
-\subsection{Testing Pseudo-Random Sequences}\label{subsection:testing_prngs}
+\section{Random Numbers and Cryptography}
+Random numbers have several important applications in computing, primarily in cryptography, where many algorithms make use of randomness, \cite[p. 137]{ ferguson2010cryptography} and in science, where simulations of random processes are frequently used\cite{deng2017developments}. A few important examples are considered here.
+
+The \textbf{RSA (Rivest-Shamir-Adleman) algorithm}, as explained by Anderson [p. 171]\cite{anderson2010security}, is the most commonly used algorithm for performing public-key encryption and digital signatures. The RSA algorithm relies on two randomly chosen large prime numbers $p$ and $q$, which act as the private keys used by the two communicating parties. As these values must be kept secret from any third parties, they need to be selected randomly in such a manner than an attacker cannot predict them.
+
+The \textbf{HTTP digest access authentication protocol} \todo{find RFC}
+
+\textbf{Monte Carlo methods} \todo{MCTS}
+
+
+\subsection{Cryptographic Applications of Random Numbers}
+
+
+
+\subsection{Requirements for Cryptographic Security}\label{subsection:crypto_requirements}
+- next bit test and shit
+
+
+
+
+\subsection{Testing Number Sequences for Randomness}\label{subsection:testing_prngs}
 The \textbf{National Institute of Standards and Technology}, part of the U.S. Department of Commerce, sets out guidelines for the testing of RNGs and PRNGs in its publication 800-22, \textit{A Statistical Test Suite for Random and Psuedorandom Number Generators for Cryptographic Applications}, by Rukhin et al. This work refers to revision 1a of the publication.
 
 Rukhin et all point out that, since the properties of random sequences can be described in probabilistic terms, their degree of ``randomness" can be evaluated by various statistical tests, as the likely outcome of such a test is known a priori. These tests search for particular patterns in sequences which would indicate non-randomness. No set of statistical tests can be considered complete, as there is an infinite number of tests \cite[p. 1-2]{rukhin2001statistical}.
@@ -287,6 +293,7 @@ Also according to Rukhin et al, statistical tests are formulated to test for the
 From such a distribution, a \textbf{critical value} is determined. This value acts as a threshold to which the value of a metric computed on a sequence is compared. If the computed value exceeds the critical value, we assert that the test rejects the null hypothesis. Intuitively, the idea is that we consider a value above the critical value to be so unlikely to occur (though not impossible) under the assumption of randomness, that we can confidently reject the randomness hypothesis \cite[p. 1.3]{rukhin2001statistical}.
 
 The NIST Test Suite is the accepted standard for testing random and pseudo-random bit generators \cite{lavasani2009practical}. It consists of a battery of statistical tests performed on file containing large binary sequences. Each test in the suite either accepts or rejects the null hypothesis \cite{rukhin2001statistical}. The NIST suite was found to be used throughout the majority of papers on PRNGs reviewed at the start of this investigation.
+
 
 
 
@@ -442,37 +449,6 @@ As a result, each filter in the layer can be seen as looking for a specific patt
 \end{figure}
 
 
-\subsection{Recurrent Neural Networks}
-\textbf{Recurrent neural networks} are a category of neural networks specialized to the processing of data that is temporally sequential. In general, RNNs operate on a sequence of vectors $\bm{x}^{(t)}$, where $t$ is a temporal index into the sequence ranging from $1$ to $T$ \cite[p. 368]{goodfellow2016deep}.
-
-An important concept is that of \textbf{unfolding} a recurrence. For example, the classical equation for dynamic systems
-\begin{gather}\label{eq:dynamic_system}
-\bm{s}^{(t)} = f_{\bm{\theta}}(\bm{s}^{(t - 1)})
-\end{gather}
-where $\bm{s}$ is the state of the system, can be unfolded for a finite $t$ by applying the definition $t$ times, removing the recurrence \cite[p. 369-370]{goodfellow2016deep}:
-\begin{gather}\label{eq:dynamic_system}
-\bm{s}^{(3)} = f_{\bm{\theta}}(f_{\bm{\theta}}(\bm{s}^{(1)}))
-\end{gather}
-
-\begin{figure}
-\centering
-\includegraphics[width=0.7\textwidth]{img/unfolding.png}\\
-\caption{Unfolding a recurrent network without outputs. The black square represents a delay of one timestep in the application of previous inputs to the computation. Image courtesy of  \cite[p. 370]{goodfellow2016deep}.}
-\label{figure:conv_pooling}
-\end{figure}
-
-The behavior of recurrent neural networks is defined by the equation
-\begin{gather}\label{eq:recurrent_net}
-\bm{h}^{(t)} = f_{\bm{\theta}}(\bm{h}^{(t - 1)}, \bm{x}^{(t)})
-\end{gather}
-
-where $\bm{h}$ represents the state of the network, and $\bm{x}$ represents an input to the network. The state of the network is thus dependent on the previous state as well as the current input, and, by induction, on the previous inputs. Goodfellow et al state that "the network typically learns to use $\bm{h}^{(t)}$ as a kind of lossy summary of the task-relevant aspects of the past sequence of inputs up to $t$"\cite{goodfellow2016deep}.
-
-A thorough discussion of recurrent neural networks is beyond the scope of this investigation. Suffice to say that there are many different ways of constructing recurrent neural networks, and typical RNNs include architectural features not captured by equation \ref{eq:recurrent_net}. Similarly to how feed-forward networks can represent almost any function, recurrent neural networks can represent almost any function involving recurrence \cite[p. 370]{goodfellow2016deep}.
-
-According to Goodfellow et al, as of 2016 the most successful type of RNN for practical applications is \textbf{gated RNNs}. This includes \textbf{long short-term memory} (LSTM) networks, which are the type of RNN used in this investigation. The architectural features of LSTM networks enable them to effectively learn long-term dependencies in the temporal input data \cite[p. 404-407]{goodfellow2016deep}.
-
-
 
 \subsection{Generative Adversarial Networks}\label{subsection:generativeadversarial}
 We may classify machine learning models as either being \textit{discriminative} or \textit{generative}. Examples of discriminative models are neural networks that map images to class labels \cite[p. 1]{goodfellow2014generative}. Generative models, on the other hand, rather than mapping inputs from a training set to class labels, learn to mimic the training set. That is, for a training set of data points drawn from a distribution $p_{data}$, a generative model learns to represent $p_{model}$, an approximation of $p_{data}$ \cite{goodfellow2016nips}.
@@ -548,31 +524,89 @@ Analogously, one aspect of this investigation is the ability to predict the next
 \chapter{Design and Implementation}\label{chapter:design}
 This section provides an in-depth explanation of the conceptual design of the system and how it relates to the research hypothesis, the technologies used to implement it, and the details of the implementation.
 
-\section{Conceptual Design}\label{section:conceptual_design}
-As stated, the aim of this investigation is to determine whether it is possible to train a neural network to output pseudo-random number sequences by means of an adversarial training process involving two neural networks, a generator $G$ and an adversary $D$. The goal of this process is to enable the generator to learn a function $G(s, S) : \mathbb{R}^2 \rightarrow \mathbb{R}^n$ which approximates some arbitrary function $prng(s, S) : \mathbb{R}^2 \rightarrow \mathbb{R}^n$, where $prng$ is a function whose outputs fulfill a set of criteria for randomness (subsection \ref{subsection:eval_and_randomness}).
 
-Two distinct approaches are considered. These approaches are termed the \textit{discriminative approach} and the \textit{predictive approach}, and differ in the task performed by the generator's adversary.
+
+\section{Conceptual Design}\label{section:conceptual_design}
+As stated, the aim of this investigation is to determine whether it is possible to train a neural network to output pseudo-random number sequences. Previous work has attempted to answer this question by using recurrent architectures to encourage chaotic behavior (see section \ref{section:related_work}). In contrast, this investigation takes a more intuitive approach, conjecturing that a simple fully-connected feed-forward network of sufficient size can learn a function whose inputs appear random.
+
+For simplicity, we view a pseudo-random number generator as a system implementing some function
+\begin{gather}\label{eq:conceptual_prng}
+prng(s) : \mathbb{R} \rightarrow \mathbb{R}^n
+\end{gather}
+where $s$ is a truly random seed value, $n$ is a very large value, and the outputs of $prng$ fulfill a set of criteria for randomness. In regards to each individual output value, we can characterize a PRNG as a function 
+\begin{gather}
+prng(s, S_i) : X \rightarrow \mathbb{R}
+\end{gather}
+where $S_i$ is the current state of the generator, and $X$ is the set of all tuples $(s, S_i)$. That is, a PRNG is fundamentally a function which maps a single seed value to a very large (unique) output sequence, such each element of the sequence is determined by the generator's state. A generator neural network, $G$, should learn a function which approximates $prng$.
+
+We can abstract the complexity of the internal state of PRNGs by using a stateless neural network, and equivalently representing the generator's ``state" as a component of the network's input instead. This conceptual difference is demonstrated in figure \ref{figure:conceptual_difference}. Thus the neural network should learn a function
+\begin{gather}
+G_{\theta_{G}}(s, o_t) : \mathbb{R}^i \rightarrow \mathbb{R}^n
+\end{gather}
+where $s$ is a truly random seed value, $o_t$ model's a PRNG's internal state and can be seen as an ``offset" into the full output sequence for $s$, and $i$ is the dimensionality of the network input.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{img/conceptual_design.png}\\
+\caption{The conceptual difference in the common implementation of PRNGs (top) and the implementation using GANs in this work (bottom). Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:conceptual_difference}
+\end{figure}
+
+This work views the generation of pseudo-random numbers in a cryptographic setting as a fundamentally adversarial task: the goal of good CSPRNG design is to minimize the probability of an intelligent adversary correctly guessing future outputs. This is analogous to the generative adversarial network framework, where a discriminator attempts to find patterns in the generator's output, and the generator minimizes its probability of doing so correctly. Thus it is natural to formulate the task of generating pseudo-random number sequences using a GAN. Two distinct approaches are considered, termed the \textit{discriminative approach} and the \textit{predictive approach}, respectively (figure \ref{figure:approach_comparison}). 
+
+In the discriminative approach, the adversary is a standard discriminator network, which receives number sequences as inputs both from the generator and a source of true randomness, and outputs the probability that a sequence is truly random. The input sequences are labeled as truly random or not random, and the discriminator is trained to better discern the two classes. In order to prevent the discriminator from performing better than it would by making random guesses, the generator has to learn to mimic the truly random sequences.
+
+The predictive approach is loosely based on the idea of the theoretical next bit test, outlined in section \ref{subsection:crypto_requirements}. Each sequence of length $n$ produced by the generator is split, such that the first $n - 1$ values are passed to the adversary as input, and the $n$th value is used as the corresponding label; the predictor is trained to output the $n$th value in the generator's output sequence based on all previous values. Again, the generator's goal is to modify its behavior in order to minimize the probability of the predictor making a correct guess.
+
+Both approaches are elegantly intuitive. The former is a direct application of the standard GAN framework, which requires the generator to learn the uniform probability distribution characteristic of truly random number sequences. The latter models closely the actual goals of a PRNG and its adversary in a cryptographic setting. Unlike previous work, this investigation follows an important guideline given by Russel and Norvig: \textit{``As a general rule, it is better to design performance measures according to what one actually wants in the environment, rather than according to how one thinks the agent should behave"} \cite[p. 37]{russel2009artificial}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.99\textwidth]{img/approach_comparison.png}\\
+\caption{The two approaches differ at the conceptual level in the the discriminative approach (left) requires a source of true randomness which it attempts to emulate, while the predictive approach (right) is an even purer ``game" between the two networks, with no side inputs. Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:approach_comparison}
+\end{figure}
 
 
 
 \subsection{Generative Model}
-The generator, \mintinline{python}{jerry}, implements the function $G_{\theta_{G}}(s, o) : \mathbb{R}^2 \rightarrow \mathbb{R}^n$, where $\theta_G$ are the parameters of $G$, $s$ is the seed of the generator, $o$ is an offset into the generator's output sequence, and $n$ is the length of the output sequence.
+The generator is a fully connected feed-forward neural network implementing the function $G_{\theta_{G}}(s, o_t) : \mathbb{R}^2 \rightarrow \mathbb{R}^m$. It takes two input values, where the first is a truly random seed, and the second is a representation of the PRNG state; the output is a 1D real vector of length $m$. For any specific seed $s$, the complete pseudo-random sequence produced by the generator is given by the concatenation of all the output sequences $\forall o_t\ G_{\theta_{G}}(s, o_t)$, where $s$ is fixed.
 
+The generator consists of five fully connected feed-forward layers (figure \ref{figure:architecture_generator}). The input layer, as well as the hidden layers, use the leaky ReLU activation function which is currently the general recommendation for generic application \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}. The output layer uses an activation function which computes a modulus operation on every element in the output vector, squeezing the values into a desired range. A popular variant of the stochastic gradient descent algorithm called Adam is used, which adaptively computes separate learning rates for each parameter \cite{kingma2014adam} \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}.
+
+Two slightly different variants of the generator are implemented, referred to as \mintinline{python}{jerry} and \mintinline{python}{janice}. The former uses a ``squared difference" loss function and is trained using the discriminative approach, while the latter uses an ``absolute difference" loss function and is trained using the predictive approach. The two implementations are identical otherwise.
 
 \begin{figure}
 \centering
-\includegraphics[width=1\textwidth]{img/generator.png}\\
-\caption{Architecture of the generator. Each fully connected feed-forward (FCFF) neural network layer is implemented in Keras using a \mintinline{python}{Dense} layer followed by a \mintinline{python}{LeakyReLU} layer. The network's inputs (two real numbers) and outputs (a sequence of real numbers of length $n$) are also shown. Image produced using draw.io \cite{jgraph2018draw}.}
+\includegraphics[width=0.7\textwidth]{img/generator.png}\\
+\caption{Architecture of the generator. Each fully connected feed-forward layer's activation function (blue) is shown; the output layer (red) differs from the other layers in that it does not use the leaky ReLU activation, but rather a modulus function. Image produced using draw.io \cite{jgraph2018draw}.}
 \label{figure:architecture_generator}
 \end{figure}
 
+
+
+
 \subsection{Discriminative and Predictive Models}
-TODO: architecture of opponents, split into three
+The discriminator and the predictor are convolutional neural networks implementing the functions
+\begin{gather}
+disc(\bm{r}) : \mathbb{R}^m \rightarrow [0, 1] \\
+pred(\bm{r}_{split}) : \mathbb{R}^{m - 1} \rightarrow \mathbb{R}
+\end{gather}
+respectively, where $\bm{r}$ is the generator's output vector, $\bm{r}_{split}$ is the output vector without the last element, and $m$ is the output vector's size. The discriminator takes as inputs sequences of length $m$ and outputs a scalar representing the probability the sequence is truly random. The predictor's inputs are sequences of length $m-1$ produced by the generator, using which the network attempts to guess the $m$th value in the sequence.
+
+Apart from the input size and the meaning of the output, the discriminator and the predictor share the same architecture. The input first passes through four convolutional layers for 1-dimensional inputs.
 
 \begin{figure}
 \centering
-\includegraphics[width=1\textwidth]{img/opponent_conv.png}\\
-\caption{Convolutional opponent architecture. \mintinline{python}{Reshape} and \mintinline{python}{Flatten} layers are required in Keras as the \mintinline{python}{Conv1D} takes a two-dimensional input. Image produced using draw.io \cite{jgraph2018draw}.}
+\includegraphics[width=1\textwidth]{img/discriminator.png}\\
+\caption{Convolutional discriminator architecture. The output of the generator is convolved multiple times in order to extract higher-level features from the sequence; this is followed by pooling to reduce the output size, and fully connected feed-forward layers to produce the final classification output. Image produced using draw.io \cite{jgraph2018draw}.}
+\label{figure:architecture_conv}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{img/predictor.png}\\
+\caption{Convolutional predictor architecture. The design is shared with the discriminator, but the size of the input sequence and the meaning of the output scalar are different. The predictor produces a guess for the last value in the generator's output based on the previous values. Image produced using draw.io \cite{jgraph2018draw}.}
 \label{figure:architecture_conv}
 \end{figure}
 
@@ -595,7 +629,7 @@ Choosing a language, a software library, or a software framework for a particula
 
 Development of the project was carried out using a mix of free as well as proprietary tools, including the Jetbrains PyCharm integrated development environment and Microsoft's free code editor VSCode. Early tests of the implementation's performance were executed on virtual machines in Google's, Amazon's, and Digital Ocean's cloud services, with a mix of CPU-focused and GPU-focused instance types.
 
-Training of the model was carried out on an HPC cluster, access to which was provided by the School of Electronic Engineering and Computer Science at Queen Mary University of London. The cluster consists of 5 machines, each with 64 CPU cores, 256 GB RAM, and no GPUs.
+Training of the model was carried out on an HPC cluster, access to which was provided by the School of Electronic Engineering and Computer Science at Queen Mary University of London. The cluster consists of 5 machines, each with 64 CPU cores, 256 GB RAM, and no GPUs. The code was executed within a Docker container.
 
 
 \subsection{Introduction to TensorFlow}
@@ -737,6 +771,8 @@ A number of other hyperparameters, in particular those parameterizing the convol
 
 
 \section{Results}
+
+\section{Discussion and Applications}
 
 
 %----------------------------------------------------------
@@ -922,39 +958,6 @@ TODO: currently being trained as of draft submission. Data will be outputted to 
     except ValueError:
         traceback.print_exc()
 \end{minted}
-
-\chapter{Mathematical Notation}\label{appendix:mathematics}
-The mathematical notation used in this work is outlined in this appendix. The notation followed is primarily drawn from the seminal computer science textbook \textit{Introduction to Algorithms}, by Cormen, Leiserson, Rivest, and Stein \cite{cormen2009introduction}. Unless otherwise stated, all definitions in this appendix should be assumed to be verbatim from this source, preserving the precision of the language of the source. Quotation marks and statements such as ``according to Cormen, Leiserson, Rivest, and Stein ..." shall be implicit.
-
-\section{Set Theory}
-TODO: fill in 
-\section{Probability Theory}
-\textbf{Definition}. The \textbf{sample space} $\Omega = \{w_1, w_2, ..., w_n\}$ of an experiment is the set of all possible \textbf{outcomes} $w_i$. An \textbf{event} is a subset $A \subset \Omega$ of the sample space. The outcomes may also be referred to as \textbf{elementary events}, in that for every outcome $w_i$, there is an event $A_i = \{w_i\}$.
-
-\textbf{Definition}. A \textbf{probability distribution} $p(\Omega)$ is a function $p : \Omega \rightarrow \mathbb{R}$ satisfying the three \textbf{probability axioms}:
-\section{Linear Algebra}
-\begin{definition}
-The \textbf{convolution} operation
-\end{definition}
-
-\section{Neural Networks}
-\begin{definition}
-The \textbf{sigmoid} activation is a function $\sigma : \mathbb{R} \rightarrow [0, 1]$ with the following expression form:
-\begin{gather}\label{eq:sigmoid}
-\sigma(x)=1/(1 + {e^{-x}})
-\end{gather}
-
-The sigmoid activation function "compresses" its inputs into to the range $[0, 1]$. In particular, the output value approaches $1$ as the input tends to positive infinity, and approaches $0$ as the input tends to negative infinity.
-\end{definition}
-
-The sigmoid activation is traditionally one of the most used sources of non-linearity in neural networks. However, it suffers from a few drawbacks. For one, the sigmoid function is detrimental to gradient descent, as the gradient of the sigmoid function is effectively zero for the vast majority of its inputs.
-
-\begin{definition}
-The \textbf{tanh} activation is a function $tanh: \mathbb{R} \rightarrow [-1, 1]$ with the following expression form:
-\begin{gather}\label{eq:tanh}
-tanh(x)=2\sigma(2x)-1
-\end{gather}
-\end{definition}
 
 
 \end{document}
