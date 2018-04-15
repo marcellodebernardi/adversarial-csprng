@@ -76,11 +76,6 @@ Elaine~B Barker and John~Michael Kelsey.
   Institute of Standards and Technology, Computer Security Division,
   Information Technology Laboratory, 2007.
 
-\bibitem{cormen2009introduction}
-Thomas~H Cormen, Charles~E Leiserson, Ronald~L Rivest, and Clifford Stein.
-\newblock {\em Introduction to algorithms}.
-\newblock MIT press, 2009.
-
 \bibitem{microsoft2018azure}
 Microsoft Corporation.
 \newblock Azure machine learning - open and elastic ai development spanning the
@@ -143,10 +138,20 @@ Andrej Karpathy.
 \newblock Lecture notes for cs231n convolutional neural networks for visual
   recognition, 2017.
 
+\bibitem{katz2014introduction}
+Jonathan Katz and Yehuda Lindell.
+\newblock {\em Introduction to modern cryptography}.
+\newblock CRC press, 2014.
+
 \bibitem{kelsey1998cryptanalytic}
 John Kelsey, Bruce Schneier, David Wagner, and Chris Hall.
 \newblock Cryptanalytic attacks on pseudorandom number generators.
 \newblock In {\em Fast Software Encryption}, pages 168--188. Springer, 1998.
+
+\bibitem{kingma2014adam}
+Diederik~P Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization.
+\newblock {\em arXiv preprint arXiv:1412.6980}, 2014.
 
 \bibitem{klimov2002analysis}
 Alexander Klimov, Anton Mityagin, and Adi Shamir.
