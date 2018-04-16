@@ -26,8 +26,8 @@ dieharder -g 202 -f 1_jerry_dieharder.txt -a -m ${p_value} > result_jerry_1.txt
 dieharder -g 202 -f 0_jerry_dieharder.txt -a -m ${p_value} > result_jerry_0.txt
 
 # run dieharder for janice
-dieharder -g 202 -f 1_janice_dieharder.txt -a -m ${p_value} > result_jerry_1.txt
-dieharder -g 202 -f 0_janice_dieharder.txt -a -m ${p_value} > result_jerry_1.txt
+dieharder -g 202 -f 1_janice_dieharder.txt -a -m ${p_value} > result_janice_1.txt
+dieharder -g 202 -f 0_janice_dieharder.txt -a -m ${p_value} > result_janice_0.txt
 # scp files to frank
 cd ../
 scp -r ./* medb10@frank.eecs.qmul.ac.uk:/homes/medb10/results/$1
