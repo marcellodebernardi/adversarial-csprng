@@ -145,11 +145,11 @@ Acknowledgements come here!
 \chapter{Introduction}
 \epigraph{From where we stand the rain seems random. If we could stand somewhere else, we would see the order in it.}{Tony Hillerman, Coyote Waits}
 
-A random number may informally be defined as a variable whose value is unpredictable, by virtue of the fact that all possible values are equally likely to appear \cite[p. 7]{barker2007recommendation}. This notion of unpredictability, or randomness, is crucial to computer security, as it is a fundamental element of many cryptographic systems such as encryption algorithms, where security guarantees often rely on an adversary not knowing the randomly selected value of some parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. The task of obtaining unpredictable values for use in such applications is carried out by systems known as ``random number generators", which may be implemented either as specialized hardware, software, or as a combination of both \cite[p. 196, 172]{menezes1996handbook}. If the implementation is fundamentally deterministic, we refer to the system as a ``pseudo-random number generator" \cite[p. 169]{menezes1996handbook}. In many cryptographic systems, this ``randomness source" is a single point of failure, which means that the generator's implementation is a critical aspect of the overall design \cite[p. 2]{kelsey1998cryptanalytic}. Indeed, how to implement a good generator is a question considered by several books, from Donald Knuth's seminal \textit{The Art of Computer Programming, Volume II: Seminumerical Algorithms} \cite{donald1998art} to textbooks such as Katz and Lindell's \textit{Introduction to Modern Cryptography} \cite{katz2014introduction}, as well as an active area of research.
+A random number may informally be defined as a variable whose value is unpredictable, by virtue of the fact that all possible values are equally likely to appear \cite[p. 7]{barker2007recommendation}. This notion of unpredictability, or randomness, is crucial to computer security, as it is a fundamental element of many cryptographic systems such as encryption algorithms, where security guarantees often rely on an adversary not knowing the value of some internal parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. The task of obtaining unpredictable values for use in such applications is handled by systems known as ``random number generators", which may be implemented either as specialized hardware, software, or as a combination of both \cite[p. 196, 172]{menezes1996handbook}. If the implementation is fundamentally deterministic, we refer to the system as a ``pseudo-random number generator" \cite[p. 169]{menezes1996handbook}. In many cryptographic systems, this ``randomness source" is a single point of failure, which means that the generator's implementation is a critical aspect of the overall design \cite[p. 2]{kelsey1998cryptanalytic}. Indeed, how to implement a good generator is a question considered by several books, from Donald Knuth's seminal \textit{The Art of Computer Programming, Volume II: Seminumerical Algorithms} \cite{donald1998art} to textbooks such as Katz and Lindell's \textit{Introduction to Modern Cryptography} \cite{katz2014introduction}, as well as an active area of research.
 
-Recent years have seen machine learning methods achieve a tremendous amount of success in solving problems throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with ``deep neural networks", a parametric representation of a highly non-linear function consisting of computational units called ``neurons", usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now all provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
+Recent years have seen machine learning methods achieve a tremendous amount of success throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with ``deep neural networks", a parametric representation of a mathematical function consisting of computational units called ``neurons", usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
 
-This work seeks to apply a recently formulated deep learning method known as ``generative adversarial networks" to the problem of generating seemingly random numbers for use in cryptographic systems.
+This work units the two fields by seeking to apply a recently formulated deep learning method known as ``generative adversarial networks" to the generation of seemingly random numbers for use in cryptosystems.
 
 
 \begin{figure}
@@ -188,13 +188,13 @@ Finally, section \ref{chapter:conclusion} makes a conclusion on the central rese
 \chapter{Background}\label{chapter:background}
 \epigraph{Any one who considers arithmetical methods of producing random digits is, of course, in a state of sin.}{John Von Neumann, 1951}
 
-This work lies at the intersection of machine learning and computer security. In particular, by exploring the applications of neural networks to computer security, it falls into the field of neural cryptography \cite{klimov2002analysis}. This section provides an overview of the required background to pseudo-random number generation, including definitions of random number sequences and guidelines on how to evaluate them. It also covers the basics of artificial neural networks before moving to the specific neural network techniques used in this work. Lastly, an overview of the most relevant literature is provided.
+This work lies at the intersection of machine learning and computer security. In particular, by exploring the applications of neural networks to computer security, it falls into the field of neural cryptography \cite{klimov2002analysis}. This section provides an overview of the required background for pseudo-random number generation, including a definition of random number sequences, some of their applications in cryptography, and guidelines on how to evaluate their suitability for such use. It also covers the basics of artificial neural networks before moving to the specific neural network techniques used in this work. Lastly, an overview of the most relevant literature is provided.
 
 \section{Random Numbers Sequences and Generators}
-Of primary concern to this research are the nature of random number sequences, and the means by which such sequences may be generated and evaluated. A consideration of the nature of randomness is sidestepped, since, as remarked by Donald Knuth, a philosophical discussion almost invariably ensues \cite[p. 2]{donald1998art}. Instead, a pragmatic set of definitions for the key terminology is provided.
+Of primary concern to this research are the nature of random number sequences and the means by which such sequences may be generated and evaluated. A consideration of the nature of randomness is sidestepped, since, as remarked by Donald Knuth, a philosophical discussion almost invariably ensues \cite[p. 2]{donald1998art}. Instead, a pragmatic set of definitions for the key terminology is provided.
 
 \subsection{Random Bits, Random Numbers, and Entropy}
-The definitions of random numbers rely on ideas from basic probability theory, such as sample spaces, random variables, and probability distribution functions. As this work deals with sequences of numbers that are to be encoded in a fixed-digit format, whatever that format may be, it shall be implicit that all discussions of sample spaces and random variables refer to discrete sets and discrete probability distribution functions.
+This section relies on ideas from basic probability theory, such as sample spaces, random variables, and probability distribution functions. As this work deals with sequences of numbers that are to be encoded in a fixed-digit format, whatever that format may be, it shall be implicit that all discussion of sample spaces and random variables refer to discrete sets and discrete probability distribution functions, respectively.
 
 \begin{definition}
 A \textbf{random number} $x$ is a numeric value selected at random from an equiprobable sample space $\Omega$. That is, the probability $\mathbb{P}(x)$ of the value being chosen from $\Omega$ is equal to that of all other possible values in $\Omega$ \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}. It follows that a discrete random variable $X$ defined as the outcome of a selection from $\Omega$ has the \textbf{discrete uniform distribution}.
@@ -205,7 +205,7 @@ A \textbf{random bit} $b$ is a special case of a random number, such that the eq
 \end{definition}
 
 \begin{definition}
-As defined by Barker et al and Rukhin et al, a \textbf{random sequence} $s = (x_0, x_1, ..., x_n)$ is a sequence of random values $x_i$ resulting from sequential independent selections. In other words, a random sequence is a sequence of random numbers such that the result of any previous selection within the sequence does not affect future selections within the sequence. The random sequence has the same probability of being sampled as all other sequences of the same length \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}.
+A \textbf{random sequence} $s = (x_0, x_1, ..., x_n)$, as defined by Barker et al, is a sequence of random values $x_i$ resulting from a sequence of independent selections. In other words, a random sequence consists of random numbers such that the probability distribution for any particular selection is entirely unaffected by previous selections. The random sequence has the same probability of being sampled as all other sequences of the same length \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}.
 \end{definition}
 
 Every binary sequence represents, in some particular encoding scheme, a unique numerical value. For example, the binary sequence $101$ is the unsigned integer representation of the number $5$. This results in an equivalence between random binary sequences and random numbers, in that the probability of randomly sampling any particular binary sequence of length $l$ from the set $\{0, 1\}$ is the same as that of selecting any particular number from the set of $2^l$ numbers representable in the binary encoding scheme used. As observed by Menezes et al, we can therefore regard the task of producing a random number as equivalent to the task of producing a random binary sequence of the appropriate length \cite[p. 170]{menezes1996handbook}.
@@ -220,18 +220,20 @@ H(X) = -\sum_{x\in\Omega} p(x) \lg p(x)
 Entropy is measured in bits, and the base of the logarithm in the defining equation is $2$ \cite[p. 12-13]{cover2012elements}.
 \end{definition}
 
-The following intuitive formulation of entropy was given by Ferguson et al. Entropy can thought of as the average number of bits one would need in order to specify some (partially) unknown value under an ideal compression scheme. It is a subjective quantity, in the sense that it depends on the amount of knowledge available about the value of interest. The entropy of an arbitrary number is different for an observer that knows the number, and for one that only knows the value is one of $2^32$ possible values. The more uncertain we are about the value, the higher the entropy \cite[p. 137]{ferguson2010cryptography}.
+Ferguson et al give the following intuition for the concept: entropy can thought of as the average number of bits one would need in order to specify some (partially) unknown value under an ideal compression scheme. It is a subjective quantity, in the sense that it depends on the amount of knowledge available about the value of interest. The entropy of an arbitrary number is different for an observer that knows the number, and for one that only knows the value is one of $2^{32}$ possible values. The more uncertain we are about the value, the higher the entropy \cite[p. 137]{ferguson2010cryptography}.
 
 
 
 \subsection{Random Number Generators}
 In order to obtain sequences of random numbers for use in applications such as those mentioned above, random number generators are used.
 
-\textbf{Definition}. Menezes et all \cite{menezes1996handbook} define a \textbf{random number generator} as a software or hardware system that outputs random number (or bit) sequences. Key components of such a system are the \textbf{entropy source}, which gives rise to the randomness in the output, and the \textbf{entropy distillation} process, which is a function applied to the inputs to improve the quality of the output sequence.
+\begin{definition}
+Menezes et all define a \textbf{random number generator} as a software or hardware system that outputs random number (or bit) sequences. Key components of such a system are the \textbf{entropy source}, which gives rise to the randomness in the output, and the \textbf{entropy distillation} process, which is a function applied to the inputs to improve the quality of the output sequence \cite{menezes1996handbook}.
+\end{definition}
 
 According to Ferguson et al and Menezes et al, entropy sources are commonly implemented in software, hardware, or both. Examples of entropy sources that are harnessed by software means include the timings of keystrokes on a computer user's keyboard, the current value of the system clock, the content of an I/O buffer, or any other measurable quantity in a computer system that is conjectured to exhibit random behavior. This conjecture does not always hold; for example, the time elapsed between keystrokes may not be accurately described by a uniform distribution, as an experienced typist may manage to keep their typing rate remarkably constant (with fluctuations on the order of several milliseconds). Care has to be taken to not overestimate the amount of entropy that can be derived from a source \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 171-172]{menezes1996handbook}.
 
-Ferguson et al and Menezes et al also discuss hardware entropy sources. These rely on physical processes that behave randomly. Commonly cited examples are emission times of particles during radioactive decay or thermal noise in a resistor. While there are very many such processes (in particular in the "quantum realm"), physically based entropy sources are not necessarily secure either. Even if a process behaves randomly, the outputs may nonetheless be biased or correlated, possibly due to manipulation on the attacker's part. Furthermore, an attacker may be able to observe the physical entropy source, meaning that while the data may still be random, it will have no entropy from the adversary's perspective \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 172]{menezes1996handbook}.
+Ferguson et al and Menezes et al also discuss hardware entropy sources. These rely on physical processes that behave randomly. Commonly cited examples are emission times of particles during radioactive decay or thermal noise in a resistor. While there are very many such processes (in particular in the ``quantum realm"), physically based entropy sources are not necessarily secure either. Even if a process behaves randomly, the outputs may nonetheless be biased or correlated, possibly due to manipulation on the attacker's part. Furthermore, an attacker may be able to observe the physical entropy source, meaning that while the data may still be random, it will have no entropy from the adversary's perspective \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 172]{menezes1996handbook}.
 
 According to Ferguson, Schneier, and Kohno, there are several problems related to the practical use of truly random numbers. Real random data may not always be available, and even if available it is nonetheless always limited in quantity. For example, for an RNG relying on a user's keystrokes, it may be the case that the user has not been typing sufficiently. Waiting for more real random data to be acquired in order to receive random numbers is not a viable option for a number of applications \cite[p. 139]{ferguson2010cryptography}. Furthermore, it is difficult to ascertain how much entropy one is really getting from the source, not to mention that the source, in particular if implemented in hardware, may fail unexpectedly and become predictable \cite{ferguson2010cryptography}.
 
@@ -241,12 +243,12 @@ According to Ferguson, Schneier, and Kohno, there are several problems related t
 A solution to many of the problems inherent to the use of truly random number generators is to use a pseudo-random number generator \cite[p. 140]{ferguson2010cryptography}.
 
 \begin{definition}
- A \textbf{pseudo-random number generator} is a deterministic algorithm that outputs number sequences that are statistically indistinguishable from random sequences \cite{menezes1996handbook}. A PRNG has an internal state $S$, which is secret \cite{kelsey1998cryptanalytic}, and takes an input value, referred to as the \textbf{seed}, which is randomly selected as well as unknown \cite[s. 1.1.4]{rukhin2001statistical}. The outputs of the PRNG are a function of the seed and the internal state \cite{kelsey1998cryptanalytic} \cite[s 1.1.4]{rukhin2001statistical}, and so we can formalize a PRNG as a function $f(s, S)$, where $s$ is the input seed and $S$ is the internal state (see figure \ref{figure:prng_high_level}).
+ A \textbf{pseudo-random number generator} is a deterministic algorithm that outputs number sequences that are statistically indistinguishable from random sequences \cite{menezes1996handbook}. A PRNG has an internal state $S_i$, which is secret \cite{kelsey1998cryptanalytic}, and takes an input value, referred to as the \textbf{seed}, which is randomly selected as well as unknown \cite[s. 1.1.4]{rukhin2001statistical}. Since the outputs of the PRNG are a function of the seed and the internal state \cite{kelsey1998cryptanalytic} \cite[s 1.1.4]{rukhin2001statistical}, we can formalize a PRNG as a function $f(s, S_i)$, where $s$ is the input seed and $S_i$ is the internal state (see figure \ref{figure:prng_high_level}).
 \end{definition}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.65\textwidth]{img/prng_high_level.png}\\
+\includegraphics[width=0.6\textwidth]{img/conceptual_prng.png}\\
 \caption{A high-level view of the operation of a PRNG \cite{kelsey1998cryptanalytic}.}
 \label{figure:prng_high_level}
 \end{figure}
@@ -255,7 +257,7 @@ A solution to many of the problems inherent to the use of truly random number ge
 \todo{stuff about how PRNG state changes based on previous outputs}
 
 
-
+\clearpage
 \section{Random Numbers and Cryptography}
 Random numbers have several important applications in computing, primarily in cryptography, where many algorithms make use of randomness, \cite[p. 137]{ ferguson2010cryptography} and in science, where simulations of random processes are frequently used\cite{deng2017developments}. A few important examples are considered here.
 
@@ -275,7 +277,6 @@ The \textbf{HTTP digest access authentication protocol} \todo{find RFC}
 
 
 
-
 \subsection{Testing Number Sequences for Randomness}\label{subsection:testing_prngs}
 The \textbf{National Institute of Standards and Technology}, part of the U.S. Department of Commerce, sets out guidelines for the testing of RNGs and PRNGs in its publication 800-22, \textit{A Statistical Test Suite for Random and Psuedorandom Number Generators for Cryptographic Applications}, by Rukhin et al. This work refers to revision 1a of the publication.
 
@@ -285,7 +286,7 @@ Also according to Rukhin et al, statistical tests are formulated to test for the
 
 \begin{figure}
 \centering
-\includegraphics[width=0.7\textwidth]{img/distribution.jpg}\\
+\includegraphics[width=1\textwidth]{img/distribution.png}\\
 \caption{The probability distribution of a random variable representing the number of heads in a repeated fair coin-tossing experiment, which is equivalent to repeated random sampling from ${0, 1}$. Image from \cite{terr2009math}.}
 \label{figure:distribution}
 \end{figure}
@@ -298,94 +299,68 @@ The NIST Test Suite is the accepted standard for testing random and pseudo-rando
 
 
 \section{Artificial Neural Networks}
-This investigation approaches the problem of generating pseudo-random number sequences using neural networks. An introduction to neural networks, as well as some of the specific neural network architectures used, is given in this section.
-
+This section provides an introduction to neural networks, covering basic concepts such as the functioning of individual neurons in a network, how a neural network's parameters are updated to enable learning, and some common network topologies.
 
 
 \subsection{Introduction to Neural Networks}\label{subsection:neural_intro}
-From section 18.7 of Russel and Norvig's \textit{Artificial Intelligence: A Modern Approach}, the following definition of an artificial neural network can be constructed.
+According to Russel and Norvig, an \textbf{artificial neural network} is a directed graph composed of \textbf{units} or \textbf{neurons} connected by directed \textbf{links}. Each unit computes an arbitrary function $g$, called the \textbf{activation function}, over a weighted sum of the unit's inputs. A link from unit $i$ to a unit $j$ carries the output of $i$'s activation function to $j$. Each such link has an associated \textbf{weight} $w_{ij}$, which is a coefficient applied to the activation value \cite[p. 727-731]{russel2009artificial}. 
 
-\begin{definition}
-An \textbf{artificial neural network} is a directed graph composed of \textbf{units} or \textbf{neurons} connected by directed \textbf{links}. Each unit computes an arbitrary \textbf{activation function} $g$ over the weighted sum of the unit's inputs. A link from unit $i$ to a unit $j$ propagates the output of the activation function of $i$ from $i$ to $j$. Each such link has an associated \textbf{weight} $w_{ij}$, which is a coefficient applied to the propagated activation value \cite[p. 727-731]{russel2009artificial}.
-\end{definition}
-
-The weighted sum of the inputs to a neuron $j$ is given by
-\begin{gather}\label{eq:weighted_sum}
-in_j = \sum_{i=0}^{n} w_{i,j}a_i
-\end{gather}
-where $n$ is the number of units with a directed edge to $j$, $w_{i,j}$ is the weight of the edge from a node $i$ to the node $j$, and $a_i$ is the output value of each node $i$. Equivalently, this can be formulated as the inner product of the output vector $\bm{a_i}$ and weight vector $\bm{w_{i,j}}$. The activation of the unit is computed by applying the activation function to this sum, as given by
+Russel and Norvig define the function represented by a neuron $j$ as
 \begin{gather}\label{eq:activation}
-a_j = g(in_j) = g\left(\sum_{i=0}^{n} w_{i,j}a_i\right)
+a_j = g(in_j) = g\left(\sum_{i=0}^{n} w_{ij}a_i\right)
 \end{gather}
-where $a_j$ is the activation of node $j$, $g$ is the activation function, and $in_j$ is the weighted sum of the inputs as given in \ref{eq:weighted_sum}.
+where $a_j$ is the neuron's output, $g$ is the neuron's activation function, and $j$ has $n$ input neurons $i$ with outputs $a_i$ and weights $w_{ij}$ \cite[p. 728]{russel2009artificial}. This can also be formulated in vector form as the inner product of inputs $\bm{a}_i$ and input weights $\bm{w}_{ij}$:
+\begin{gather}\label{eq:activation_vector}
+a_j = g(\bm{w}_{ij}\cdot\bm{a}_i)
+\end{gather}
+
 
 \begin{figure}
 \centering
-\includegraphics[width=0.7\textwidth]{img/neuron.png}\\
-\caption{Schematic of the computation performed by a unit, from Russel and Norvig \cite[p.728]{russel2009artificial}. This schematic corresponds to equation \ref{eq:activation}.}
+\includegraphics[width=0.6\textwidth]{img/neuron.png}\\
+\caption{Schematic of the computation performed by a unit, drawn in accordance to the definitions given by Russel and Norvig \cite[p.728]{russel2009artificial}. A weighted sum $in_j$ of the unit's inputs is computed, and the resulting value becomes the argument of the activation function $g$. The activation's output is the node's output. This schematic corresponds to equation \ref{eq:activation}.}
 \label{figure:neural_unit}
 \end{figure}
 
-The properties of the network are determined by the topology and behavior of its units. Thus we classify networks depending on the types of units they contain, as well as on the topology of their connections \cite[p. 729]{russel2009artificial}. 
-
-An alternative definition of neural networks, also from Russel and Norvig, can be expressed in more purely mathematical terms. We can view a neural network as  a representation of a highly non-linear vector function $\bm{f}_{\bm{w}}(\bm{x})$ parameterized by its weights $\bm{w}$ \cite{russel2009artificial}. The function $\bm{f}$ represented by the network as a whole is the composition of $i$ functions $\bm{f}^(i)$ arranged into a sequence \cite{goodfellow2016deep}, which can be expressed as
+A neural network as a whole, as explained by Russel and Norvig, thus computes a highly non-linear vector function $\bm{f}_{\bm{w}}(\bm{x})$ parameterized by its weights $\bm{w}$ \cite[p. 731, 732]{russel2009artificial}. The function $\bm{f}$ is the composition of $i$ functions $\bm{f}^{(i)}$ \cite[p. 164]{goodfellow2016deep}, which can be expressed as
  \begin{gather}\label{eq:neural_net_composition}
- \bm{f_w}(\bm{x}) = \bm{f_{w_{i - 1}}}^{(i - 1)}(\bm{f_{w_{i - 2}}}^{(i - 2)}(... \bm{f_{w_0}}^{(0)}(\bm{x}) ...))
+ \bm{f_w}(\bm{x}) = \bm{f}_{\bm{w}_{i-1}}^{(i-1)} (\bm{f}_{\bm{w}_{i-2}}^{(i-2)} ( \ldots \bm{f}_{\bm{w}_{0}}^{(0)}(\bm{x})))
 \end{gather}
+where $\bm{w_i}$ is the output weight vector for the units computing the function $\bm{f_{w_i}}^{(i)}$ \cite{goodfellow2016deep}.
 
-where $\bm{w_i}$ is the output weight vector for the units collectively computing the function $\bm{f_{w_i}}^{(i)}$ \cite{goodfellow2016deep}.
-
-According to Russel and Norvig, a neural network of sufficient size can represent any continuous function to an arbitrary degree of accuracy, and, under certain conditions, can even represent discontinuous functions. However, difficulties arise in determining, for any particular network architecture, the set of functions it can represent \cite{russel2009artificial}. This property of neural networks is at the heart of this investigation's hypothesis.
+According to Russel and Norvig, a neural network of sufficient size can represent any continuous function to an arbitrary degree of accuracy, and, under certain conditions, can even represent discontinuous functions. However, difficulties arise in determining, for any particular network architecture, the set of functions it can represent \cite[p. 732]{russel2009artificial}. The particular properties of the network are determined by the topology and behavior of its units, which form the basis for the naming and categorization of networks \cite[p. 729]{russel2009artificial}. 
 
 
 
 \subsection{Learning in Neural Networks}
-The task of training an artificial neural network entails finding a combination of weight parameters $\bm{w}$ which results in the network's function $h(x)$ approximating the desired function $f(x)$ as closely as possible \cite[p. 718]{russel2009artificial}. The most important concepts in this regard are loss functions, the gradient descent algorithm, and the backpropagation algorithm.
- 
-\begin{definition}
-A \textbf{loss function} $L(y, y', x)$ is defined by Russel and Norvig as "the amount of utility lost' by predicting $h(x) = y'$ when the correct answer is $f(x) = y$", where $h$ is the function represented by the neural network, and $f$ is the "true" function mapping the inputs to their correct outputs. A simpler, commonly used formulation is $L(y, y')$, which is independent of the input $x$ \cite{russel2009artificial}.
-\end{definition}
+Training an artificial neural network is an optimization problem which entails searching for a combination parameters $\bm{w}$ which results in the network approximating the desired function $f(x)$ as closely as possible \cite[p. 718]{russel2009artificial}. The most important related concepts are loss functions, gradient descent, and backpropagation.
 
-Intuitively, a loss function provides a quantitative assessment of how closely the neural network approximates the desired function. A good model will have low loss. Overall, learning in neural networks is an optimization problem, in which the objective is to minimize the loss function with respect to the parameters of the network \cite[Linear classification: Support Vector Machine, Softmax]{karpathy2017cs231n}.
+Russel and Norvig define loss as ``the amount of utility lost" by the network producing $f_{pred}(x) = y'$ as its output when the correct output on an input $x$ is $f_{true}(x) = y$. A neural network's loss function $L(y, y')$ computes the loss for an output $y'$ and its corresponding correct output $y'$ \cite{russel2009artificial}. Intuitively, a loss function provides a quantitative assessment of how closely the neural network approximates the desired function (a good model will have low loss). The objective of learning is to find the parameters which minimize the loss function \cite[Linear classification: Support Vector Machine, Softmax]{karpathy2017cs231n}.
 
-\begin{definition}
-\textbf{Gradient descent} is an optimization algorithm in which the gradient of a function is computed with respect to the function's parameters, and the parameters are modified in the opposite direction relative to the gradients, in order to minimize the output of the function on its inputs \cite{[Optimization: Stochastic Gradient Descent] karpathy2017cs231n}.
-\end{definition}
-
-Gradient descent is currently ubiquitous in the optimization of neural network loss functions. A high-level expression of gradient descent, from \cite{karpathy2017cs231n}, is as follows:
+This is performed using an optimization algorithm known as gradient descent. The parameters of the network are iteratively changed into the direction opposite to the loss function's gradient, as computed with respect to the parameters \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. Gradient descent is currently ubiquitous in the optimization of neural network loss functions. A high-level expression of gradient descent, from \cite{karpathy2017cs231n}, is as follows:
 
 \begin{minted}{python}
-  while True:
-    weights_grad = evaluate_gradient(loss_fun, data, weights)
-    weights += - step_size * weights_grad  # parameter update
+while True:
+  weights_grad = evaluate_gradient(loss_fun, data, weights)
+  weights += - step_size * weights_grad  # parameter update
 \end{minted}
 
-Karpathy's lecture notes on gradient descent state that an important design choice is whether to perform \textbf{batch} gradient descent, \textbf{mini-batch} gradient descent, or \textbf{online} gradient descent (known also as stochastic gradient descent). In the first case, the gradients are computed with respect to the network's parameters over the entire training dataset, performing a single gradient update. In some applications, however, the sheer size of the dataset can make this both impractical and wasteful. Thus it is very common to split the training data into "mini-batches", and perform a single gradient update for each mini-batch. In the extreme case of online gradient descent, a gradient update is performed for each input to the network. Other aspects of the gradient descent algorithm can also be tweaked to modify its behavior \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. 
+An important design choice, according to Karpathy, is the number of inputs over which the loss is computed in order to perform a single update to the network's parameters. In batch gradient descent, the loss is computed over the entire training dataset; in mini-batch gradient descent the dataset is split into subsets, and a parameter update is performed using each subset \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. 
 
-\begin{definition}
-\textbf{Backpropagation} is an efficient algorithm for computing the partial derivative of a function of many variables by repeated application of the chain rule of derivation \cite[Backpropagation, Intuitions]{karpathy2017cs231n}. 
-\end{definition}
-
-This investigation does not consider the details of backpropagation, as the backpropagation algorithm is a core component of all modern machine learning software libraries, and can mostly be dealt with as a black box. The significance of backpropagation to deep learning is that it enables efficiently computing the gradient of the loss function with respect to each parameter in the neural network \cite[Backpropagation, Intuitions]{karpathy2017cs231n}
+Lastly, backpropagation is an efficient algorithm for computing the partial derivative of a function of many variables by repeated application of the chain rule of derivation \cite[Backpropagation, Intuitions]{karpathy2017cs231n}. It is crucial as it enables efficient computation of the gradient of the loss function with respect to each parameter in the neural network \cite[Backpropagation, Intuitions]{karpathy2017cs231n}. Backpropagation is a core component of all modern machine learning software libraries.
 
 These three components enable learning in neural networks: the loss function quantifies the quality of the current parameters, gradient descent is the general optimization algorithm for modifying the parameters, and backpropagation enables efficient computation of gradients, making gradient descent on large networks practically feasible \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}.
 
 
 
 \subsection{Activation Functions}
-The concept of an \textbf{activation function} was briefly introduced in \ref{subsection:neural_intro}, as an arbitrary scalar function applied to the weighted sum of a unit's inputs to produce the unit's output. There are a number of standard activation functions that are commonly used. Traditionally popular activations are the \textbf{sigmoid} and \textbf{tanh} activations, although they have fallen out of favor in recent years \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}. An explanation can be found in appendix \ref{appendix:mathematics}. The most relevant activations to this investigation are the ReLU and LeakyReLU functions.
+The concept of an \textbf{activation function} was briefly introduced in \ref{subsection:neural_intro}, as an arbitrary scalar function applied to the weighted sum of a unit's inputs to produce the unit's output. There are a number of standard activation functions that are commonly used \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}, of which two are considered here.
 
-\begin{definition}
-The \textbf{ReLU} activation, or \textbf{Rectified Linear Unit}, is a function $ReLU: \mathbb{R} \rightarrow \mathbb{R}^+$ with the following expression form:
+The rectified linear unit activation, or ReLU, is a function with the following expression form:
 \begin{gather}\label{eq:relu}
 ReLU(x) = max(0, x)
 \end{gather}
-\end{definition}
-
-The ReLU activation function has been found to work well in practice on a large number of problems, and has become very popular in the last few years. However, it is possible for a ReLU unit to have its weights updated in a way that causes them to never be updated again due to the 0 gradient for all negative inputs \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}.
-
-\begin{definition}
-The \textbf{leaky ReLU} activation is a function $LeakyReLU: \mathbb{R} \rightarrow \mathbb{R}$ with the following expression form:
+Karpathy states that the ReLU activation function works well in practice on a large number of problems, and is rather popular. However, it is possible for a ReLU unit to have its weights updated in a way that causes them to never be updated again, due to the 0 gradient for all negative inputs \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}. This issue is addressed by the leaky ReLU activation, a function with the following expression form:
 \begin{gather}\label{eq:leakyrelu}
 LeakyReLU(x) = 
 \begin{cases}
@@ -393,24 +368,21 @@ LeakyReLU(x) =
     \alpha{x}             & \text{otherwise}
 \end{cases}
 \end{gather}
-where $\alpha$ is a (small) non-zero constant \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}.
-\end{definition}
+where $\alpha$ is a (small) non-zero constant. For negative inputs close to 0, the outputs of the leaky ReLU are approximately equal to the outputs of ReLU; however, a leaky ReLU unit cannot ``die" due to getting stuck in a zero gradient \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}.
 
 \begin{figure}
 \centering
 \includegraphics[width=0.7\textwidth]{img/relu.jpg}\\
-\caption{Left: the ReLU function. Right: the LeakyReLU function. Image courtesy of \cite{sharma2017activation}.}
+\caption{Left: the ReLU function. Right: the LeakyReLU function. Note the zero gradient for negative inputs on the left, and how this problem is adressed on the right. Image courtesy of \cite{sharma2017activation}.}
 \label{figure:relu}
 \end{figure}
-
-As explained by Karpathy, the leaky ReLU eliminates the 0 gradient by assigning all negative values a small non-zero gradient. For negative inputs close to 0 the outputs of the leaky ReLU are approximately equal to the outputs of the standard ReLU function, but the units cannot "die" due to getting stuck in a flat gradient. A further variant, called \textbf{PReLU}, or \textbf{parametric leaky ReLU}, makes $\alpha$ a learnable parameter  \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}.
 
 
 
 \subsection{Feed-Forward Networks}
-The arguably simplest form of an artificial neural network is called a \textbf{feed-forward neural network}, or \textbf{multilayer perceptron}. Feed-forward networks are characterized by the fact that the directed graph representing them is acyclic; that is, information strictly flows from the network's input units towards its output units \cite[p. 164]{goodfellow2016deep}.
+Arguably the simplest form of an artificial neural network is called a feed-forward neural network, or multilayer perceptron. Feed-forward networks are characterized by the fact that the directed graph representing them is acyclic; that is, information strictly flows from the network's input units towards its output units \cite[p. 164]{goodfellow2016deep}.
 
-Goodfellow et al explain that feed-forward networks are typically arranged into fully connected \textbf{layers} of units, where we refer to the number of layers as the \textbf{depth} of the network. The first layer of the network is referred to as the \textbf{input layer}, within which each unit corresponds to a single scalar in the model's input vector. The last layer is referred to as the \textbf{output layer} of the network, where each unit corresponds to a scalar in the model's output vector. The number of units in the input and output layers are thus bound by the dimensionality of the input data and the dimensionality of the expected outputs. Finally, we refer to the intermediate layers as \textbf{hidden layers}, and to the number of units in the largest of these layers as the \textbf{width} of the model \cite[p. 164-165]{goodfellow2016deep}. This information is conveyed pictorially in figure \ref{figure:feedforward}.
+Goodfellow et al \cite{goodfellow2016deep} explain that feed-forward networks are typically arranged into fully connected layers of units, where we refer to the number of layers as the depth of the network. The first layer of the network is referred to as the input layer, within which each unit corresponds to a single scalar in the model's input vector. The last layer is referred to as the output layer of the network, where each unit corresponds to a scalar in the model's output vector. The number of units in the input and output layers are thus bound by the dimensionality of the input data and the dimensionality of the expected outputs. Finally, we refer to the intermediate layers as hidden layers, and to the number of units in the largest of these layers as the width of the model \cite[p. 164-165]{goodfellow2016deep}. This information is conveyed pictorially in figure \ref{figure:feedforward}.
 
 \begin{figure}
 \centering

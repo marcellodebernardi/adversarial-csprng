@@ -9,7 +9,6 @@ RUN apt-get update \
     && apt-get install graphviz -y \
     && apt-get install screen -y \
     && apt-get install htop -y \
-    && apt-get install dieharder -y \
     && apt-get install dos2unix -y \
     && apt-get install openssh-client -y
 
@@ -20,8 +19,10 @@ RUN pip3 install -r requirements.txt
 
 # copy project to docker image and convert this script to UNIX format
 ADD src /adversarial-csprng/src
-ADD get_results.sh /adversarial-csprng/
-RUN dos2unix /adversarial-csprng/get_results.sh
+ADD nist.sh /adversarial-csprng/
+ADD transfer.sh /adversarial-csprng/
+RUN dos2unix /adversarial-csprng/nist.sh
+RUN dos2unix /adversarial-csprng/transfer.sh
 
 # add missing directories
 RUN cd adversarial-csprng

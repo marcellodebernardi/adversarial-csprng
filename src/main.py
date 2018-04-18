@@ -63,8 +63,8 @@ GEN_WIDTH = 30 if HPC_TRAIN else 10
 DATA_TYPE = tf.float64
 
 # optimizers
-GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.999999, beta2=0.999999)
-OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.999999, beta2=0.999999)
+GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
+OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
@@ -162,8 +162,8 @@ def run_discgan():
             print('[INTERRUPTED BY USER] -- evaluating')
 
         # produce output
-        utils.log_to_file(losses_jerry, PLOT_DIR + '/jerry_loss.txt')
-        utils.log_to_file(losses_diego, PLOT_DIR + '/diego_loss.txt')
+        utils.write_to_file(losses_jerry, PLOT_DIR + '/jerry_loss.txt')
+        utils.write_to_file(losses_diego, PLOT_DIR + '/diego_loss.txt')
         evaluate(sess, discgan.generated_data, discgan.generator_inputs, 1, 'jerry')
 
 
@@ -227,8 +227,8 @@ def run_predgan():
             print('[INTERRUPTED BY USER] -- evaluating')
 
         # produce output
-        utils.log_to_file(losses_janice, PLOT_DIR + '/janice_loss.txt')
-        utils.log_to_file(losses_priya, PLOT_DIR + '/priya_loss.txt')
+        utils.write_to_file(losses_janice, PLOT_DIR + '/janice_loss.txt')
+        utils.write_to_file(losses_priya, PLOT_DIR + '/priya_loss.txt')
         evaluate(sess, janice_output_t, janice_input_t, 1, 'janice')
 
 
@@ -273,7 +273,7 @@ def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str)
     for batch in range(EVAL_BATCHES):
         j_out = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
         output.extend(j_out)
-    utils.generate_output_hex(output, SEQN_DIR + str(iteration) + '_' + name + '.txt')
+    utils.write_output_file(output, SEQN_DIR + str(iteration) + '_' + name + '.txt')
     print('[DONE]\n' + '----------\n\n')
 
 
