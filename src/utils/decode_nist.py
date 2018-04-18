@@ -12,7 +12,7 @@
 # =================================================================
 
 """
-For storage limitation reasons, the .
+For storage limitation reasons, the original network output is stored as.
 """
 
 import sys
@@ -28,17 +28,8 @@ def main():
         with open(filename) as file, open(new_filename, 'w') as new_file:
             data = file.readlines()
 
-            # file header
-            new_file.write('#==========\n' + '# dieharder test\n' + '#==========\n'
-                           + 'type: d\n'
-                           + 'count: ' + str(int(len(data) / 2)) + '\n'
-                           + 'numbit: 32\n')
-
-            for number in range(len(data)):
-                if number % 2 == 0:
-                    new_file.write(str(int(data[number], 16)))
-                else:
-                    new_file.write(str(int(data[number], 16)) + '\n')
+            for number in data:
+                new_file.write(format(int(number, 16), '016b'))
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  16 APR 2018 11:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  18 APR 2018 01:20
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1020,109 +1020,97 @@ Chapter 2.
 [7
 
 ] [8]
-<img/prng_high_level.png, id=55, 475.4011pt x 344.78813pt>
-File: img/prng_high_level.png Graphic file (type png)
-<use img/prng_high_level.png>
-Package pdftex.def Info: img/prng_high_level.png  used on input line 249.
-(pdftex.def)             Requested size: 295.90588pt x 214.61871pt.
+<img/conceptual_prng.png, id=55, 344.28625pt x 84.315pt>
+File: img/conceptual_prng.png Graphic file (type png)
+<use img/conceptual_prng.png>
+Package pdftex.def Info: img/conceptual_prng.png  used on input line 251.
+(pdftex.def)             Requested size: 273.14923pt x 66.8937pt.
 
-Overfull \hbox (4.82462pt too wide) in paragraph at lines 255--255
+Overfull \hbox (4.82462pt too wide) in paragraph at lines 257--257
 \OT1/cmr/m/n/12 changes 
  []
 
 
-Overfull \hbox (4.82462pt too wide) in paragraph at lines 255--255
+Overfull \hbox (4.82462pt too wide) in paragraph at lines 257--257
 \OT1/cmr/m/n/12 changes 
  []
 
 
-Overfull \hbox (4.82462pt too wide) in paragraph at lines 255--255
+Overfull \hbox (4.82462pt too wide) in paragraph at lines 257--257
 \OT1/cmr/m/n/12 changes 
  []
 
 
-Overfull \hbox (4.82462pt too wide) in paragraph at lines 255--255
+Overfull \hbox (4.82462pt too wide) in paragraph at lines 257--257
 \OT1/cmr/m/n/12 changes 
  []
 
-[9]
-Overfull \hbox (7.32808pt too wide) in paragraph at lines 262--263
+[9] [10 <./img/conceptual_prng.png>]
+Overfull \hbox (7.32808pt too wide) in paragraph at lines 264--265
 []\OT1/cmr/m/n/12 The \OT1/cmr/bx/n/12 RSA (Rivest-Shamir-Adleman) al-go-rithm\
 OT1/cmr/m/n/12 , as ex-plained by An-der-son [p. 171][[]],
  []
 
 
-LaTeX Warning: Marginpar on page 10 moved.
+LaTeX Warning: Marginpar on page 11 moved.
 
-[10 <./img/prng_high_level.png>]
-<img/distribution.jpg, id=63, 421.575pt x 343.2825pt>
-File: img/distribution.jpg Graphic file (type jpg)
-<use img/distribution.jpg>
-Package pdftex.def Info: img/distribution.jpg  used on input line 288.
-(pdftex.def)             Requested size: 318.66948pt x 259.49359pt.
- [11 <./img/distribution.jpg>]
-Overfull \hbox (0.45532pt too wide) in paragraph at lines 301--302
-\OT1/cmr/m/n/12 This in-ves-ti-ga-tion ap-proaches the prob-lem of gen-er-at-in
-g pseudo-random num-ber se-quences
- []
+<img/distribution.png, id=65, 561.59813pt x 201.37735pt>
+File: img/distribution.png Graphic file (type png)
+<use img/distribution.png>
+Package pdftex.def Info: img/distribution.png  used on input line 289.
+(pdftex.def)             Requested size: 455.24411pt x 163.24072pt.
+[11
 
-<img/neuron.png, id=67, 436.63126pt x 201.75375pt>
+] [12 <./img/distribution.png>]
+<img/neuron.png, id=72, 379.4175pt x 164.615pt>
 File: img/neuron.png Graphic file (type png)
 <use img/neuron.png>
-Package pdftex.def Info: img/neuron.png  used on input line 324.
-(pdftex.def)             Requested size: 318.66948pt x 147.24821pt.
-[12]
-
-LaTeX Warning: Citation `[Optimization: Stochastic Gradient Descent] karpathy20
-17cs231n' on page 13 undefined on input line 352.
-
+Package pdftex.def Info: img/neuron.png  used on input line 320.
+(pdftex.def)             Requested size: 273.14923pt x 118.51015pt.
+ [13 <./img/neuron.png>]
 \openout4 = `report.pyg'.
+
 
 (./_minted-report/default-pyg-prefix.pygstyle)
 (./_minted-report/default.pygstyle)
-(./_minted-report/0346D6B75A58D8EBC23E5F26668961A27C2E7F49E087B8E8E8DF5244CE287
+(./_minted-report/2B0F6F46CBA87E37AE5DD9B3B11BA1477C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 2.
- [13 <./img/neuron.png>])
-
-LaTeX Warning: Reference `appendix:mathematics' on page 14 undefined on input l
-ine 376.
-
-[14]
-<img/relu.jpg, id=86, 706.64pt x 274.02374pt>
+) [14]
+<img/relu.jpg, id=88, 706.64pt x 274.02374pt>
 File: img/relu.jpg Graphic file (type jpg)
 <use img/relu.jpg>
-Package pdftex.def Info: img/relu.jpg  used on input line 401.
+Package pdftex.def Info: img/relu.jpg  used on input line 375.
 (pdftex.def)             Requested size: 318.66948pt x 123.57713pt.
-<img/feedforward.png, id=87, 448.67625pt x 307.90031pt>
+<img/feedforward.png, id=89, 448.67625pt x 307.90031pt>
 File: img/feedforward.png Graphic file (type png)
 <use img/feedforward.png>
-Package pdftex.def Info: img/feedforward.png  used on input line 417.
+Package pdftex.def Info: img/feedforward.png  used on input line 389.
 (pdftex.def)             Requested size: 318.66948pt x 218.69061pt.
  [15 <./img/relu.jpg>]
 
 LaTeX Warning: Reference `appendix:mathematics' on page 16 undefined on input l
-ine 427.
+ine 399.
 
-<img/convolution.png, id=91, 880.03781pt x 171.26485pt>
+<img/convolution.png, id=93, 880.03781pt x 171.26485pt>
 File: img/convolution.png Graphic file (type png)
 <use img/convolution.png>
-Package pdftex.def Info: img/convolution.png  used on input line 431.
+Package pdftex.def Info: img/convolution.png  used on input line 403.
 (pdftex.def)             Requested size: 386.96027pt x 75.30449pt.
-[16 <./img/feedforward.png>]
-<img/conv_pooling.png, id=96, 409.7709pt x 166.10056pt>
+[16 <./img/feedforward.png> <./img/convolution.png>]
+<img/conv_pooling.png, id=98, 409.7709pt x 166.10056pt>
 File: img/conv_pooling.png Graphic file (type png)
 <use img/conv_pooling.png>
-Package pdftex.def Info: img/conv_pooling.png  used on input line 446.
+Package pdftex.def Info: img/conv_pooling.png  used on input line 418.
 (pdftex.def)             Requested size: 455.24411pt x 184.54106pt.
- [17 <./img/convolution.png>]
+ [17]
 \openout4 = `report.pyg'.
 
 
 (./_minted-report/F478FD3E27D1A397DBBF491DFD095CAC7C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex) [18 <./img/conv_pooling.png>]
-Overfull \hbox (10.7187pt too wide) in paragraph at lines 490--490
+Overfull \hbox (10.7187pt too wide) in paragraph at lines 462--462
 |[]\OT1/cmr/bx/n/14.4 Learning to Pro-tect Com-mu-ni-ca-tions with Ad-ver-sar-i
 al Neu-
  []
@@ -1140,7 +1128,7 @@ Missing character: There is no Ô in font cmr12!
 Missing character: There is no ¨ in font cmr12!
 Missing character: There is no Å in font cmr12!
 
-Overfull \hbox (10.93889pt too wide) in paragraph at lines 499--499
+Overfull \hbox (10.93889pt too wide) in paragraph at lines 471--471
 |[]\OT1/cmr/bx/n/14.4 Papers on Us-ing Neu-ral Net-works as Pseudo-Random Num-
  []
 
@@ -1153,18 +1141,18 @@ Missing character: There is no Ä in font cmr12!
 Missing character: There is no ô in font cmr12!
  [20]
 Chapter 3.
-<img/conceptual_design.png, id=110, 344.28625pt x 214.8025pt>
+<img/conceptual_design.png, id=111, 344.28625pt x 214.8025pt>
 File: img/conceptual_design.png Graphic file (type png)
 <use img/conceptual_design.png>
-Package pdftex.def Info: img/conceptual_design.png  used on input line 550.
+Package pdftex.def Info: img/conceptual_design.png  used on input line 522.
 (pdftex.def)             Requested size: 227.62206pt x 142.0159pt.
 [21
 
 ]
-<img/approach_comparison.png, id=114, 790.955pt x 129.48375pt>
+<img/approach_comparison.png, id=115, 790.955pt x 129.48375pt>
 File: img/approach_comparison.png Graphic file (type png)
 <use img/approach_comparison.png>
-Package pdftex.def Info: img/approach_comparison.png  used on input line 565.
+Package pdftex.def Info: img/approach_comparison.png  used on input line 537.
 (pdftex.def)             Requested size: 450.69417pt x 73.7808pt.
  [22 <./img/conceptual_design.png>]
 \openout6 = `report.pyg'.
@@ -1177,21 +1165,21 @@ E39.pygtex)
 
 (./_minted-report/DA898703B7A047FEC91A00946BDB33767C2E7F49E087B8E8E8DF5244CE287
 E39.pygtex)
-<img/generator.png, id=120, 519.9425pt x 224.84pt>
+<img/generator.png, id=121, 519.9425pt x 224.84pt>
 File: img/generator.png Graphic file (type png)
 <use img/generator.png>
-Package pdftex.def Info: img/generator.png  used on input line 581.
+Package pdftex.def Info: img/generator.png  used on input line 553.
 (pdftex.def)             Requested size: 318.66948pt x 137.80061pt.
  [23 <./img/approach_comparison.png> <./img/generator.png>]
-<img/discriminator.png, id=126, 785.93625pt x 224.84pt>
+<img/discriminator.png, id=127, 785.93625pt x 224.84pt>
 File: img/discriminator.png Graphic file (type png)
 <use img/discriminator.png>
-Package pdftex.def Info: img/discriminator.png  used on input line 601.
+Package pdftex.def Info: img/discriminator.png  used on input line 573.
 (pdftex.def)             Requested size: 455.24411pt x 130.23918pt.
-<img/predictor.png, id=127, 785.93625pt x 224.84pt>
+<img/predictor.png, id=128, 785.93625pt x 224.84pt>
 File: img/predictor.png Graphic file (type png)
 <use img/predictor.png>
-Package pdftex.def Info: img/predictor.png  used on input line 608.
+Package pdftex.def Info: img/predictor.png  used on input line 580.
 (pdftex.def)             Requested size: 455.24411pt x 130.23918pt.
  [24 <./img/discriminator.png> <./img/predictor.png>] [25]
 \openout6 = `report.pyg'.
@@ -1481,35 +1469,35 @@ runsystem(del report.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 21532 strings out of 492982
- 452994 string characters out of 6136226
- 582453 words of memory out of 5000000
- 24484 multiletter control sequences out of 15000+600000
+ 21531 strings out of 492982
+ 452935 string characters out of 6136226
+ 584452 words of memory out of 5000000
+ 24483 multiletter control sequences out of 15000+600000
  17274 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,16n,76p,1604b,702s stack positions out of 5000i,500n,10000p,200000b,80000s
-<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy6.pfb><c
-:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive
-/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb><c:/texlive/2017/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/2017/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2017/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmitt10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmmi12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmmi6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.
-pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb><c:/
-texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib6.pfb><c:/texl
-ive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><c:/texlive/
-2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2017/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2017/texmf-dist/font
-s/type1/public/amsfonts/cm/cmr17.pfb><c:/texlive/2017/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmr8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmsy10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c
-:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive
-/2017/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on report.pdf (44 pages, 2340921 bytes).
+ 62i,16n,76p,1591b,702s stack positions out of 5000i,500n,10000p,200000b,80000s
+<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tex
+live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/201
+7/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2017/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmitt10.pfb><c:/texlive/2017/texmf-dist/font
+s/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmmi6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmmi8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+mib10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib
+6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pf
+b><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texl
+ive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/texlive/2017/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2017/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmr8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmsy6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texli
+ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on report.pdf (44 pages, 2267583 bytes).
 PDF statistics:
- 256 PDF objects out of 1000 (max. 8388607)
+ 257 PDF objects out of 1000 (max. 8388607)
  167 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  83 words of extra memory for PDF output out of 10000 (max. 10000000)
