@@ -68,7 +68,7 @@ OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
-STEPS = 2000000 if '-long' in sys.argv else 200000 if HPC_TRAIN else 40
+STEPS = 1000000 if '-long' in sys.argv else 150000 if HPC_TRAIN else 40
 PRE_STEPS = 100 if HPC_TRAIN else 5
 ADV_MULT = 3
 SEND_REPORT = '-email' in sys.argv
