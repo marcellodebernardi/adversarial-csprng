@@ -1,0 +1,56 @@
+			  RANDOM EXCURSIONS TEST
+		--------------------------------------------
+		COMPUTATIONAL INFORMATION:
+		--------------------------------------------
+		(a) Number Of Cycles (J) = 1101
+		(b) Sequence Length (n)  = 1000000
+		(c) Rejection Constraint = 500.000000
+		-------------------------------------------
+SUCCESS		x = -4 chi^2 =  2.998974 p_value = 0.700144
+SUCCESS		x = -3 chi^2 =  7.316591 p_value = 0.198140
+SUCCESS		x = -2 chi^2 =  6.447371 p_value = 0.265087
+SUCCESS		x = -1 chi^2 =  8.930972 p_value = 0.111849
+SUCCESS		x =  1 chi^2 =  3.730245 p_value = 0.588870
+SUCCESS		x =  2 chi^2 =  2.041186 p_value = 0.843417
+SUCCESS		x =  3 chi^2 =  3.831032 p_value = 0.573991
+SUCCESS		x =  4 chi^2 =  5.236104 p_value = 0.387751
+
+			  RANDOM EXCURSIONS TEST
+		--------------------------------------------
+		COMPUTATIONAL INFORMATION:
+		--------------------------------------------
+		(a) Number Of Cycles (J) = 0206
+		(b) Sequence Length (n)  = 1000000
+		---------------------------------------------
+		WARNING:  TEST NOT APPLICABLE.  THERE ARE AN
+			  INSUFFICIENT NUMBER OF CYCLES.
+		---------------------------------------------
+
+			  RANDOM EXCURSIONS TEST
+		--------------------------------------------
+		COMPUTATIONAL INFORMATION:
+		--------------------------------------------
+		(a) Number Of Cycles (J) = 2871
+		(b) Sequence Length (n)  = 1000000
+		(c) Rejection Constraint = 500.000000
+		-------------------------------------------
+SUCCESS		x = -4 chi^2 =  4.534056 p_value = 0.475340
+SUCCESS		x = -3 chi^2 =  5.675096 p_value = 0.339128
+SUCCESS		x = -2 chi^2 =  3.259754 p_value = 0.660009
+SUCCESS		x = -1 chi^2 =  5.663184 p_value = 0.340384
+SUCCESS		x =  1 chi^2 =  4.276210 p_value = 0.510372
+SUCCESS		x =  2 chi^2 =  3.075020 p_value = 0.688421
+SUCCESS		x =  3 chi^2 =  7.309437 p_value = 0.198625
+SUCCESS		x =  4 chi^2 =  3.645538 p_value = 0.601489
+
+			  RANDOM EXCURSIONS TEST
+		--------------------------------------------
+		COMPUTATIONAL INFORMATION:
+		--------------------------------------------
+		(a) Number Of Cycles (J) = 0360
+		(b) Sequence Length (n)  = 1000000
+		---------------------------------------------
+		WARNING:  TEST NOT APPLICABLE.  THERE ARE AN
+			  INSUFFICIENT NUMBER OF CYCLES.
+		---------------------------------------------
+
