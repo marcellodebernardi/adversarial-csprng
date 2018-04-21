@@ -3,7 +3,7 @@
 %----------------------------------------------------------
 \documentclass[12pt, titlepage]{report}
 
-\usepackage{pgfgantt}
+\usepackage[table]{xcolor}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{url}
@@ -25,6 +25,14 @@
 
 
 %---------------------------------------------------------
+% TABLE SETTINGS
+%---------------------------------------------------------
+\setlength{\arrayrulewidth}{1mm}
+\setlength{\tabcolsep}{18pt}
+\renewcommand{\arraystretch}{2.5}
+
+
+%---------------------------------------------------------
 % THEOREM TYPES
 %---------------------------------------------------------
 \theoremstyle{definition}
@@ -37,8 +45,8 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \DeclarePairedDelimiter\ceil{\lceil}{\rceil}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
-%----------------------------------------------------------
-%----------------------------------------------------------
+
+
 
 %----------------------------------------------------------
 % COMMANDS
@@ -118,6 +126,8 @@
 
 \begin{abstract}
 Abstract comes here!
+
+\textbf{TODO: in this work we achieve state-of-the-art in NN CSPRNG, with good randomness and interesting other properties}
 \end{abstract}
 
 
@@ -145,11 +155,11 @@ Acknowledgements come here!
 \chapter{Introduction}
 \epigraph{From where we stand the rain seems random. If we could stand somewhere else, we would see the order in it.}{Tony Hillerman, Coyote Waits}
 
-A random number may informally be defined as a variable whose value is unpredictable, by virtue of the fact that all possible values are equally likely to appear \cite[p. 7]{barker2007recommendation}. This notion of unpredictability, or randomness, is crucial to computer security, as it is a fundamental element of many cryptographic systems such as encryption algorithms, where security guarantees often rely on an adversary not knowing the value of some internal parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. The task of obtaining unpredictable values for use in such applications is handled by systems known as ``random number generators", which may be implemented either as specialized hardware, software, or as a combination of both \cite[p. 196, 172]{menezes1996handbook}. If the implementation is fundamentally deterministic, we refer to the system as a ``pseudo-random number generator" \cite[p. 169]{menezes1996handbook}. In many cryptographic systems, this ``randomness source" is a single point of failure, which means that the generator's implementation is a critical aspect of the overall design \cite[p. 2]{kelsey1998cryptanalytic}. Indeed, how to implement a good generator is a question considered by several books, from Donald Knuth's seminal \textit{The Art of Computer Programming, Volume II: Seminumerical Algorithms} \cite{donald1998art} to textbooks such as Katz and Lindell's \textit{Introduction to Modern Cryptography} \cite{katz2014introduction}, as well as an active area of research.
+A \emph{random number} may informally be defined as a variable whose value is unpredictable, by virtue of the fact that all possible values are equally likely to appear \cite[p. 7]{barker2007recommendation}. This notion of unpredictability, or \emph{randomness}, is crucial to computer security, as it is a fundamental element of many cryptographic systems such as encryption algorithms, where security guarantees often rely on an adversary not knowing the value of some internal parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. The task of obtaining unpredictable values for use in such applications is handled by systems known as \emph{random number generators}, which may be implemented either as specialized hardware, software, or as a combination of both \cite[p. 196, 172]{menezes1996handbook}. If the implementation is fundamentally deterministic, we refer to the system as a \emph{pseudo-random number generator} \cite[p. 169]{menezes1996handbook}. In many cryptographic systems, this ``randomness source" is a single point of failure, making the generator's implementation a critical aspect of the overall design \cite[p. 2]{kelsey1998cryptanalytic}. Indeed, how to implement a good generator is a question considered by several books, from Donald Knuth's seminal \textit{The Art of Computer Programming, Volume II: Seminumerical Algorithms} \cite{donald1998art} to textbooks such as Katz and Lindell's \textit{Introduction to Modern Cryptography} \cite{katz2014introduction}, as well as an active area of research.
 
-Recent years have seen machine learning methods achieve a tremendous amount of success throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with ``deep neural networks", a parametric representation of a mathematical function consisting of computational units called ``neurons", usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
+Recent years have seen machine learning methods achieve a tremendous amount of success throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with \emph{deep neural networks}, a parametric representation of a mathematical function consisting of computational units called \emph{neurons} or \emph{units}, usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
 
-This work units the two fields by seeking to apply a recently formulated deep learning method known as ``generative adversarial networks" to the generation of seemingly random numbers for use in cryptosystems.
+\textbf{TODO: more on machine learning but without the public interest crap}
 
 
 \begin{figure}
@@ -167,17 +177,14 @@ The motivation for this work is two-fold. On one hand, it presents a significant
 
 On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several desirable properties. This includes the ability to perform ad-hoc modifications to the generator by means of training, the ability to arbitrarily extend the length of generated number sequences without necessarily damaging their unpredictability by increasing the dimensionality of the network's input, as well as the ability to easily recover from state compromise attacks.
 
+\textbf{TODO: elaborate on potential advantages of NN CSPRNG}
 
-\section{Report Structure}
-The report is structured as outlined below, with additional appendices at the end of the document.
 
-Section \ref{chapter:background} outlines the theoretical background required to understand this research, as well as a literature review to capture the current state of the art in the field. The subsections are written as cohesive, self-contained units, allowing the reader to skip subsections they are already familiar with.
+\section{Approach, Scope, and Assumptions}
+This work unites the two fields by applying a recently formulated deep learning method known as \emph{generative adversarial networks} to the generation of pseudo-random numbers for use in cryptosystems.
 
-Section \ref{chapter:design} presents a detailed view of the system developed as part of this research, both at a conceptual level as well as in code. Each subsection deals with a component of the system.
 
-Section \ref{chapter:experiments} reports the experiments carried out on the implementation, including the full experimental setup as well each experiment's results. These results are then analyzed.
-
-Finally, section \ref{chapter:conclusion} makes a conclusion on the central research question on the basis of the results.
+\section{Findings and Contributions}
 
 
 
@@ -273,7 +280,7 @@ The \textbf{HTTP digest access authentication protocol} \todo{find RFC}
 
 
 \subsection{Requirements for Cryptographic Security}\label{subsection:crypto_requirements}
-- next bit test and shit
+- next bit test
 
 
 
@@ -555,10 +562,12 @@ Two slightly different variants of the generator are implemented, referred to as
 \label{figure:architecture_generator}
 \end{figure}
 
+\textbf{TODO: talk about the modulus activation}
 
 
 
-\subsection{Discriminative and Predictive Models}
+
+\subsection{Discriminative Model}
 The discriminator and the predictor are convolutional neural networks implementing the functions
 \begin{gather}
 disc(\bm{r}) : \mathbb{R}^m \rightarrow [0, 1] \\
@@ -584,11 +593,7 @@ Apart from the input size and the meaning of the output, the discriminator and t
 
 
 
-
-\subsection{Evaluation and Randomness Requirements}\label{subsection:eval_and_randomness}
-The randomness requirements of a cryptographically secure pseudo-random number generator, as well as techniques for assessing whether a potential CSPRNG fulfills them, were discussed in subsections \ref{subsection:crypto_requirements} and \ref{subsection:testing_prngs}, respectively.
-
-
+\subsection{Predictive Model}
 
 
 
@@ -614,8 +619,10 @@ At the highest level of abstraction, a TensorFlow program consists of a \textit{
 The package \mintinline{python}{tf.contrib.gan} in TensorFlow's Python API enables the programmer to easily define generative adversarial networks.
 
 
+
+
 \section{Software Design}
-This section outlines the design and implementation of the actual software. The design broadly follows the examples shown by Robin Ricard \cite{ricard2017generative} and Rowel Atienza \cite{atienza2017gan}, and implement the concepts explained in section \ref{section:conceptual_design}.
+This section outlines the design and implementation of the actual software. The software implements the concepts from section  \ref{section:conceptual_design} and broadly follows the structure demonstrated in TensorFlow's tutorials \cite{tensorflow2018tutorials} \cite{tensorflow2018tfgan}.
 
 
 
@@ -663,31 +670,25 @@ return outputs
 The operations \mintinline{python}{flatten} and \mintinline{python}{reshape} are used to modify the shape of tensors in order to connect layers with different shapes. Unlike the generator, where a custom activation function is used in order to introduce more non-linearity, all layers in the adversary model use the popular leaky rectified linear unit activation.
 
 
-
-\subsection{Connecting the Models Adversarially}
-Keras allows entire models to be treated as layers, and thus models can be composed of other models. Having defined the generator and discriminator/predictor models, they can be combined into a single model.
-
-\begin{minted}{python}
-    # define the connected GAN
-    discgan_output = jerry(jerry_input)
-    discgan_output = diego(discgan_output)
-    discgan = Model(jerry_input, discgan_output)
-\end{minted}
-
-In this model, the input layer is \mintinline{python}{jerry_input}, i.e. the generator's input layer. The model's stack of layers consists of the generator followed by the discriminator. Crucially, the generator and discriminator are still individually utilizable, but can also be operated on together.
-
-\subsection{Obtaining Training Data}
-TODO: how the utility functions work and how the training data is structured
-\subsection{Training Procedure for the Discriminative GAN}
-TODO: the training procedure
-\subsection{Training Procedure for the Predictive GAN}
-TODO: the training procedure
 \subsection{Custom Tensor Operations}\label{subsection:custom_ops}
 The \mintinline{python}{models} package contains modules implementing functionality that is not a part of the TensorFlow API, including custom activation functions and tensor operations. A few notable examples are highlighted here.
 
 \mintinline{python}{drop_last_value(original_size, batch_size)} is a closure returning a callable function \mintinline{python}{layer(x: tf.Tensor)}, which in turn can be used as part of TensorFlow's computational graph. The function defines an operation which drops the last value in a tensor's second dimension, and is used to connect the generator's output layer to the predictor's input layer in the predictive GAN.
 
 \mintinline{python}{modulo(divisor, withActivation=None)} is a closure returning a custom activation function that computes the modulus $\mod{divisor}$ of its input. It is also possible to use it in conjunction with another activation function, which can be passed to the second parameter.
+
+
+\subsection{Obtaining Training Data}
+TODO: how the utility functions work and how the training data is structured
+
+
+\subsection{Training Procedure for the Discriminative GAN}\label{subsection:training_disc}
+TODO: the training procedure
+
+
+\subsection{Training Procedure for the Predictive GAN}\label{subsection:training_pred}
+TODO: the training procedure
+
 
 
 \subsection{Utilities}
@@ -702,49 +703,59 @@ The \mintinline{python}{utils.vis_utils.py} module handles the creation and stor
 The remaining modules provide miscellaneous functionality such as error printing and logging information to text files.
 
 
+
+
 %----------------------------------------------------------
 % EXPERIMENTS
 %----------------------------------------------------------
 \chapter{Experiments}\label{chapter:experiments}
-This section outlines the training and evaluation procedure followed in order to test this work's hypothesis. A large number of "throwaway" tests was performed over an extended period of time to empirically identify good training setups, ranging from parameters such as learning rate to major design choices in neural network architecture. Finally, the models were trained multiple times in order to produce output samples, which were evaluated using the dieharder test suite.
+This section outlines the training and statistical testing procedures followed, presents the test results, and considers the computational complexity of the system. An overall evaluation of the results, and the extent to which the aims of the investigation have been achieved, is given in subsection \ref{subsection:evaluation}.
+
+The randomness requirements of cryptographically secure PRNGs, as well as the theory behind the evaluation of their properties, were outlined in subsections \ref{subsection:crypto_requirements} and \ref{subsection:testing_prngs}. The implementation of the training procedure was discussed in subsections \ref{subsection:training_disc} and \ref{subsection:training_pred}. This investigation uses the NIST statistical test suite to evaluate the randomness of the generator's outputs.
 
 
-\section{Training and Evaluation Procedure}
-The general experimental procedure entails adversarially training the generator and the opponent for a fixed number of iterations, and producing a text file of output samples from the generator, both before training and when training is complete. These text files are analyzed by dieharder in order to assess whether training improved the generator's performance in the statistical randomness tests.
+\section{Experimental Procedure}
+A total of 20 experiments were carried out. Each experiment entailed training the generative adversarial network, and evaluating the statistical properties of a large generator output.
 
 
+\subsection{Training}
 
-- alternating training in general
-- first pretrain (ON WHAT DATA
-- then main train (ON WHAT DATA)
-- evaluate periodically (HOW, ON WHAT DATA)
-- final evaluation
-
-\section{Training and Evaluation Parameters}
-
-
-\section{Neural Network Hyperparameters}
-The learning algorithm's hyperparameters were selected by running a number of shorter tests, in order to identify how different hyperparameters affected the performance of the model. This process relied entirely on the author's intuition and exploratory testing. Automated hyperparameter optimization was not performed.
-
-Some of the most significant hyperparameters include the networks' learning rate and their degree of decay, the generator width, the adversary width, the input batch size, and the generator output size. Their values, and the heuristics by which they were chosen, are given below.
-
-\begin{enumerate}
-\item \mintinline{python}{LEARNING_RATE: 0.02} - 
-\item \mintinline{python}{OPTIMIZER_DECAY_ALPHA: 0.999} - 
-\item \mintinline{python}{OPTIMIZER_DECAY_BETA: 0.999} - 
-\item \mintinline{python}{GEN_WIDTH: 30} - 
-\item \mintinline{python}{CONV_WIDTH} - 
-\item \mintinline{python}{} - 
-\item \mintinline{python}{} - 
-\end{enumerate}
-
-
-A number of other hyperparameters, in particular those parameterizing the convolutional layers, are not considered here.
+\subsection{Statistical Testing}
 
 
 \section{Results}
 
-\section{Discussion and Applications}
+{\rowcolors{3}{green!80!yellow!50}{green!70!yellow!40}
+\begin{tabular}{ |p{3cm}|p{3cm}|p{3cm}|  }
+\hline
+\multicolumn{3}{|c|}{Country List} \\
+\hline
+Country Name     or Area Name& ISO ALPHA 2 Code &ISO ALPHA 3 \\
+\hline
+Afghanistan & AF &AFG \\
+Aland Islands & AX   & ALA \\
+Albania &AL & ALB \\
+Algeria    &DZ & DZA \\
+American Samoa & AS & ASM \\
+Andorra & AD & AND   \\
+Angola & AO & AGO \\
+\hline
+\end{tabular}
+}
+
+
+\subsection{Discriminative}
+
+\subsection{Predictive}
+
+
+\section{Computational Complexity}
+
+
+\section{Evaluation}\label{subsection:evaluation}
+
+
+
 
 
 %----------------------------------------------------------
@@ -754,11 +765,18 @@ A number of other hyperparameters, in particular those parameterizing the convol
 TODO: if generator works, conclude that work backs the conjecture that a discrete uniform distribution can be learned by a neural network. If it doesn't, conclusion should state why. In either case probably more experimentation is required as these experiments were constrained due to a number of reasons.
 
 
+
+
+
 %----------------------------------------------------------
 % FURTHER INVESTIGATION
 %----------------------------------------------------------
 \chapter{Further Investigation}
 TODO: more formal treatment of the problem, such as cryptanalysis if the generator works, or an in-depth analysis of failure if it doesn't. Further attempts with better training procedure, i.e. hyperparameter optimization, cross-validation of architectures, etc? There are quite many training improvements that could be implemented, list them.
+
+
+
+
 
 
 %--------------------------------------------------

@@ -23,7 +23,8 @@
 \newlabel{figure:googletrends_dl}{{1.1}{5}}
 \@writefile{toc}{\contentsline {section}{\numberline {1.1}Aims and Motivation}{5}}
 \newlabel{subsection:aims}{{1.1}{5}}
-\@writefile{toc}{\contentsline {section}{\numberline {1.2}Report Structure}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Approach, Scope, and Assumptions}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Findings and Contributions}{6}}
 \citation{klimov2002analysis}
 \citation{donald1998art}
 \citation{barker2007recommendation}
@@ -196,32 +197,33 @@
 \citation{jgraph2018draw}
 \citation{jgraph2018draw}
 \citation{jgraph2018draw}
+\citation{numpy}
+\citation{numpy}
+\citation{tensorflow}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Convolutional discriminator architecture. The output of the generator is convolved multiple times in order to extract higher-level features from the sequence; this is followed by pooling to reduce the output size, and fully connected feed-forward layers to produce the final classification output. Image produced using draw.io \cite  {jgraph2018draw}.}}{24}}
 \newlabel{figure:architecture_conv}{{3.4}{24}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Convolutional predictor architecture. The design is shared with the discriminator, but the size of the input sequence and the meaning of the output scalar are different. The predictor produces a guess for the last value in the generator's output based on the previous values. Image produced using draw.io \cite  {jgraph2018draw}.}}{24}}
 \newlabel{figure:architecture_conv}{{3.5}{24}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Discriminative and Predictive Models}{24}}
-\citation{numpy}
-\citation{numpy}
-\citation{tensorflow}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Discriminative Model}{24}}
 \citation{bhatia2017why}
 \citation{tensorflow2018intro}
 \citation{tensorflow2018intro}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Evaluation and Randomness Requirements}{25}}
-\newlabel{subsection:eval_and_randomness}{{3.1.3}{25}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Implementation Technologies}{25}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Introduction to TensorFlow}{25}}
 \citation{tensorflow2018graphs}
 \citation{tensorflow2018intro}
-\citation{ricard2017generative}
-\citation{atienza2017gan}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Predictive Model}{25}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Implementation Technologies}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Introduction to TensorFlow}{25}}
+\citation{tensorflow2018tutorials}
+\citation{tensorflow2018tfgan}
 \@writefile{toc}{\contentsline {section}{\numberline {3.3}Software Design}{26}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Generative Model}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{26}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{27}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{28}}
+\newlabel{subsection:training_disc}{{3.3.5}{28}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{28}}
+\newlabel{subsection:training_pred}{{3.3.6}{28}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.7}Custom Tensor Operations}{28}}
 \newlabel{subsection:custom_ops}{{3.3.7}{28}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.8}Utilities}{28}}
@@ -229,80 +231,84 @@
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \newlabel{chapter:experiments}{{4}{30}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Training and Evaluation Procedure}{30}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Training and Evaluation Parameters}{30}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Neural Network Hyperparameters}{30}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}Results}{31}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Discussion and Applications}{31}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{32}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Experimental Procedure}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Training}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.2}Statistical Testing}{30}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Results}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Discriminative}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Predictive}{30}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Computational Complexity}{30}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Evaluation}{30}}
+\newlabel{subsection:evaluation}{{4.4}{30}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{31}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{chapter:conclusion}{{5}{32}}
+\newlabel{chapter:conclusion}{{5}{31}}
 \bibstyle{plain}
 \bibdata{references.bib}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Further Investigation}{33}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Further Investigation}{32}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\bibcite{atienza2017gan}{1}
-\bibcite{ricard2017generative}{2}
-\bibcite{bhatia2017why}{3}
-\bibcite{numpy}{4}
-\bibcite{forbes2016short}{5}
-\bibcite{tensorflow}{6}
-\bibcite{tensorflow2018graphs}{7}
-\bibcite{tensorflow2018intro}{8}
-\bibcite{abadi2016learning}{9}
-\bibcite{albelwi2017framework}{10}
-\bibcite{amazon2018aws}{11}
-\bibcite{anderson2010security}{12}
-\bibcite{barker2007recommendation}{13}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Bibliography}{34}}
+\bibcite{bhatia2017why}{1}
+\bibcite{numpy}{2}
+\bibcite{forbes2016short}{3}
+\bibcite{tensorflow}{4}
+\bibcite{tensorflow2018graphs}{5}
+\bibcite{tensorflow2018intro}{6}
+\bibcite{tensorflow2018tutorials}{7}
+\bibcite{abadi2016learning}{8}
+\bibcite{albelwi2017framework}{9}
+\bibcite{amazon2018aws}{10}
+\bibcite{anderson2010security}{11}
+\bibcite{barker2007recommendation}{12}
+\bibcite{microsoft2018azure}{13}
+\bibcite{cover2012elements}{14}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Bibliography}{33}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\bibcite{microsoft2018azure}{14}
-\bibcite{cover2012elements}{15}
-\bibcite{deng2017developments}{16}
-\bibcite{desai2011pseudo}{17}
-\bibcite{desai2012pseudo}{18}
-\bibcite{donald1998art}{19}
-\bibcite{ferguson2010cryptography}{20}
-\bibcite{goodfellow2016nips}{21}
-\bibcite{goodfellow2016deep}{22}
-\bibcite{goodfellow2014generative}{23}
-\bibcite{karpathy2017cs231n}{24}
-\bibcite{katz2014introduction}{25}
-\bibcite{kelsey1998cryptanalytic}{26}
-\bibcite{kingma2014adam}{27}
-\bibcite{klimov2002analysis}{28}
-\bibcite{lavasani2009practical}{29}
-\bibcite{google2018automl}{30}
-\bibcite{google2018trends}{31}
-\bibcite{jgraph2018draw}{32}
-\bibcite{melicher2016fast}{33}
-\bibcite{menezes1996handbook}{34}
-\bibcite{rukhin2001statistical}{35}
-\bibcite{russel2009artificial}{36}
-\bibcite{sharma2017activation}{37}
+\bibcite{deng2017developments}{15}
+\bibcite{desai2011pseudo}{16}
+\bibcite{desai2012pseudo}{17}
+\bibcite{donald1998art}{18}
+\bibcite{ferguson2010cryptography}{19}
+\bibcite{goodfellow2016nips}{20}
+\bibcite{goodfellow2016deep}{21}
+\bibcite{goodfellow2014generative}{22}
+\bibcite{karpathy2017cs231n}{23}
+\bibcite{katz2014introduction}{24}
+\bibcite{kelsey1998cryptanalytic}{25}
+\bibcite{kingma2014adam}{26}
+\bibcite{klimov2002analysis}{27}
+\bibcite{lavasani2009practical}{28}
+\bibcite{google2018automl}{29}
+\bibcite{google2018trends}{30}
+\bibcite{jgraph2018draw}{31}
+\bibcite{melicher2016fast}{32}
+\bibcite{menezes1996handbook}{33}
+\bibcite{rukhin2001statistical}{34}
+\bibcite{russel2009artificial}{35}
+\bibcite{sharma2017activation}{36}
+\bibcite{tensorflow2018tfgan}{37}
 \bibcite{terr2009math}{38}
 \bibcite{tirdad2010hopfield}{39}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Training Data}{37}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Training Data}{36}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Code Listings}{38}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Code Listings}{37}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {B.1}Generator}{38}}
-\newlabel{appendix:generator}{{B.1}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{38}}
-\newlabel{appendix:convolutional}{{B.2}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{39}}
-\newlabel{appendix:lstm}{{B.3}{39}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{39}}
-\newlabel{appendix:convlstm}{{B.4}{39}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{40}}
-\newlabel{appendix:training_discgan}{{B.5}{40}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{40}}
-\newlabel{appendix:training_predgan}{{B.6}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.1}Generator}{37}}
+\newlabel{appendix:generator}{{B.1}{37}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{37}}
+\newlabel{appendix:convolutional}{{B.2}{37}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{38}}
+\newlabel{appendix:lstm}{{B.3}{38}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{38}}
+\newlabel{appendix:convlstm}{{B.4}{38}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{39}}
+\newlabel{appendix:training_discgan}{{B.5}{39}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{39}}
+\newlabel{appendix:training_predgan}{{B.6}{39}}
 \gdef\minted@oldcachelist{,
   default-pyg-prefix.pygstyle,
   default.pygstyle,
@@ -336,13 +342,6 @@
   7BB2296F2C23E3D8D42263634613906A7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   CC8F4CB50C34B9656FB22C920A967C4C7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   38E5D2095B76575F55EB2D505DD5B4417C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  977C575EF57AA823F92F25A2D4C8E60B7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  B93AECBB216C0B6DFB7774B39A0C70EF7C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  8A6C74665C9A6CB90F9EF54ECC93AF767C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  3EDFF26758793F47CCD2986B898FB2A17C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  414D83DCFA26D6CFE6473DFD93D61EC47C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
-  68B329DA9893E34099C7D8AD5CB9C9407C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   B721F2FD0C2484502B723AAEA86A00067C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   793EE9ECA4E3E41EA42F6648FE4D79027C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
   9914B55C912FBA0669AE2AD56336B4C77C2E7F49E087B8E8E8DF5244CE287E39.pygtex,
