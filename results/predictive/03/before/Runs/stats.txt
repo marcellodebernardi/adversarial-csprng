@@ -10,3 +10,21 @@
 				RUNS TEST
 		------------------------------------------
 		PI ESTIMATOR CRITERIA NOT MET! PI = 0.623444
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.593188
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.604167
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.594288
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.621377
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.585434
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.570206

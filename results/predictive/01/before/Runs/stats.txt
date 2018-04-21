@@ -10,3 +10,30 @@
 				RUNS TEST
 		------------------------------------------
 		PI ESTIMATOR CRITERIA NOT MET! PI = 0.494480
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.506455
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.518150
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.491454
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.497483
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.512259
+				RUNS TEST
+		------------------------------------------
+		COMPUTATIONAL INFORMATION:
+		------------------------------------------
+		(a) Pi                        = 0.500253
+		(b) V_n_obs (Total # of runs) = 434994
+		(c) V_n_obs - 2 n pi (1-pi)
+		    -----------------------   = 91.932209
+		      2 sqrt(2n) pi (1-pi)
+		------------------------------------------
+FAILURE		p_value = 0.000000
+

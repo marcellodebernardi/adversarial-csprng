@@ -19,3 +19,30 @@
 		------------------------------------------
 FAILURE		p_value = 0.000000
 
+				RUNS TEST
+		------------------------------------------
+		COMPUTATIONAL INFORMATION:
+		------------------------------------------
+		(a) Pi                        = 0.501205
+		(b) V_n_obs (Total # of runs) = 378315
+		(c) V_n_obs - 2 n pi (1-pi)
+		    -----------------------   = 172.085470
+		      2 sqrt(2n) pi (1-pi)
+		------------------------------------------
+FAILURE		p_value = 0.000000
+
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.487999
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.507442
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.490951
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.514991
+				RUNS TEST
+		------------------------------------------
+		PI ESTIMATOR CRITERIA NOT MET! PI = 0.487759

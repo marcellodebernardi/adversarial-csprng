@@ -1,17 +1,5 @@
 \begin{thebibliography}{10}
 
-\bibitem{atienza2017gan}
-Gan by example using keras on tensorflow backend.
-\newblock
-  \url{https://towardsdatascience.com/gan-by-example-using-keras-on-tensorflow-backend-1a6d515a60d0}.
-\newblock Accessed: 15/10/2017.
-
-\bibitem{ricard2017generative}
-Generative adversarial networks part 2 - implementation with keras 2.0.
-\newblock
-  \url{http://www.rricard.me/machine/learning/generative/adversarial/networks/keras/tensorflow/2017/04/05/gans-part2.html}.
-\newblock Accessed: 15/10/2017.
-
 \bibitem{bhatia2017why}
 Google's tensorflow gaining popularity. why?
 \newblock
@@ -43,6 +31,11 @@ Tensorflow: Graphs and sessions.
 Tensorflow: Introduction.
 \newblock \url{https://www.tensorflow.org/programmers_guide/low_level_intro}.
 \newblock Accessed: 11/04/2018.
+
+\bibitem{tensorflow2018tutorials}
+Tensorflow: Tutorials.
+\newblock \url{https://www.tensorflow.org/tutorials/}.
+\newblock Accessed: 21/04/2018.
 
 \bibitem{abadi2016learning}
 Mart{\'\i}n Abadi and David~G Andersen.
@@ -213,6 +206,13 @@ Sagar Sharma.
 \newblock
   \url{https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6}.
 \newblock Accessed: 19/03/2018.
+
+\bibitem{tensorflow2018tfgan}
+Joel Shor.
+\newblock Tfgan tutorial.
+\newblock
+  \url{https://github.com/tensorflow/models/blob/master/research/gan/tutorial.ipynb}.
+\newblock Accessed: 21/04/2018.
 
 \bibitem{terr2009math}
 David Terr.

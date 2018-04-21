@@ -9,36 +9,35 @@ Warning--to sort, need author or key in tensorflow
 Warning--to sort, need author or key in bhatia2017why
 Warning--to sort, need author or key in tensorflow2018intro
 Warning--to sort, need author or key in tensorflow2018graphs
-Warning--to sort, need author or key in ricard2017generative
-Warning--to sort, need author or key in atienza2017gan
+Warning--to sort, need author or key in tensorflow2018tutorials
 You've used 39 entries,
             2118 wiz_defined-function locations,
-            684 strings with 10241 characters,
-and the built_in function-call counts, 10768 in all, are:
-= -- 1044
-> -- 466
+            685 strings with 10082 characters,
+and the built_in function-call counts, 10813 in all, are:
+= -- 1048
+> -- 472
 < -- 6
-+ -- 193
-- -- 150
++ -- 195
+- -- 152
 * -- 561
-:= -- 1724
-add.period$ -- 127
+:= -- 1741
+add.period$ -- 128
 call.type$ -- 39
-change.case$ -- 186
+change.case$ -- 187
 chr.to.int$ -- 0
-cite$ -- 47
+cite$ -- 46
 duplicate$ -- 430
-empty$ -- 953
-format.name$ -- 150
-if$ -- 2352
+empty$ -- 952
+format.name$ -- 152
+if$ -- 2357
 int.to.chr$ -- 0
 int.to.str$ -- 39
 missing$ -- 28
-newline$ -- 204
-num.names$ -- 62
+newline$ -- 205
+num.names$ -- 64
 pop$ -- 333
 preamble$ -- 1
-purify$ -- 152
+purify$ -- 153
 quote$ -- 0
 skip$ -- 315
 stack$ -- 0
@@ -48,8 +47,8 @@ text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 142
-warning$ -- 8
-while$ -- 84
+warning$ -- 7
+while$ -- 86
 width$ -- 41
-write$ -- 406
-(There were 8 warnings)
+write$ -- 408
+(There were 7 warnings)
