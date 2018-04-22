@@ -7,15 +7,46 @@ with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 
 
 ## 1 - Setup
-The system targets `Python 3.6.2`, with module import requirements outlined
-in `requirements.txt`. More in-depth dependency management will be added in
-the future. A special dependency is `GraphViz`, which requires externally
-installing its binaries. These can be found on the `GraphViz` website.
+The easiest way to run the project is to build the Docker image using
+the provided Dockerfile. To do so, install Docker on your system, ensure the
+Docker daemon is running, and execute the command
+
+`docker build -t your_name/container_name:main .`
+
+from the `adversarial-csprng` directory. Run the image using the command
+
+`sudo docker run -i -t --rm your_name/container_name:main /bin/bash`
+
+which starts the image in a container and drops you into an interactive 
+shell inside the container. This approach is the easiest as the Dockerfile 
+handles the setup of all required dependencies.
+
+It is also possible to execute the system directly. In order to do so, Python
+version `3.6` or higher is required. You can `pip install -r requirements.txt`
+to obtain the project's Python dependencies. Additional dependencies are listed
+in the Dockerfile. In general, the setup procedure is the same as that performed
+in the Dockerfile. 
 
 
 ## 2 - Running and Tweaking the Model
-Run `main.py` to train and evaluate the models. Parameters can be tweaked
-in the constants section at the top of the script.
+Once inside the running Docker container run `python3 main.py` to train and 
+evaluate the models. Parameters can be tweaked in the constants section at the 
+top of the script, and some command-line options are supported. 
+
+Available command line arguments:
+```
+-t              TEST MODE: runs model with reduced size and few iterations
+-nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
+-nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
+-long           LONG TRAINING: trains for 1,000,000 epochs
+-highlr         HIGH LEARNING RATE: increases the learning rate from default
+-lowlr          LOW LEARNING RATE: decreases the learning rate from default
+```
+
+The system will not stop you from inputting contradictory cli arguments, such as
+`python3 main.py -highlr -lowlr`. The use of common sense is allowed. In general,
+**it is recommended to only train one of the models at once**, i.e. you should
+add either the `-nopred` or `-nodisc` argument when executing the program.
 
 
 ## 3 - Approaches to the Problem
@@ -45,13 +76,19 @@ to sequences of real numbers.
 ## 4 - Project Structure
 The high-level functionality is in `main.py`. 
 
-The `models` package contains modules defining components of neural networks such 
+The `components` package contains modules defining components of neural networks such 
 as loss functions, activation functions, and other tensor operations. The `utils` package 
-contains modules providing supporting functionality such as graph plotting and reporting. 
+contains modules providing supporting functionality such as graph plotting and file output. 
 The functionality provided by modules in this package is not crucial to the project 
 at the conceptual level.
 
 
-## 5 - TO DO
-1. Activations: ReLU or modulo for generator; ReLU, DiBoB, or LDiBoB for opponent
-3. LSTM node number
+## 5 - Acknowledgements and License
+This project is a final-year undergraduate dissertation carried out for the BSc Computer
+Science at Queen Mary University of London. All rights to this work are held in accordance
+to Queen Mary's policy on intellectual property of work carried out towards a degree.
+
+Wherever this policy does not apply, or in any instance such that the policy does not make
+a provision, the licence bundled with this repository shall apply.
+
+The author would appreciate attribution for this work, if used anywhere.
