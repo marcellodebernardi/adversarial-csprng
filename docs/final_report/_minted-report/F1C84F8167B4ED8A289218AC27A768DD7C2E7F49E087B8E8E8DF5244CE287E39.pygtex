@@ -1,6 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-    \PYG{c}{\PYGZsh{} define the connected GAN}
-    \PYG{n}{discgan\PYGZus{}output} \PYG{o}{=} \PYG{n}{jerry}\PYG{p}{(}\PYG{n}{jerry\PYGZus{}input}\PYG{p}{)}
-    \PYG{n}{discgan\PYGZus{}output} \PYG{o}{=} \PYG{n}{diego}\PYG{p}{(}\PYG{n}{discgan\PYGZus{}output}\PYG{p}{)}
-    \PYG{n}{discgan} \PYG{o}{=} \PYG{n}{Model}\PYG{p}{(}\PYG{n}{jerry\PYGZus{}input}\PYG{p}{,} \PYG{n}{discgan\PYGZus{}output}\PYG{p}{)}
-\end{Verbatim}

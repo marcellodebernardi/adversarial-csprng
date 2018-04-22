@@ -13,14 +13,19 @@
 
 """
 This modules provides utilities for debugging the compilation, training,
-and evaluation of the neural network models involved in this project.
+and evaluation of the neural network components involved in this project.
 """
 
 import datetime
 
 
 def print_step(step, gen_loss, opp_loss):
-    """ Prints debugging information for a single epoch during training. """
+    """ Prints debugging information for a single epoch during training.
+
+        :param step: current step number
+        :param gen_loss: generator loss at current step
+        :param opp_loss: opponent loss at current step
+    """
     print('Step ' + str(step) + ', ' + str(datetime.datetime.utcnow())
           + ' - Current loss: GEN %f ' % gen_loss
           + ' OPP %f ' % opp_loss

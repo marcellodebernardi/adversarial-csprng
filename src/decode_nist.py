@@ -12,8 +12,12 @@
 # =================================================================
 
 """
-For storage limitation reasons, the original network output is stored as.
+This command-line utility works on ASCII text files containing one base-16
+numeric value per line, and converts it to a new file containing ASCII 0 and
+1 characters. This output file is formatted for analysis by the NIST test
+suite.
 """
+
 
 import sys
 import glob
@@ -21,6 +25,7 @@ from tqdm import tqdm
 
 
 def main():
+    """ Application entry point. """
     for filename in tqdm(glob.glob(sys.argv[1]), 'decoding (dieharder): '):
         new_filename = filename[:-4] + '_dieharder.txt'
 

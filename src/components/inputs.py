@@ -22,8 +22,12 @@ import tensorflow as tf
 
 def get_input_tensor(batch_size, max_val) -> tf.Tensor:
     """ Returns a symbolic Tensor operation for sampling inputs to the
-     generator in the GAN. The specification of the inputs is the same
-     as for get_inputs_as_array. """
+        generator in the GAN. The specification of the inputs is the same
+        as for get_inputs_as_array.
+
+        :param batch_size: number of input examples in each batch
+        :param max_val: maximum scalar value of each tensor element
+     """
     return tf.transpose(
         tf.stack(
             [tf.fill([batch_size], tf.random_uniform(shape=[], minval=0, maxval=max_val)),
@@ -33,8 +37,12 @@ def get_input_tensor(batch_size, max_val) -> tf.Tensor:
 
 def get_input_numpy(batch_size, max_val) -> np.ndarray:
     """ Returns a symbolic Tensor operation for sampling inputs to the
-     generator in the GAN. The specification of the inputs is the same
-     as for get_inputs_as_array. """
+         generator in the GAN. The specification of the inputs is the same
+        as for get_inputs_as_array.
+
+        :param batch_size: number of input examples in each batch
+        :param max_val: maximum scalar value of each tensor element
+    """
     return np.transpose(
         np.stack(
             [np.full([batch_size], fill_value=np.random.uniform(size=[], low=0, high=max_val)),
@@ -42,10 +50,16 @@ def get_input_numpy(batch_size, max_val) -> np.ndarray:
         ))
 
 
-def get_eval_input_numpy(seed, length, batch_size, max_val) -> np.ndarray:
+def get_eval_input_numpy(seed, length, batch_size) -> np.ndarray:
     """ Returns an input dataset that can be used to produce a full output
-    sequence using a trained generator. This method returns a 2D numpy array
-    where each inner array is an (seed, offset) pair. """
+        sequence using a trained generator. This method returns a 2D numpy array
+        where each inner array is an (seed, offset) pair. The seed remains
+        fixed, while the offset is incremented by 1 at each position.
+
+        :param seed: pre-generated seed for the evaluation input
+        :param length: number of batches in evaluation input
+        :param batch_size: number of inputs in each batch
+    """
     data = []
     offset = 0
 

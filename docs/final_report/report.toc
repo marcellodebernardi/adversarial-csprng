@@ -1,60 +1,54 @@
-\contentsline {chapter}{\numberline {1}Introduction}{4}
-\contentsline {section}{\numberline {1.1}Aims and Motivation}{5}
-\contentsline {section}{\numberline {1.2}Approach, Scope, and Assumptions}{5}
-\contentsline {section}{\numberline {1.3}Findings and Contributions}{6}
-\contentsline {chapter}{\numberline {2}Background}{7}
-\contentsline {section}{\numberline {2.1}Random Numbers Sequences and Generators}{7}
-\contentsline {subsection}{\numberline {2.1.1}Random Bits, Random Numbers, and Entropy}{7}
-\contentsline {subsection}{\numberline {2.1.2}Random Number Generators}{8}
-\contentsline {subsection}{\numberline {2.1.3}Pseudo-Random Number Generators}{9}
-\contentsline {section}{\numberline {2.2}Random Numbers and Cryptography}{11}
-\contentsline {subsection}{\numberline {2.2.1}Cryptographic Applications of Random Numbers}{11}
-\contentsline {subsection}{\numberline {2.2.2}Requirements for Cryptographic Security}{11}
-\contentsline {subsection}{\numberline {2.2.3}Testing Number Sequences for Randomness}{11}
-\contentsline {section}{\numberline {2.3}Artificial Neural Networks}{12}
-\contentsline {subsection}{\numberline {2.3.1}Introduction to Neural Networks}{12}
-\contentsline {subsection}{\numberline {2.3.2}Learning in Neural Networks}{13}
-\contentsline {subsection}{\numberline {2.3.3}Activation Functions}{14}
-\contentsline {subsection}{\numberline {2.3.4}Feed-Forward Networks}{15}
-\contentsline {subsection}{\numberline {2.3.5}Convolutional Neural Networks}{16}
-\contentsline {subsection}{\numberline {2.3.6}Generative Adversarial Networks}{17}
-\contentsline {section}{\numberline {2.4}Related Work}{19}
-\contentsline {subsection}{\numberline {2.4.1}Learning to Protect Communications with Adversarial Neural Cryptography}{19}
-\contentsline {subsection}{\numberline {2.4.2}Papers on Using Neural Networks as Pseudo-Random Number Generators}{19}
-\contentsline {subsection}{\numberline {2.4.3}Fast, Lean, and Accurate: Modeling Password Guessability Using Neural Networks}{20}
-\contentsline {chapter}{\numberline {3}Design and Implementation}{21}
-\contentsline {section}{\numberline {3.1}Conceptual Design}{21}
-\contentsline {subsection}{\numberline {3.1.1}Generative Model}{23}
-\contentsline {subsection}{\numberline {3.1.2}Discriminative Model}{24}
-\contentsline {subsection}{\numberline {3.1.3}Predictive Model}{25}
-\contentsline {section}{\numberline {3.2}Implementation Technologies}{25}
-\contentsline {subsection}{\numberline {3.2.1}Introduction to TensorFlow}{25}
-\contentsline {section}{\numberline {3.3}Software Design}{26}
-\contentsline {subsection}{\numberline {3.3.1}Generative Model}{26}
-\contentsline {subsection}{\numberline {3.3.2}Discriminative and Predictive Models}{26}
-\contentsline {subsection}{\numberline {3.3.3}Connecting the Models Adversarially}{27}
-\contentsline {subsection}{\numberline {3.3.4}Obtaining Training Data}{27}
-\contentsline {subsection}{\numberline {3.3.5}Training Procedure for the Discriminative GAN}{28}
-\contentsline {subsection}{\numberline {3.3.6}Training Procedure for the Predictive GAN}{28}
-\contentsline {subsection}{\numberline {3.3.7}Custom Tensor Operations}{28}
-\contentsline {subsection}{\numberline {3.3.8}Utilities}{28}
-\contentsline {chapter}{\numberline {4}Experiments}{30}
-\contentsline {section}{\numberline {4.1}Experimental Procedure}{30}
-\contentsline {subsection}{\numberline {4.1.1}Training}{30}
-\contentsline {subsection}{\numberline {4.1.2}Statistical Testing}{30}
-\contentsline {section}{\numberline {4.2}Results}{30}
-\contentsline {subsection}{\numberline {4.2.1}Discriminative}{30}
-\contentsline {subsection}{\numberline {4.2.2}Predictive}{30}
-\contentsline {section}{\numberline {4.3}Computational Complexity}{30}
-\contentsline {section}{\numberline {4.4}Evaluation}{30}
-\contentsline {chapter}{\numberline {5}Conclusion}{31}
-\contentsline {chapter}{\numberline {6}Further Investigation}{32}
-\contentsline {chapter}{\numberline {7}Bibliography}{33}
-\contentsline {chapter}{\numberline {A}Training Data}{36}
-\contentsline {chapter}{\numberline {B}Code Listings}{37}
-\contentsline {section}{\numberline {B.1}Generator}{37}
-\contentsline {section}{\numberline {B.2}Adversary, Convolutional Architecture}{37}
-\contentsline {section}{\numberline {B.3}Adversary, LSTM Architecture}{38}
-\contentsline {section}{\numberline {B.4}Adversary, Convolutional LSTM Architecture}{38}
-\contentsline {section}{\numberline {B.5}Training of Discriminative GAN}{39}
-\contentsline {section}{\numberline {B.6}Training of Predictive GAN}{39}
+\contentsline {chapter}{List of Tables}{4}
+\contentsline {chapter}{\numberline {1}Introduction}{5}
+\contentsline {section}{\numberline {1.1}Aims and Motivation}{6}
+\contentsline {section}{\numberline {1.2}Approach, Scope, and Assumptions}{6}
+\contentsline {section}{\numberline {1.3}Findings and Contributions}{7}
+\contentsline {chapter}{\numberline {2}Background}{8}
+\contentsline {section}{\numberline {2.1}Random Numbers Sequences and Generators}{8}
+\contentsline {subsection}{\numberline {2.1.1}Random Bits, Random Numbers, and Entropy}{8}
+\contentsline {subsection}{\numberline {2.1.2}Random Number Generators}{10}
+\contentsline {subsection}{\numberline {2.1.3}Pseudo-Random Number Generators}{11}
+\contentsline {section}{\numberline {2.2}Random Numbers and Cryptography}{12}
+\contentsline {subsection}{\numberline {2.2.1}Cryptographic Applications of Random Numbers}{12}
+\contentsline {subsection}{\numberline {2.2.2}Requirements for Cryptographic Security}{12}
+\contentsline {subsection}{\numberline {2.2.3}Testing Number Sequences for Randomness}{13}
+\contentsline {section}{\numberline {2.3}Artificial Neural Networks}{14}
+\contentsline {subsection}{\numberline {2.3.1}Introduction to Neural Networks}{14}
+\contentsline {subsection}{\numberline {2.3.2}Learning in Neural Networks}{15}
+\contentsline {subsection}{\numberline {2.3.3}Activation Functions}{16}
+\contentsline {subsection}{\numberline {2.3.4}Fully Connected Feed-Forward Networks}{17}
+\contentsline {subsection}{\numberline {2.3.5}Convolutional Neural Networks}{18}
+\contentsline {subsection}{\numberline {2.3.6}Generative Adversarial Networks}{18}
+\contentsline {section}{\numberline {2.4}Related Work}{20}
+\contentsline {subsection}{\numberline {2.4.1}Papers on Using Neural Networks as Pseudo-Random Number Generators}{21}
+\contentsline {subsection}{\numberline {2.4.2}Learning to Protect Communications with Adversarial Neural Cryptography}{21}
+\contentsline {chapter}{\numberline {3}Design and Implementation}{22}
+\contentsline {section}{\numberline {3.1}Conceptual Design}{22}
+\contentsline {subsection}{\numberline {3.1.1}Generative Model}{24}
+\contentsline {subsection}{\numberline {3.1.2}Discriminative Model}{25}
+\contentsline {subsection}{\numberline {3.1.3}Predictive Model}{26}
+\contentsline {section}{\numberline {3.2}Implementation Technologies}{26}
+\contentsline {subsection}{\numberline {3.2.1}Introduction to TensorFlow}{26}
+\contentsline {subsection}{\numberline {3.2.2}Supporting Technologies}{27}
+\contentsline {section}{\numberline {3.3}Software Design}{27}
+\contentsline {subsection}{\numberline {3.3.1}System Parameterization}{28}
+\contentsline {subsection}{\numberline {3.3.2}Generative Model}{29}
+\contentsline {subsection}{\numberline {3.3.3}Discriminative and Predictive Models}{29}
+\contentsline {subsection}{\numberline {3.3.4}Custom Tensor Operations}{30}
+\contentsline {subsection}{\numberline {3.3.5}Obtaining Training Data}{30}
+\contentsline {subsection}{\numberline {3.3.6}Defining and Training the Discriminative GAN}{31}
+\contentsline {subsection}{\numberline {3.3.7}Defining and Training for the Predictive GAN}{32}
+\contentsline {chapter}{\numberline {4}Experiments}{33}
+\contentsline {section}{\numberline {4.1}Experimental Procedure}{33}
+\contentsline {subsection}{\numberline {4.1.1}Training}{33}
+\contentsline {subsection}{\numberline {4.1.2}Statistical Testing}{33}
+\contentsline {section}{\numberline {4.2}Results}{33}
+\contentsline {section}{\numberline {4.3}Effect of Training Duration and Generator Dimensions}{33}
+\contentsline {section}{\numberline {4.4}Computational Complexity}{36}
+\contentsline {section}{\numberline {4.5}Evaluation}{36}
+\contentsline {chapter}{\numberline {5}Conclusion}{40}
+\contentsline {chapter}{\numberline {6}Further Investigation}{41}
+\contentsline {chapter}{\numberline {7}Bibliography}{42}
+\contentsline {chapter}{\numberline {A}Glossary}{45}
+\contentsline {chapter}{\numberline {B}Statistical Test Result Sample}{46}
+\contentsline {chapter}{\numberline {C}Summary of Supporting Material}{50}

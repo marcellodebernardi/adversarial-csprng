@@ -22,12 +22,16 @@ import tensorflow as tf
 
 
 def modulo(divisor, with_activation=None):
-    """ Activation function that uses the given standard activation
-        function and then applies a modulo operation to its output. """
+    """ Activation function that uses the (optional) given standard activation
+        function and then applies a modulo operation to its output.
 
-    def mod_act(input_value: tf.Tensor) -> tf.Tensor:
+        :param divisor: tensor or int, the divisor used in computing the modulo
+        :param with_activation: optional activation function to wrap
+    """
+
+    def closure(input_value: tf.Tensor) -> tf.Tensor:
         if with_activation is not None:
             input_value = with_activation(input_value)
         return tf.mod(input_value, divisor)
 
-    return mod_act
+    return closure
