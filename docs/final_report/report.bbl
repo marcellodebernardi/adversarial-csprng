@@ -69,6 +69,18 @@ Elaine~B Barker and John~Michael Kelsey.
   Institute of Standards and Technology, Computer Security Division,
   Information Technology Laboratory, 2007.
 
+\bibitem{bennett2009randomness}
+Deborah~J Bennett.
+\newblock {\em Randomness}.
+\newblock Harvard University Press, 2009.
+
+\bibitem{bierhorst2018experimentally}
+Peter Bierhorst, Emanuel Knill, Scott Glancy, Yanbao Zhang, Alan Mink, Stephen
+  Jordan, Andrea Rommal, Yi-Kai Liu, Bradley Christensen, Sae~Woo Nam, et~al.
+\newblock Experimentally generated randomness certified by the impossibility of
+  superluminal signals.
+\newblock {\em arXiv preprint arXiv:1803.06219}, 2018.
+
 \bibitem{microsoft2018azure}
 Microsoft Corporation.
 \newblock Azure machine learning - open and elastic ai development spanning the
@@ -107,11 +119,6 @@ Knuth Donald et~al.
 Niels Ferguson, Bruce Schneier, and Tadayoshi Kohno.
 \newblock Cryptography engineering.
 \newblock {\em Design Princi}, 2010.
-
-\bibitem{goodfellow2016nips}
-Ian Goodfellow.
-\newblock Nips 2016 tutorial: Generative adversarial networks.
-\newblock {\em arXiv preprint arXiv:1701.00160}, 2016.
 
 \bibitem{goodfellow2016deep}
 Ian Goodfellow, Yoshua Bengio, and Aaron Courville.
@@ -177,12 +184,12 @@ JGraph Ltd.
 \newblock \url{https://www.draw.io/}.
 \newblock Accessed: 20/03/2018.
 
-\bibitem{melicher2016fast}
-William Melicher, Blase Ur, Sean~M Segreti, Saranga Komanduri, Lujo Bauer,
-  Nicolas Christin, and Lorrie~Faith Cranor.
-\newblock Fast, lean, and accurate: Modeling password guessability using neural
-  networks.
-\newblock In {\em USENIX Security Symposium}, pages 175--191, 2016.
+\bibitem{matsumoto1998mersenne}
+Makoto Matsumoto and Takuji Nishimura.
+\newblock Mersenne twister: a 623-dimensionally equidistributed uniform
+  pseudo-random number generator.
+\newblock {\em ACM Transactions on Modeling and Computer Simulation (TOMACS)},
+  8(1):3--30, 1998.
 
 \bibitem{menezes1996handbook}
 Alfred~J Menezes, Paul~C Van~Oorschot, and Scott~A Vanstone.

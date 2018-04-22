@@ -13,7 +13,7 @@
 
 """
 This module provides utility functions for visualizing various metrics
-pertaining to the trained models, including loss functions, histograms
+pertaining to the trained components, including loss functions, histograms
 of the model weights, etc.
 """
 
@@ -23,45 +23,48 @@ from matplotlib import pyplot as plt
 from utils.operations import flatten
 
 
-def plot_pretrain_loss(history, fname):
-    """Plot a line chart of the adversary's loss during pre-training."""
-    plt.plot(history.history['loss'])
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    plt.ticklabel_format(useOffset=False)
-    plt.savefig(fname)
-    plt.clf()
+def plot_train_loss(generator_loss, adversary_loss, filename):
+    """ Plot a line chart of the generator's and adversary's losses
+        during training.
 
-
-def plot_train_loss(generator_loss, adversary_loss, fname):
-    """Plot a line chart of the generator's and adversary's losses
-    during training. """
+        :param generator_loss: list or numpy array holding loss values for generator
+        :param adversary_loss: list or numpy array holding loss values for adversary
+        :param filename: name of file to draw loss plot into
+    """
     plt.plot(generator_loss)
     plt.plot(adversary_loss)
     plt.ylabel('Loss')
     plt.ylabel('Epoch')
     plt.legend(['Generative loss', 'Adversary loss'])
     plt.ticklabel_format(useOffset=False)
-    plt.savefig(fname)
+    plt.savefig(filename)
     plt.clf()
 
 
-def plot_output_histogram(values, fname):
-    """Plot a histogram of the output values for one seed. """
+def plot_output_histogram(values, filename):
+    """ Plot a frequency histogram of the output values for one seed.
+
+        :param values: list or numpy array containing generator outputs
+        :param filename: name of file to draw histogram into
+    """
     values = flatten(values)
     plt.hist(values, bins=int(abs((max(values) - min(values))*3)))
     plt.title('Generator Output Frequency Distribution')
     plt.xlabel('Output')
     plt.ylabel('Frequency')
-    plt.savefig(fname)
+    plt.savefig(filename)
     plt.clf()
 
 
-def plot_output_sequence(values, fname):
-    """Plot a line displaying the sequence of output values
-    for a trained generator, for one seed, in temporal order."""
+def plot_output_sequence(values, filename):
+    """ Plot a line displaying the sequence of output values
+        for a trained generator, for one seed, in temporal order.
+
+        :param values: list or numpy array containing generator outputs
+        :param filename: name of file to draw line plot into    
+    """
     plt.plot(flatten(values))
     plt.ylabel('Output')
     plt.xlabel('Position in Sequence')
-    plt.savefig(fname)
+    plt.savefig(filename)
     plt.clf()

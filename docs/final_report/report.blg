@@ -3,6 +3,7 @@ Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: report.aux
 The style file: plain.bst
 Database file #1: references.bib.bib
+Warning--I didn't find a database entry for "goodfellow2016nips."
 Warning--to sort, need author or key in forbes2016short
 Warning--to sort, need author or key in numpy
 Warning--to sort, need author or key in tensorflow
@@ -10,45 +11,45 @@ Warning--to sort, need author or key in bhatia2017why
 Warning--to sort, need author or key in tensorflow2018intro
 Warning--to sort, need author or key in tensorflow2018graphs
 Warning--to sort, need author or key in tensorflow2018tutorials
-You've used 39 entries,
+You've used 40 entries,
             2118 wiz_defined-function locations,
-            685 strings with 10082 characters,
-and the built_in function-call counts, 10813 in all, are:
-= -- 1048
-> -- 472
-< -- 6
-+ -- 195
-- -- 152
-* -- 561
-:= -- 1741
-add.period$ -- 128
-call.type$ -- 39
-change.case$ -- 187
+            693 strings with 10362 characters,
+and the built_in function-call counts, 11040 in all, are:
+= -- 1063
+> -- 505
+< -- 5
++ -- 208
+- -- 164
+* -- 587
+:= -- 1800
+add.period$ -- 131
+call.type$ -- 40
+change.case$ -- 194
 chr.to.int$ -- 0
-cite$ -- 46
+cite$ -- 47
 duplicate$ -- 430
-empty$ -- 952
-format.name$ -- 152
-if$ -- 2357
+empty$ -- 957
+format.name$ -- 164
+if$ -- 2386
 int.to.chr$ -- 0
-int.to.str$ -- 39
-missing$ -- 28
-newline$ -- 205
-num.names$ -- 64
-pop$ -- 333
+int.to.str$ -- 40
+missing$ -- 30
+newline$ -- 210
+num.names$ -- 66
+pop$ -- 340
 preamble$ -- 1
-purify$ -- 153
+purify$ -- 160
 quote$ -- 0
-skip$ -- 315
+skip$ -- 310
 stack$ -- 0
-substring$ -- 423
-swap$ -- 96
-text.length$ -- 6
+substring$ -- 412
+swap$ -- 87
+text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 142
+type$ -- 144
 warning$ -- 7
-while$ -- 86
-width$ -- 41
-write$ -- 408
-(There were 7 warnings)
+while$ -- 87
+width$ -- 42
+write$ -- 418
+(There were 8 warnings)

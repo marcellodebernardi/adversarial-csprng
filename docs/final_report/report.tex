@@ -3,16 +3,16 @@
 %----------------------------------------------------------
 \documentclass[12pt, titlepage]{report}
 
-\usepackage[table]{xcolor}
+\usepackage{amsmath,amssymb,amsthm}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{url}
-\usepackage{amsmath,amssymb,amsthm}
 \usepackage{rotating}
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{titlesec}
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{siunitx}
 \usepackage{array}
 \usepackage{mathtools}
 \usepackage{bm}
@@ -22,14 +22,8 @@
 \usepackage{dirtytalk}
 \usepackage{minted}
 \usepackage{neuralnetwork}
+\usepackage{svg}
 
-
-%---------------------------------------------------------
-% TABLE SETTINGS
-%---------------------------------------------------------
-\setlength{\arrayrulewidth}{1mm}
-\setlength{\tabcolsep}{18pt}
-\renewcommand{\arraystretch}{2.5}
 
 
 %---------------------------------------------------------
@@ -96,8 +90,8 @@
 			\large
 			\textit{Supervisor}\\
 			Dr. Arman \textsc{Khouzani}\\[0.4cm] % Supervisor's name
-      \textit{Student phone number}\\
-      07492 524132
+      \textit{Student number}\\
+      150382405
 		\end{flushright}
 	\end{minipage}
   	~
@@ -110,7 +104,7 @@
 	%	Logo
 
 	\vfill\vfill
-	\includegraphics[width=0.4\textwidth]{img/qmul.jpg}\\[1cm]
+	\includegraphics[width=0.4\textwidth]{img/qmul.png}\\[1cm]
 	\vfill
 \end{titlepage}
 %----------------------------------------------------------
@@ -148,6 +142,11 @@ Acknowledgements come here!
 \clearpage
 
 
+%-------------------------------------------------
+% LIST OF TABLES
+%-------------------------------------------------
+\listoftables
+\clearpage
 
 %-------------------------------------------------
 % INTRODUCTION
@@ -171,9 +170,9 @@ Recent years have seen machine learning methods achieve a tremendous amount of s
 
 
 \section{Aims and Motivation}\label{subsection:aims}
-The precise aim of this research is to determine whether \textbf{a neural network can be trained to output sequences of numbers which appear to be randomly generated}, and, by extension, whether \textbf{such a neural network could be used as a pseudo-random number generator in a cryptographic context}. 
+The precise aim of this research is to \emph{determine whether a neural network can be trained to output sequences of numbers which appear to be randomly generated}, and, by extension, whether \emph{such a neural network could be used as a pseudo-random number generator in a cryptographic context}. 
 
-The motivation for this work is two-fold. On one hand, it presents a significant challenge from the perspective of deep learning. While neural networks have been extremely successful in supervised learning of regression and classification models, as well as in producing new data mimicing an existing dataset \cite{goodfellow2014generative}, attempts to produce seemingly random outputs have shown poor results. However, previous research efforts have often resorted to complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior. This work undertakes the task differently; the similarly adversarial nature of generating random numbers for cryptographic use and of training generative adversarial networks results in an approach that is conceptually both simple and elegant.
+The motivation for this work is two-fold. On one hand, it presents a significant challenge from the perspective of deep learning. While neural networks have been extremely successful in supervised learning of regression and classification models, as well as in producing new data mimicing an existing dataset \cite{goodfellow2014generative}, attempts to produce seemingly random outputs have shown poor results. Previous research efforts have often resorted to complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}. This work undertakes the task differently; the similarly adversarial nature of generating random numbers for cryptographic use and of training generative adversarial networks results in an approach that is conceptually both simple and elegant.
 
 On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several desirable properties. This includes the ability to perform ad-hoc modifications to the generator by means of training, the ability to arbitrarily extend the length of generated number sequences without necessarily damaging their unpredictability by increasing the dimensionality of the network's input, as well as the ability to easily recover from state compromise attacks.
 
@@ -198,60 +197,72 @@ This work unites the two fields by applying a recently formulated deep learning 
 This work lies at the intersection of machine learning and computer security. In particular, by exploring the applications of neural networks to computer security, it falls into the field of neural cryptography \cite{klimov2002analysis}. This section provides an overview of the required background for pseudo-random number generation, including a definition of random number sequences, some of their applications in cryptography, and guidelines on how to evaluate their suitability for such use. It also covers the basics of artificial neural networks before moving to the specific neural network techniques used in this work. Lastly, an overview of the most relevant literature is provided.
 
 \section{Random Numbers Sequences and Generators}
-Of primary concern to this research are the nature of random number sequences and the means by which such sequences may be generated and evaluated. A consideration of the nature of randomness is sidestepped, since, as remarked by Donald Knuth, a philosophical discussion almost invariably ensues \cite[p. 2]{donald1998art}. Instead, a pragmatic set of definitions for the key terminology is provided.
+Of primary concern to this research are the practical nature of random number sequences and the means by which such sequences may be generated. The nature of randomness is sidestepped, since, as remarked by Donald Knuth, a philosophical discussion almost invariably ensues \cite[p. 2]{donald1998art}. An interested reader may enjoy Deborah Bennett's \textit{Randomness} \cite{bennett2009randomness}.
 
 \subsection{Random Bits, Random Numbers, and Entropy}
-This section relies on ideas from basic probability theory, such as sample spaces, random variables, and probability distribution functions. As this work deals with sequences of numbers that are to be encoded in a fixed-digit format, whatever that format may be, it shall be implicit that all discussion of sample spaces and random variables refer to discrete sets and discrete probability distribution functions, respectively.
+Basic concepts from probability theory recur throughout this report, such as sample spaces, random variables, and probability distribution functions. Since this work deals with electronically stored sequences of numbers, which by necessity are to be encoded in some fixed-digit format, it shall be implicit that all mentions of sample spaces and random variables refer to discrete sets and discrete probability distribution functions, respectively.
 
 \begin{definition}
-A \textbf{random number} $x$ is a numeric value selected at random from an equiprobable sample space $\Omega$. That is, the probability $\mathbb{P}(x)$ of the value being chosen from $\Omega$ is equal to that of all other possible values in $\Omega$ \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}. It follows that a discrete random variable $X$ defined as the outcome of a selection from $\Omega$ has the \textbf{discrete uniform distribution}.
+A \emph{random number} $x$ is a numeric value selected at random from an equiprobable sample space $\Omega$. That is, the probability $\mathbb{P}(x)$ of the value being chosen from $\Omega$ is equal to that of all other possible values in $\Omega$ \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}. It follows that a discrete random variable $X$ defined as the outcome of a selection from $\Omega$ has the \emph{discrete uniform distribution} (figure \ref{figure:uniform_distribution}).
+\end{definition}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth]{img/uniform.png}\\
+\caption{A discrete uniform probability distribution for an arbitrary experiment with 10 possible outcomes.}
+\label{figure:uniform_distribution}
+\end{figure}
+
+\begin{definition}
+A \emph{random bit} $b$ is a special case of a random number, such that the equiprobable sample space is $\Omega = \{0, 1\}$ \cite[s. 1.1.1]{rukhin2001statistical}.
 \end{definition}
 
 \begin{definition}
-A \textbf{random bit} $b$ is a special case of a random number, such that the equiprobable sample space is $\Omega = \{0, 1\}$ \cite[s. 1.1.1]{rukhin2001statistical}.
+A \emph{random sequence} $s = (x_0, x_1, ..., x_n)$, as defined by Barker et al, is a sequence of random values $x_i$ resulting from $n$ independent selections. In other words, a random sequence consists of random numbers such that the probability distribution for any particular selection is entirely unaffected by previous selections. The random sequence has the same probability of being sampled as all other sequences of the same length \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}.
 \end{definition}
 
-\begin{definition}
-A \textbf{random sequence} $s = (x_0, x_1, ..., x_n)$, as defined by Barker et al, is a sequence of random values $x_i$ resulting from a sequence of independent selections. In other words, a random sequence consists of random numbers such that the probability distribution for any particular selection is entirely unaffected by previous selections. The random sequence has the same probability of being sampled as all other sequences of the same length \cite[p. 7]{barker2007recommendation} \cite[s. 1.1.1]{rukhin2001statistical}.
-\end{definition}
+Every binary sequence represents, in some encoding scheme, a unique numerical value. For example, the binary sequence $101$ is the unsigned integer representation of the number $5$. Thus there is an equivalence between random binary sequences and random numbers, in that the probability of randomly sampling any particular binary sequence of length $l$ from the set $\{0, 1\}$ is the same as that of selecting the number the sequence represents from the set of $2^l$ numbers that can be encoded with $l$ bits. As observed by Menezes et al, we can therefore regard the task of producing a random number as equivalent to the task of producing a random binary sequence \cite[p. 170]{menezes1996handbook}.
 
-Every binary sequence represents, in some particular encoding scheme, a unique numerical value. For example, the binary sequence $101$ is the unsigned integer representation of the number $5$. This results in an equivalence between random binary sequences and random numbers, in that the probability of randomly sampling any particular binary sequence of length $l$ from the set $\{0, 1\}$ is the same as that of selecting any particular number from the set of $2^l$ numbers representable in the binary encoding scheme used. As observed by Menezes et al, we can therefore regard the task of producing a random number as equivalent to the task of producing a random binary sequence of the appropriate length \cite[p. 170]{menezes1996handbook}.
-
-Lastly, to quantify the randomness of a number sequence, the information theory concept of entropy is introduced. We view entropy as a measure of the uncertainty of a random variable, and define it as follows.
+A key property of random numbers and random sequences is \emph{unpredictability}, for a sequence of random numbers, the probability of correctly guessing any value in the sequence is no greater than random chance \cite[p. 7]{barker2007recommendation}. The degree of unpredictability of a number sequence is quantified by the concept of \emph{entropy}, defined by Ferguson et al \cite[p. 12-13]{cover2012elements} as follows:
 
 \begin{definition}
-Let $X$ be a discrete random variable over a sample space $\Omega$ with a probability distribution function $p(x)=\mathbb{P}\{X=x\}, x\in\Omega$.  The \textbf{entropy} $H(X)$ of the discrete random variable $X$ is defined as
+Let $X$ be a discrete random variable over a sample space $\Omega$ with a probability distribution function $p(x)=\mathbb{P}\{X=x\}, x\in\Omega$.  The entropy $H(X)$, measured in bits, of the discrete random variable $X$ is defined as
 \begin{gather}\label{eq:entropy}
 H(X) = -\sum_{x\in\Omega} p(x) \lg p(x)
 \end{gather}
-Entropy is measured in bits, and the base of the logarithm in the defining equation is $2$ \cite[p. 12-13]{cover2012elements}.
 \end{definition}
 
-Ferguson et al give the following intuition for the concept: entropy can thought of as the average number of bits one would need in order to specify some (partially) unknown value under an ideal compression scheme. It is a subjective quantity, in the sense that it depends on the amount of knowledge available about the value of interest. The entropy of an arbitrary number is different for an observer that knows the number, and for one that only knows the value is one of $2^{32}$ possible values. The more uncertain we are about the value, the higher the entropy \cite[p. 137]{ferguson2010cryptography}.
+According to Ferguson et al., entropy is a subjective quantity, in the sense that it depends on the amount of knowledge available about a value of interest. The entropy of an arbitrary number is different for an observer that knows the number, and for one that only knows the value is one of $2^{n}$ possible values. The concept is not explored in depth in this report, where it is mentioned, it will suffice to informally understand that the more uncertain we are about a sequence, the higher its entropy \cite[p. 137]{ferguson2010cryptography}.
 
 
 
 \subsection{Random Number Generators}
-In order to obtain sequences of random numbers for use in applications such as those mentioned above, random number generators are used.
+In order to obtain sequences of random numbers for use in applications such as those mentioned above, \emph{random number generators} are used.
 
 \begin{definition}
-Menezes et all define a \textbf{random number generator} as a software or hardware system that outputs random number (or bit) sequences. Key components of such a system are the \textbf{entropy source}, which gives rise to the randomness in the output, and the \textbf{entropy distillation} process, which is a function applied to the inputs to improve the quality of the output sequence \cite{menezes1996handbook}.
+Menezes et al. define a random number generator as a software or hardware system that outputs random number (or bit) sequences. Key components of such a system are the \emph{entropy source}, which gives rise to the randomness in the output, and the \emph{entropy distillation} process, which is an algorithmic procedure applied to the produced values to improve the quality of the output sequence \cite{menezes1996handbook}.
 \end{definition}
 
-According to Ferguson et al and Menezes et al, entropy sources are commonly implemented in software, hardware, or both. Examples of entropy sources that are harnessed by software means include the timings of keystrokes on a computer user's keyboard, the current value of the system clock, the content of an I/O buffer, or any other measurable quantity in a computer system that is conjectured to exhibit random behavior. This conjecture does not always hold; for example, the time elapsed between keystrokes may not be accurately described by a uniform distribution, as an experienced typist may manage to keep their typing rate remarkably constant (with fluctuations on the order of several milliseconds). Care has to be taken to not overestimate the amount of entropy that can be derived from a source \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 171-172]{menezes1996handbook}.
+According to Ferguson et al and Menezes et al, entropy sources are commonly implemented in software, hardware, or both. Examples of entropy sources that are harnessed by software means include the timings of keystrokes on a computer user's keyboard, the current value of the system clock, the content of an I/O buffer, or any other measurable quantity in a computer system that is believed to exhibit random behavior. This conjecture does not always hold; for example, the time elapsed between keystrokes may not be accurately described by a uniform distribution, as an experienced typist may manage to keep their typing rate remarkably constant (with fluctuations on the order of several milliseconds). Care has to be taken to not overestimate the amount of entropy that can be derived from a source \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 171-172]{menezes1996handbook}.
 
-Ferguson et al and Menezes et al also discuss hardware entropy sources. These rely on physical processes that behave randomly. Commonly cited examples are emission times of particles during radioactive decay or thermal noise in a resistor. While there are very many such processes (in particular in the ``quantum realm"), physically based entropy sources are not necessarily secure either. Even if a process behaves randomly, the outputs may nonetheless be biased or correlated, possibly due to manipulation on the attacker's part. Furthermore, an attacker may be able to observe the physical entropy source, meaning that while the data may still be random, it will have no entropy from the adversary's perspective \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 172]{menezes1996handbook}.
+Ferguson et al and Menezes et al also discuss hardware entropy sources. These rely on physical processes that behave randomly. Commonly cited examples are emission times of particles during radioactive decay or thermal noise in a resistor. While there are very many such processes (in particular in the ``quantum realm" \cite{bierhorst2018experimentally}), physically based entropy sources are not guaranteed to be flawless. Even if a process behaves randomly, the outputs may nonetheless be biased or correlated, possibly due to manipulation by a third party. Furthermore, a third party may be able to observe the physical entropy source; while still random, the outputs would no longer have any entropy from the their perspective \cite[p. 138-139]{ferguson2010cryptography} \cite[p. 172]{menezes1996handbook}.
 
-According to Ferguson, Schneier, and Kohno, there are several problems related to the practical use of truly random numbers. Real random data may not always be available, and even if available it is nonetheless always limited in quantity. For example, for an RNG relying on a user's keystrokes, it may be the case that the user has not been typing sufficiently. Waiting for more real random data to be acquired in order to receive random numbers is not a viable option for a number of applications \cite[p. 139]{ferguson2010cryptography}. Furthermore, it is difficult to ascertain how much entropy one is really getting from the source, not to mention that the source, in particular if implemented in hardware, may fail unexpectedly and become predictable \cite{ferguson2010cryptography}.
+According to Ferguson, Schneier, and Kohno, there are several problems related to the practical use of truly random numbers. Real random data may not always be available, and even if available it is nonetheless always limited in quantity. For example, for an RNG relying on a user's keystrokes, it may be the case that the user has not been typing sufficiently. Waiting for more real random data to be acquired in order to receive random numbers is not a viable option for a number of applications \cite[p. 139]{ferguson2010cryptography}. Furthermore, as discussed above, it is difficult to ascertain how much entropy one is really getting from the source, not to mention that the source, in particular if implemented in hardware, may fail unexpectedly and become predictable \cite{ferguson2010cryptography}.
 
 
 
 \subsection{Pseudo-Random Number Generators}\label{subsection:prngs}
-A solution to many of the problems inherent to the use of truly random number generators is to use a pseudo-random number generator \cite[p. 140]{ferguson2010cryptography}.
+A solution to many of the problems inherent to the use of truly random number generators is to use a \emph{pseudo-random number generator} \cite[p. 140]{ferguson2010cryptography}.
 
 \begin{definition}
- A \textbf{pseudo-random number generator} is a deterministic algorithm that outputs number sequences that are statistically indistinguishable from random sequences \cite{menezes1996handbook}. A PRNG has an internal state $S_i$, which is secret \cite{kelsey1998cryptanalytic}, and takes an input value, referred to as the \textbf{seed}, which is randomly selected as well as unknown \cite[s. 1.1.4]{rukhin2001statistical}. Since the outputs of the PRNG are a function of the seed and the internal state \cite{kelsey1998cryptanalytic} \cite[s 1.1.4]{rukhin2001statistical}, we can formalize a PRNG as a function $f(s, S_i)$, where $s$ is the input seed and $S_i$ is the internal state (see figure \ref{figure:prng_high_level}).
+A pseudo-random number generator (PRNG) is a deterministic algorithm with an internal state $S_i$ \cite[p. 2]{kelsey1998cryptanalytic} which processes an input value $s$, known as the \emph{seed}, to produce a number sequence that may not tractably be distinguished from a truly random sequence by statistical means \cite[p. 170]{menezes1996handbook}. The current internal state and seed uniquely determine the PRNG's output (figure \ref{figure:prng_high_level}) \cite[p. 2]{kelsey1998cryptanalytic} \cite[s 1.1.4]{rukhin2001statistical}.
+
+Following from the above, this investigation defines a PRNG as an implementation of a function $prng(s) : \mathbb{R} \rightarrow \mathbb{R}^n$, where $n$ is the length of the output sequence produced by the PRNG for some seed $s$. Alternatively, we can view each individual number in the output sequence as the product of some function $prng(s, S_i) : X \rightarrow \mathbb{R}$, where $X$ is the set of all tuples $(s, S_i)$.
 \end{definition}
+
+Implementations of PRNGs range in complexity and efficacy from simple \emph{linear congruential generators} \cite[p. 170]{menezes1996handbook} to the more complex \emph{Mersenne twister} \cite{matsumoto1998mersenne}. The concepts behind their operation are not considered in this report. Note that the internal state of the PRNG may be arbitrarily complex. For example, the \emph{ANSI X9.17 generator}, described by Menezes et al., takes further input parameters in addition to the random seed \cite[p. 173]{menezes1996handbook}. This investigation takes the view that any such additional inputs, provided they are not random and thus do not constitute a source of entropy for the generator, can be seen as a component of the internal state.
+
+With the limitations of truly random number generators in mind, according to Menezes at al. the purpose of a PRNG is to ``take a small truly random sequence and expand it to a sequence of much larger length", in such a way that the output sequence fulfills some application-dependent randomness requirements \cite[p. 170]{menezes1996handbook}. In the context of security, the minimum requirement is that the length $l$ of the seed be such that it is unfeasible to carry out exhaustive search over all possible seeds. Randomness requirements for cryptographic use are considered in more detail in subsection \ref{subsection:crypto_requirements}.
 
 \begin{figure}
 \centering
@@ -261,12 +272,14 @@ A solution to many of the problems inherent to the use of truly random number ge
 \end{figure}
 
 
-\todo{stuff about how PRNG state changes based on previous outputs}
 
-
-\clearpage
 \section{Random Numbers and Cryptography}
-Random numbers have several important applications in computing, primarily in cryptography, where many algorithms make use of randomness, \cite[p. 137]{ ferguson2010cryptography} and in science, where simulations of random processes are frequently used\cite{deng2017developments}. A few important examples are considered here.
+Random numbers are ubiquitous in computing, with applications in \emph{simulation}, \emph{sampling}, \emph{numerical analysis}, \emph{randomized algorithms}, \emph{decision making}, \emph{aesthetics}, and \emph{games} \cite[p. 1-2]{donald1998art}. Perhaps most importantly, random numbers are widely used in cryptography to secure communications \cite[p. 137]{ferguson2010cryptography}.
+
+The notion of randomness is crucial in cryptography, because the security guarantees of systems such as encryption and decryption algorithms often rely on an adversary not knowing the value of some internal parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. It follows that the adversary should not have a good chance of being able to guess said parameters \cite[p. 2]{kelsey1998cryptanalytic}, meaning that their values should be unpredictable.
+
+
+\subsection{Cryptographic Applications of Random Numbers}
 
 The \textbf{RSA (Rivest-Shamir-Adleman) algorithm}, as explained by Anderson [p. 171]\cite{anderson2010security}, is the most commonly used algorithm for performing public-key encryption and digital signatures. The RSA algorithm relies on two randomly chosen large prime numbers $p$ and $q$, which act as the private keys used by the two communicating parties. As these values must be kept secret from any third parties, they need to be selected randomly in such a manner than an attacker cannot predict them.
 
@@ -275,16 +288,31 @@ The \textbf{HTTP digest access authentication protocol} \todo{find RFC}
 \textbf{Monte Carlo methods} \todo{MCTS}
 
 
-\subsection{Cryptographic Applications of Random Numbers}
-
-
 
 \subsection{Requirements for Cryptographic Security}\label{subsection:crypto_requirements}
-- next bit test
+As the outputs of a PRNG should be practically indistinguishable from truly random sequences, the basis for determining whether a PRNG is suitable for use in cryptographic applications is subjecting its outputs to a number of statistical tests \cite[p. 170]{menezes1996handbook}. From Menezes et al. and Rukhin et al. we obtain the following definitions, formulated in terms of statistical tests.
+
+\begin{definition}
+A \emph{statistical test} is a test which seeks to determine whether a sequences possesses some statistical property which is expected of a truly random sequence \cite[p. 175]{menezes1996handbook}. A statistical test computes a specific \emph{statistic} on the sample under evaluation \cite[p. 179]{menezes1996handbook}. Since the properties of a truly random sequence are known a priori and can be formulated in probabilistic terms, it is possible to determine the probability of the computed statistic appearing under the assumption of randomness \cite[s 1-3]{rukhin2001statistical}.
+\end{definition}
+
+\begin{definition}
+A \emph{polynomial-time statistical test} is a test with a time complexity upper bound $O(l^k)$, where $l$ is the length of the sequence being tested and $k$ is a constant \cite[p. 171]{menezes1996handbook}.
+\end{definition}
+
+\todo{definitions from page 171}
+
+\begin{definition}
+A \textit{cryptographically secure pseudo-random number generator} (CSPRNG) is a pseudo-random number generator that passes the next-bit test \cite[p. 171]{menezes1996handbook}.
+\end{definition}
+
+
+\todo{stuff from intro to modern cryptography, page 49 onwards}
 
 
 
 \subsection{Testing Number Sequences for Randomness}\label{subsection:testing_prngs}
+
 The \textbf{National Institute of Standards and Technology}, part of the U.S. Department of Commerce, sets out guidelines for the testing of RNGs and PRNGs in its publication 800-22, \textit{A Statistical Test Suite for Random and Psuedorandom Number Generators for Cryptographic Applications}, by Rukhin et al. This work refers to revision 1a of the publication.
 
 Rukhin et all point out that, since the properties of random sequences can be described in probabilistic terms, their degree of ``randomness" can be evaluated by various statistical tests, as the likely outcome of such a test is known a priori. These tests search for particular patterns in sequences which would indicate non-randomness. No set of statistical tests can be considered complete, as there is an infinite number of tests \cite[p. 1-2]{rukhin2001statistical}.
@@ -310,17 +338,18 @@ This section provides an introduction to neural networks, covering basic concept
 
 
 \subsection{Introduction to Neural Networks}\label{subsection:neural_intro}
-According to Russel and Norvig, an \textbf{artificial neural network} is a directed graph composed of \textbf{units} or \textbf{neurons} connected by directed \textbf{links}. Each unit computes an arbitrary function $g$, called the \textbf{activation function}, over a weighted sum of the unit's inputs. A link from unit $i$ to a unit $j$ carries the output of $i$'s activation function to $j$. Each such link has an associated \textbf{weight} $w_{ij}$, which is a coefficient applied to the activation value \cite[p. 727-731]{russel2009artificial}. 
-
-Russel and Norvig define the function represented by a neuron $j$ as
+\begin{definition}
+According to Russel and Norvig, an \emph{artificial neural network} is a directed graph composed of \emph{units} or \emph{neurons} connected by directed \emph{links}. Each unit computes an arbitrary function $g$, called the \emph{activation function}, over a weighted sum of the unit's inputs. A link from unit $i$ to a unit $j$ carries the output of $i$'s activation function to $j$. Each such link has an associated \emph{weight} parameter $w_{ij}$, which is a coefficient applied to the activation value \cite[p. 727-731]{russel2009artificial}. Russel and Norvig define the function represented by a neuron $j$ as
 \begin{gather}\label{eq:activation}
 a_j = g(in_j) = g\left(\sum_{i=0}^{n} w_{ij}a_i\right)
 \end{gather}
-where $a_j$ is the neuron's output, $g$ is the neuron's activation function, and $j$ has $n$ input neurons $i$ with outputs $a_i$ and weights $w_{ij}$ \cite[p. 728]{russel2009artificial}. This can also be formulated in vector form as the inner product of inputs $\bm{a}_i$ and input weights $\bm{w}_{ij}$:
+where $a_j$ is the neuron's output, $g$ is the neuron's activation function, and $j$ has $n$ input neurons $i$ with outputs $a_i$ and weights $w_{ij}$ \cite[p. 728]{russel2009artificial}.
+\end{definition}
+
+This can also be formulated in vector form as the inner product of inputs $\bm{a}_i$ and input weights $\bm{w}_{ij}$:
 \begin{gather}\label{eq:activation_vector}
 a_j = g(\bm{w}_{ij}\cdot\bm{a}_i)
 \end{gather}
-
 
 \begin{figure}
 \centering
@@ -329,45 +358,58 @@ a_j = g(\bm{w}_{ij}\cdot\bm{a}_i)
 \label{figure:neural_unit}
 \end{figure}
 
-A neural network as a whole, as explained by Russel and Norvig, thus computes a highly non-linear vector function $\bm{f}_{\bm{w}}(\bm{x})$ parameterized by its weights $\bm{w}$ \cite[p. 731, 732]{russel2009artificial}. The function $\bm{f}$ is the composition of $i$ functions $\bm{f}^{(i)}$ \cite[p. 164]{goodfellow2016deep}, which can be expressed as
+A neural network as a whole, as explained by Russel and Norvig, computes a highly non-linear vector function $\bm{f}_{\bm{w}}(\bm{x})$ parameterized by its weights $\bm{w}$ \cite[p. 731, 732]{russel2009artificial}. The function $\bm{f}$ is the composition of $i$ functions $\bm{f}^{(i)}$ \cite[p. 164]{goodfellow2016deep}, which can be expressed as
  \begin{gather}\label{eq:neural_net_composition}
  \bm{f_w}(\bm{x}) = \bm{f}_{\bm{w}_{i-1}}^{(i-1)} (\bm{f}_{\bm{w}_{i-2}}^{(i-2)} ( \ldots \bm{f}_{\bm{w}_{0}}^{(0)}(\bm{x})))
 \end{gather}
 where $\bm{w_i}$ is the output weight vector for the units computing the function $\bm{f_{w_i}}^{(i)}$ \cite{goodfellow2016deep}.
 
-According to Russel and Norvig, a neural network of sufficient size can represent any continuous function to an arbitrary degree of accuracy, and, under certain conditions, can even represent discontinuous functions. However, difficulties arise in determining, for any particular network architecture, the set of functions it can represent \cite[p. 732]{russel2009artificial}. The particular properties of the network are determined by the topology and behavior of its units, which form the basis for the naming and categorization of networks \cite[p. 729]{russel2009artificial}. 
-
+According to Russel and Norvig, \emph{a neural network of sufficient size can represent any continuous function to an arbitrary degree of accuracy}, and, under certain conditions, can even represent discontinuous functions. However, difficulties arise in determining, for any particular network architecture, the set of functions it can represent \cite[p. 732]{russel2009artificial}. The particular properties of the network are determined by the topology and behavior of its units, which form the basis for the naming and categorization of networks \cite[p. 729]{russel2009artificial}.
 
 
 \subsection{Learning in Neural Networks}
-Training an artificial neural network is an optimization problem which entails searching for a combination parameters $\bm{w}$ which results in the network approximating the desired function $f(x)$ as closely as possible \cite[p. 718]{russel2009artificial}. The most important related concepts are loss functions, gradient descent, and backpropagation.
+\begin{definition}
+\emph{Training} an artificial neural network is an optimization problem which entails searching for a combination parameters $\bm{w}$ which results in the network approximating the desired function $f(x)$ as closely as possible \cite[p. 718]{russel2009artificial}. The most important related concepts are \emph{loss functions}, \emph{gradient descent}, and \emph{backpropagation}.
+\end{definition}
 
+\begin{definition}
 Russel and Norvig define loss as ``the amount of utility lost" by the network producing $f_{pred}(x) = y'$ as its output when the correct output on an input $x$ is $f_{true}(x) = y$. A neural network's loss function $L(y, y')$ computes the loss for an output $y'$ and its corresponding correct output $y'$ \cite{russel2009artificial}. Intuitively, a loss function provides a quantitative assessment of how closely the neural network approximates the desired function (a good model will have low loss). The objective of learning is to find the parameters which minimize the loss function \cite[Linear classification: Support Vector Machine, Softmax]{karpathy2017cs231n}.
+\end{definition}
 
-This is performed using an optimization algorithm known as gradient descent. The parameters of the network are iteratively changed into the direction opposite to the loss function's gradient, as computed with respect to the parameters \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. Gradient descent is currently ubiquitous in the optimization of neural network loss functions. A high-level expression of gradient descent, from \cite{karpathy2017cs231n}, is as follows:
+\begin{definition}
+Gradient descent is a numerical optimization algorithm used to train neural networks, in which the parameters of the network are iteratively updated into the direction opposite to the loss function's first-order gradient (computed with respect to the parameters) \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. Gradient descent is ubiquitous in the optimization of neural network loss functions. A high-level expression of gradient descent, from \cite{karpathy2017cs231n}, is as follows:
 
-\begin{minted}{python}
-while True:
-  weights_grad = evaluate_gradient(loss_fun, data, weights)
-  weights += - step_size * weights_grad  # parameter update
+\begin{minted}{html}
+  while True:
+    weights_grad = evaluate_gradient(loss_fun, data, weights)
+    weights += - step_size * weights_grad  # parameter update
 \end{minted}
+\end{definition}
 
-An important design choice, according to Karpathy, is the number of inputs over which the loss is computed in order to perform a single update to the network's parameters. In batch gradient descent, the loss is computed over the entire training dataset; in mini-batch gradient descent the dataset is split into subsets, and a parameter update is performed using each subset \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. 
+An important design choice, according to Karpathy, is the number of inputs over which the loss is computed in order to perform a single update to the network's parameters. In \emph{batch gradient descent}, the loss is computed as an average of the loss for each input in the entire training dataset; in \emph{mini-batch gradient descent} the dataset is split into subsets, and a single parameter update is performed using each subset \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}. In general, the larger the batch size, the more ``stable" the loss function is over training iterations, as the impact of single network inputs is diminished \cite[Neural Networks Part 3: Learning and Evaluation]{karpathy2017cs231n}. \todo{image of stable vs wiggly loss}
 
+\begin{definition}
 Lastly, backpropagation is an efficient algorithm for computing the partial derivative of a function of many variables by repeated application of the chain rule of derivation \cite[Backpropagation, Intuitions]{karpathy2017cs231n}. It is crucial as it enables efficient computation of the gradient of the loss function with respect to each parameter in the neural network \cite[Backpropagation, Intuitions]{karpathy2017cs231n}. Backpropagation is a core component of all modern machine learning software libraries.
+\end{definition}
 
 These three components enable learning in neural networks: the loss function quantifies the quality of the current parameters, gradient descent is the general optimization algorithm for modifying the parameters, and backpropagation enables efficient computation of gradients, making gradient descent on large networks practically feasible \cite[Optimization: Stochastic Gradient Descent]{karpathy2017cs231n}.
 
 
 
 \subsection{Activation Functions}
-The concept of an \textbf{activation function} was briefly introduced in \ref{subsection:neural_intro}, as an arbitrary scalar function applied to the weighted sum of a unit's inputs to produce the unit's output. There are a number of standard activation functions that are commonly used \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}, of which two are considered here.
+The concept of an \emph{activation function} was briefly introduced in \ref{subsection:neural_intro}, as an arbitrary scalar function applied to the weighted sum of a unit's inputs to produce the unit's output. There are a number of standard activation functions that are commonly used \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}, of which two are considered here.
 
-The rectified linear unit activation, or ReLU, is a function with the following expression form:
+\begin{definition}
+The \emph{rectified linear unit} activation, or ReLU, is an activation function $ReLU(x) : \mathbb{R} \rightarrow \mathbb{R}^{+}$ with the following expression form:
 \begin{gather}\label{eq:relu}
 ReLU(x) = max(0, x)
 \end{gather}
-Karpathy states that the ReLU activation function works well in practice on a large number of problems, and is rather popular. However, it is possible for a ReLU unit to have its weights updated in a way that causes them to never be updated again, due to the 0 gradient for all negative inputs \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}. This issue is addressed by the leaky ReLU activation, a function with the following expression form:
+\end{definition}.
+
+The ReLU activation function works well in practice on a large number of problems \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}. However, it is possible for a ReLU unit to have its weights updated in a way that causes them to never be updated again, due to the 0 gradient for all negative inputs \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}. 
+
+\begin{definition}
+The \emph{leaky ReLU} function is an activation function $LReLU(x) : \mathbb{R} \rightarrow \mathbb{R}$ with the following expression form:
 \begin{gather}\label{eq:leakyrelu}
 LeakyReLU(x) = 
 \begin{cases}
@@ -375,7 +417,8 @@ LeakyReLU(x) =
     \alpha{x}             & \text{otherwise}
 \end{cases}
 \end{gather}
-where $\alpha$ is a (small) non-zero constant. For negative inputs close to 0, the outputs of the leaky ReLU are approximately equal to the outputs of ReLU; however, a leaky ReLU unit cannot ``die" due to getting stuck in a zero gradient \cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}.
+where $\alpha$ is a (small) non-zero constant. For negative inputs close to 0, the outputs of the leaky ReLU are approximately equal to the outputs of ReLU. However, a leaky ReLU unit does not have a zero-gradient for any input, and thus cannot reach a state in which it stops updating, the way a ReLU unit would\cite[Neural Networks Part 1: Setting up the Architecture]{karpathy2017cs231n}.
+\end{definition}
 
 \begin{figure}
 \centering
@@ -386,112 +429,107 @@ where $\alpha$ is a (small) non-zero constant. For negative inputs close to 0, t
 
 
 
-\subsection{Feed-Forward Networks}
-Arguably the simplest form of an artificial neural network is called a feed-forward neural network, or multilayer perceptron. Feed-forward networks are characterized by the fact that the directed graph representing them is acyclic; that is, information strictly flows from the network's input units towards its output units \cite[p. 164]{goodfellow2016deep}.
+\subsection{Fully Connected Feed-Forward Networks}
+\begin{definition}
+The simplest form of deep neural network is called a \emph{fully connected feed-forward neural network}, or \emph{multilayer perceptron}. A fully connected feed-forward (FCFF) network is a directed acyclic graph in which information strictly flows from the network's input units towards its output units \cite[p. 164]{goodfellow2016deep}. Feed-forward networks are typically arranged into fully connected \emph{layers} of units, where the number of layers is called the \emph{depth} of the network; the first layer is the \emph{input layer}, followed by a number of \emph{hidden layers} and finally the \emph{output layer} \cite[p. 164-165]{goodfellow2016deep}. The number of units in the largest layer is referred to as the \emph{width} of the network (figure \ref{figure:feedforward}) \cite[p. 164-165]{goodfellow2016deep}.
+\end{definition}
 
-Goodfellow et al \cite{goodfellow2016deep} explain that feed-forward networks are typically arranged into fully connected layers of units, where we refer to the number of layers as the depth of the network. The first layer of the network is referred to as the input layer, within which each unit corresponds to a single scalar in the model's input vector. The last layer is referred to as the output layer of the network, where each unit corresponds to a scalar in the model's output vector. The number of units in the input and output layers are thus bound by the dimensionality of the input data and the dimensionality of the expected outputs. Finally, we refer to the intermediate layers as hidden layers, and to the number of units in the largest of these layers as the width of the model \cite[p. 164-165]{goodfellow2016deep}. This information is conveyed pictorially in figure \ref{figure:feedforward}.
+The number of units in the input and output layers are bound by the dimensionality of the input data and the dimensionality of the expected outputs. In a fully connected feed-forward network, the operation of each layer can be characterized as a simple matrix operation, whereby a layer's output vector is matrix multiplied with the layer's output weight matrix, and then passed to the next layer where the activation function is applied \cite[p. 170-171]{goodfellow2016deep}. It follows that the network as a whole is a sequence of matrix multiplications and element-wise applications of non-linearity.
 
 \begin{figure}
 \centering
-\includegraphics[width=0.7\textwidth]{img/feedforward.png}\\
-\caption{Simple example of the structure of a feedforward network, from the CS231n lecture notes by Andrej Karpathy \cite[Neural Networks Part 1 : Setting up the Architecture]{karpathy2017cs231n}}.
+\includegraphics[width=0.65\textwidth]{img/feedforward_nn.png}\\
+\caption{Simple example of the structure of a feedforward network. The network has two hidden layers, for a total depth of 4. The network's width is 6, as given by the size of the hidden layers. Image drawn using draw.io \cite{jgraph2018draw}}
 \label{figure:feedforward}
 \end{figure}
-
-In a fully connected feed-forward network, the operation of each layer can be characterized as a simple matrix operation, whereby the input vector received from the previous layer is first transformed by element-wise application of the activation function, and then matrix-multiplied with the weight vector of the current layer \cite[p. 170-171]{goodfellow2016deep}. Thus the network as a whole is a sequence of matrix multiplications and element-wise applications of non-linearity.
 
 
 
 \subsection{Convolutional Neural Networks}
-A more specialized form of artificial neural network is the \textbf{convolutional neural network}, which is characterized by the fact that there is at least one pair of layers between which a \textbf{convolution} is performed, rather than a general matrix multiplication \cite[p. 326]{goodfellow2016deep}. A description of the convolution operation is given in appendix \ref{appendix:mathematics}. Convolutional neural networks are the state of the art for classification of signals and images \cite[p. 326]{goodfellow2016deep}.
+\begin{definition}
+A \emph{convolutional neural network} is a more specialized neural network architecture characterized by the fact that at least one pair of layers is connected in such a manner as to perform a \textit{convolution} rather than a general matrix multiplication \cite[p. 326]{goodfellow2016deep}.
+\end{definition}
+
+\begin{definition}
+According to Karpathy \cite{karpathy2017cs231n}, a \emph{convolutional layer} is a collection of units further subdivided into equally sized groups referred to as \emph{filters}. Each unit in a filter receives inputs from $k$ consecutive units in the previous layer, where $k$ is referred to as the \emph{kernel size} or \emph{receptive field} of the convolutional layer. The \emph{stride} $s$ of the layer determines the sparsity of the units in each filter (figure \ref{figure:convolution1d}). A convolutional layer may have multiple filters, each with the same connection topology to the previous layer. The number of filters is referred to as the \emph{depth} of the layer, while the dimensions of each individual filter are referred to as the \emph{width} and \emph{height} of the layer \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}.
+\end{definition}
+
+All units in a filter share the same input weights (an optimization called \emph{parameter sharing}). Thus every unit in the filter computes the same function on a specific subset of the previous layer's outputs. Intuitively, the filter as a whole ``looks for'' specific instances of some pattern in the input; a stack of $n$ filters looks for instances of $n$ different patterns (figure \ref{figure:convolution1d}) \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}.
+
+Karpathy explains that the dimensionality of a convolutional layer's output is $d + 1$, where $d$ is the dimensionality of the output of the previous layer: with $N$ filters, the convolutional layer outputs $N$ matrices with the same dimensionality as the layer's input. Because of this, convolutional layers are usually followed by \emph{pooling layers}, which are non-parametric layers that down-sample the convolutional layer's outputs \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}. This expansion along the depth-dimension, followed by down-sampling in the width and height dimensions, is shown in figure \ref{figure:conv_pooling}.
 
 \begin{figure}
-\centering
-\includegraphics[width=0.85\textwidth]{img/convolution.png}\\
-\caption{A representation of the connectivity between the units of a 1-dimensional input layer (white) and a single filter in a convolutional layer (yellow), with each neuron's weights in the upper right corner. In both images, each unit in the convolutional layer has a receptive field (or kernel size) of 3. The inputs have a width of 5, with zero-padding of 1. The two images demonstrate different strides for the convolutional layer (stride 1 on the left, stride 2 on the right). Image courtesy of the CS231n lecture notes by Andrej Karpathy \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}.}
-\label{figure:convolution1d}
+    \centering
+    \includegraphics[width=0.85\textwidth]{img/convolution.png}\\
+    \caption{A representation of the connectivity between the units of a 1-dimensional input layer (white) and the filters in a convolutional layer (yellow), with each convolutional unit's input weights shown in the squares. In both images, the kernel size is 3; on the left the stride of the layer is 1, while on the right it is 2. Furthermore, the convolutional layer on the left has two filters. Note how both filters are connected to the input in the same way, and how each filter has its own set of input weights. The image is based on the CS231n lecture notes by Andrej Karpathy \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n} and was drawn with draw.io \cite{jgraph2018draw}.}
+    \label{figure:convolution1d}
 \end{figure}
-
-A convolutional layer is a collection of units, further subdivided into collections referred to as \textbf{filters}. The number of filters in the layer is referred to as the \textbf{depth} of the layer, while the dimensions of each individual filter are referred to as the \textbf{width} and \textbf{height} of the layer (for filters operating on 1-dimensional inputs only the width is of relevance). With respect to the previous layer in the network, each filter has the same connection topology \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}.
-
-Filters in a convolutional layer are not fully connected to the previous layer. Rather, each unit in the filter is connected to $F$ consecutive units in the previous layer. $F$ is referred to as the \textbf{receptive field}, or \textbf{kernel size}, of the convolutional layer. A further parameter, called the \textbf{stride} of the layer, $S$, determines the sparsity of the connections between the filters and the previous layer \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}. The nature of this connectivity for a single filter is shown in figure \ref{figure:convolution1d}. The figure also demonstrates the use of zero-padding, i.e. expanding the input vector with 0s on either side in order to make it fit the convolutional layer's size requirements.
-
-Each unit in the convolutional layer will produce larger outputs for some inputs in its receptive field than others. For example, a unit with receptive field $F = 3$ may compute a larger value for an input $[1, 1, 1]$ than an input $[0, 0, 0]$. Each unit will therefore "activate" upon finding some specific pattern (in this case a sequence of three 1s). An important optimization in convolutional layers is \textbf{parameter sharing}: each unit within the same filter shares the same weights. This optimization arises from the assumption that, if some pattern in the input is of interest at one location in the input sequence, it will be at any other location as well. Thus the parameters of every unit in each filter are trained together \cite[Convolutional Neural Networks: Architectures, Convolution / Pooling Layers]{karpathy2017cs231n}.
-
-As a result, each filter in the layer can be seen as looking for a specific pattern in the input received from the previous layer. The depth of the convolutional layer, i.e. the number of filters, determines the number of patterns being looked for. The dimensionality of a convolutional layer's output is $d + 1$, where $d$ is the dimensionality of the output of the previous layer: with $N$ filters, the convolutional layer outputs $N$ matrices of the same size as the layer's input. Convolutional layers are usually followed by \textbf{pooling layers}, which are non-parametric layers that perform a down-sampling of the convolutional layer's outputs. This expansion along the depth-dimension, followed by down-sampling in the width and height dimensions, is shown in figure \ref{figure:conv_pooling}.
 
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{img/conv_pooling.png}\\
-\caption{A convolutional layer preserves the dimensions of its input matrix, but produces an output with a larger depth dimensions depending on the number of filters. This is followed by pooling layers, which down-sample the data in the width and height dimensions. Image courtesy of  \cite{albelwi2017framework}.}
+\caption{A convolutional layer preserves the dimensions of its input matrix, but produces an output with a larger depth dimensions depending on the number of filters. This is followed by pooling layers, which down-sample the data in the width and height dimensions. Image courtesy of \cite{albelwi2017framework}.}
 \label{figure:conv_pooling}
 \end{figure}
 
 
 
 \subsection{Generative Adversarial Networks}\label{subsection:generativeadversarial}
-We may classify machine learning models as either being \textit{discriminative} or \textit{generative}. Examples of discriminative models are neural networks that map images to class labels \cite[p. 1]{goodfellow2014generative}. Generative models, on the other hand, rather than mapping inputs from a training set to class labels, learn to mimic the training set. That is, for a training set of data points drawn from a distribution $p_{data}$, a generative model learns to represent $p_{model}$, an approximation of $p_{data}$ \cite{goodfellow2016nips}.
-
-Goodfellow et al introduced \textbf{generative adversarial networks} (GANs) in 2014, succinctly defining them as a "framework for estimating generative models via an adversarial process", where a discriminative model is used to train a generative model by scrutinizing its outputs \cite{goodfellow2014generative}.
+Machine learning models may be classified as being either \textit{discriminative} or \textit{generative}. An example of discriminative models is neural networks that map images to content labels \cite[p. 1]{goodfellow2014generative}. Generative models, on the other hand, learn to mimic the training set. Goodfellow et al introduced \emph{generative adversarial networks} (GANs) in 2014, succinctly defining them as a ``framework for estimating generative models via an adversarial process", where a discriminative model is used to train a generative model by scrutinizing its outputs \cite[p. 1]{goodfellow2014generative}.
 
 \begin{definition}
-A generative adversarial network (GAN) consists of two artificial neural networks, a \textbf{generator} $G$ and a \textbf{discriminator} $D$. The generator represents a function $G_{\theta_{g}}(\bm{z})$ parameterized by weights $\theta_g$, which maps inputs drawn from a distribution $p(\bm{z})$ to outputs in the sample space of $p_{model}(\bm{x})$. The discriminator represents a function $D_{\theta_d}(\bm{x})$ that outputs a single scalar representing the probability that $\bm{x}$ came from the original distribution rather than the generator.
+Let $Z$ be a random variable with any distribution, and let $T$ be a random variable representing a dataset with a probability distribution $p_{data}$. A \emph{generative model} learns a mapping $gen(z) : Z \rightarrow M$, where $M$ is a random variable with a distribution $p_{model}$ that approximates $p_{data}$ \cite{goodfellow2016nips.}
+\end{definition}
 
-The discriminator is trained to maximize the probability of assigning correct label to both training examples and samples from the generator. In turn, the generator is trained to minimize $\log{1 - D(G(\bm{z}))}$. Goodfellow et all \cite[p. 3]{goodfellow2014generative} showed that this is equivalent to saying that, during training, $D$ and $G$ engage in a two-player minimax game with value function $V(G, D)$, formulated as follows:
+\begin{definition}
+Let $Z$ be a random variable with any distribution, and let $T$ be a random variable representing a dataset with a probability distribution $p_{data}$. A generative adversarial network (GAN) consists of two artificial neural networks, a \emph{generator} $G$ and a \emph{discriminator} $D$. The generator represents a function $G_{\theta_{g}}(\bm{z}) : Z \rightarrow M$ parameterized by weights $\theta_g$, which maps inputs $\bm{z} \in Z$ to an output $\bm{x}$ in $M ~ p_{model}$. The discriminator represents a function $D_{\theta_d}(\bm{x}) : T \cap M \rightarrow \mathbb{R}$ that outputs a scalar representing the probability that $\bm{x}$ was sampled from $T$ rather than produced by the generator (figure \ref{figure:gan}).
 
+The discriminator is trained to maximize the probability of assigning the correct label to inputs sampled from $T$ and generated by $G$. In turn, the generator is trained to minimize $\log{1 - D(G(\bm{z}))}$. Goodfellow et all \cite[p. 3]{goodfellow2014generative} showed that this is equivalent to saying that, during training, $D$ and $G$ engage in a two-player minimax game with value function $V(G, D)$, formulated as follows:
 \begin{gather}\label{eq:gan_train}
 \min_G{\max_D{V(G, D)}} = \mathbb{E}_{\bm{x}~p_{data}(\bm{x})}[\log{D(\bm{x})}] + \mathbb{E}_{\bm{z}~p_{\bm{z}}(\bm{z})}[\log{1 - D(G(\bm{z}))}]
 \end{gather}
 \end{definition}
 
-A mini-batch stochastic gradient descent training algorithm for a GAN, as given by Goodfellow et al but in simplified form, is shown below.
-
-
-\begin{minted}{python}
+A mini-batch stochastic gradient descent training algorithm for a GAN, as given by Goodfellow et al but slightly simplified, is shown below.
+\begin{minted}{html}
     for i in range(training_iterations):
       for k in range(steps):
-        sample mini-batch of samples from data distribution
-        sample mini-batch of examples from generator
-        updated discriminator by gradient descent
+        sample mini-batch from data distribution
+        sample mini-batch from generator
+        update discriminator by gradient descent
       sample mini-batch of noise from noise distribution
       update generator by gradient descent
 \end{minted}
+Goodfellow et all also showed that, provided $G$ and $D$ have sufficient capacity, and at each step of the above algorithm $D$ is allowed to reach its optimum given the current $G$, then $p_{model}$ converges to $p_{data}$ \cite[p. 5]{goodfellow2014generative}.
 
-Goodfellow et all also showed that, provided $G$ and $D$ have sufficient capacity, and at each step of the above algorithm $D$ is allowed to reach its optimum given the current $G$, and the generator's weights are updated to decrease the discriminator's performance, then $p_{model}$ converges to $p_{data}$ \cite[p. 5]{goodfellow2014generative}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/gan.png}\\
+    \caption{The conceptual structure of a generative adversarial network. The outputs of the generator are fed into the discriminator along with samples from the original dataset; the performance of the discriminator is factored into the loss function of the generator. Image drawn with draw.io \cite{jgraph2018draw}.}
+    \label{figure:gan}
+\end{figure}
 
 
 
 \section{Related Work}\label{section:related_work}
-Literature review found that few efforts have been made to train neural networks to act as pseudo-random number generators. Research on this topic has garnered very little attention, most likely due to the lack of promising results. In this section, we review the findings of some key papers relevant to this project. The first to be considered, \textit{Learning to Protect Communications with Adversarial Neural Cryptography} provided the inspiration and impetus behind this work.
-
-
-
-\subsection{Learning to Protect Communications with Adversarial Neural Cryptography}
-The 2016 paper by Google Brain researches Martin Abadi and David Andersen investigates the ability of neural networks in a multiagent environment to learn some form of symmetric-key encryption scheme, enabling some agents to communicate securely. The paper's abstract states:
-
-\say{We ask whether neural networks can learn to use secret keys to protect information from other neural networks. Speciﬁcally, we focus on ensuring conﬁdentiality properties in a multiagent system, and we specify those properties in terms of an adversary. Thus, a system may consist of neural networks named Alice and Bob, and we aim to limit what a third neural network named Eve learns from eavesdropping on the communication between Alice and Bob. We do not prescribe speciﬁc cryptographic algorithms to these neural networks; instead, we train end-to-end, adversarially. We demonstrate that the neural networks can learn how to perform forms of encryption and decryption, and also how to apply these operations selectively in order to meet conﬁdentiality goals.} \cite{abadi2016learning}
-
-The paper's conclusion mentions pseudo-random number generation as a possible avenue of further investigation, giving origin to this work. 
+Literature review found that few efforts have been made to train neural networks to act as pseudo-random number generators. In this section, the findings of some key relevant papers are reviewed.
 
 
 
 \subsection{Papers on Using Neural Networks as Pseudo-Random Number Generators}
-Overall, literature review carried out for this investigation showed that little research has been carried out on the subject of using neural networks as pseudo-random number generators. A small number of such papers was identified, but all were relatively obscure and presented rather poor results.
+Overall, the literature review carried out for this investigation showed that little research has been carried out on the implementation of PRNGs using neural networks. A small number of such papers was identified, but all were relatively obscure, possibly due to reliance on complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}.
 
 For example, a 2012 paper by Veena Desai et al from the Gogte Institute of Technology, \textit{Pseudo random number generator using time delay neural network}, failed to produce a viable neural network-based PRNG, and identified the computational complexity of training networks with thousands of neurons as one of the key challenges \cite{desai2012pseudo}.
 
-Other publications include Desai's earlier 2011 paper  the 2010 paper \textit{Pseudo random number generator using Elman neural network}, as well as the 2010 paper \textit{Hopfield Neural Networks as Pseudo-Random Number Generators}, by Ryverson University's Tirdad and Sadeghian. In all cases the conclusions were mixed at best \cite{desai2011pseudo} \cite{tirdad2010hopfield}. Judging on the difficulty to find material on the topic, and for the meager number of citations for the above paper, one may safely argue that work on this subject has not obtained much attention.
+Other publications include Desai's earlier 2011 paper \textit{Pseudo random number generator using Elman neural network}, as well as the 2010 paper \textit{Hopfield Neural Networks as Pseudo-Random Number Generators} by Tirdad and Sadeghian. In both cases the conclusions were mixed. Desai's paper reported ``satisfactory results'' on a subset of the performed statistical tests, with unexplained particularly poor performance on one of the tests \cite{desai2011pseudo}. Tirdad and Sadeghian achieved a strong performance on the NIST test suite in some of the reported experiments \cite{tirdad2010hopfield}. However, the opinion of the author of this report is that their implementation is contrived and exceedingly complex. \todo{more detail because this is interesting}
 
 
+\subsection{Learning to Protect Communications with Adversarial Neural Cryptography}
+The 2016 paper by Google Brain researches Martin Abadi and David Andersen investigates the ability of neural networks to learn some form of symmetric-key encryption scheme in a multiagent environment, enabling some agents to communicate securely. The paper's abstract states:
 
-\subsection{Fast, Lean, and Accurate: Modeling Password Guessability Using Neural Networks}
-This 2016 paper by Carnegie Mellon University researchers William Melicher et al proposes the use of artificial neural networks as a way of modeling the resistance of passwords. The parts of the paper's abstract that are of direct relevance to this investigation are given below:
+\say{We ask whether neural networks can learn to use secret keys to protect information from other neural networks. Speciﬁcally, we focus on ensuring conﬁdentiality properties in a multiagent system, and we specify those properties in terms of an adversary. Thus, a system may consist of neural networks named Alice and Bob, and we aim to limit what a third neural network named Eve learns from eavesdropping on the communication between Alice and Bob. We do not prescribe speciﬁc cryptographic algorithms to these neural networks; instead, we train end-to-end, adversarially. We demonstrate that the neural networks can learn how to perform forms of encryption and decryption, and also how to apply these operations selectively in order to meet conﬁdentiality goals.} \cite{abadi2016learning}
 
-\say{Human-chosen text passwords [...] are vulnerable to guessing attacks. [...] We propose using artificial neural networks to model text passwords’ resistance to guessing attacks and explore how different architectures and training methods impact neural networks’ guessing effectiveness. We show that neural networks can often guess passwords more effectively than state-of-the-art approaches [...]. We also show that our neural networks can be highly compressed - to as little as hundreds of kilobytes - without substantially worsening guessing effectiveness [...]} \cite{melicher2016fast}.
-
-The paper is of relevance to this investigation due to the similarities between the core machine learning task tackled in both works. In Melicher et al's paper, a neural network is trained to predict the next character in a sequence of characters. The ability to perform this prediction with a better-than-random-chance probability hinges on the assumption there is a correlation between the characters seen so far, and the next character. This correlation exists due to the fact that the characters in human-chosen passwords are not selected randomly.
-
-Analogously, one aspect of this investigation is the ability to predict the next number in a sequence. Under the assumption of true randomness in the number sequence, no predictive model should be able to perform better than random chance over a sufficiently large number of trials. However, given that each value in the sequence is not \textit{statistically} independent of all other values, this investigation conjectures that a neural network should be capable of learning to predict such a value. The results presented in the paper by Melicher et al arguably supports this conjecture, and informed some architectural design choices for the neural networks involved in this research.
+The paper's conclusion mentions pseudo-random number generation as a possible avenue of further investigation, providing the original inspiration behind this work.
 
 
 
@@ -566,7 +604,6 @@ Two slightly different variants of the generator are implemented, referred to as
 
 
 
-
 \subsection{Discriminative Model}
 The discriminator and the predictor are convolutional neural networks implementing the functions
 \begin{gather}
@@ -620,16 +657,82 @@ The package \mintinline{python}{tf.contrib.gan} in TensorFlow's Python API enabl
 
 
 
+\subsection{Supporting Technologies}
+- git
+- Pycharm
+- Docker
+- ssh, scp
+
+
+
 
 \section{Software Design}
-This section outlines the design and implementation of the actual software. The software implements the concepts from section  \ref{section:conceptual_design} and broadly follows the structure demonstrated in TensorFlow's tutorials \cite{tensorflow2018tutorials} \cite{tensorflow2018tfgan}.
+This section outlines the structure of the software implementing the concepts from section \ref{section:conceptual_design}. The code broadly follows the examples provided in TensorFlow's tutorials \cite{tensorflow2018tutorials} \cite{tensorflow2018tfgan}. The structure of the implementation is as follows:
 
+\begin{minted}{html}
+    > adversarial-csprng    
+        > src
+            > components
+                __init__.py
+                activations.py
+                operations.py
+            > utils
+                __init__.py
+                debug.py
+                decode_nist.py
+                file_utils.py
+                input.py
+                operations.py
+                visualize.py
+            main.py
+        .gitignore
+        Dockerfile
+        nist.sh
+        readme.md
+        requirements.txt
+        transfer.sh
+\end{minted}
+
+The files in the root directory include a \mintinline{python}{.gitignore} specifying which files in the project should not be version-controlled by \mintinline{python}{git}, a \mintinline{python}{Dockerfile} specifying the build procedure for the Docker container used to run the system, a convenient \mintinline{python}{readme}, a \mintinline{python}{requirements} file listing the project's Python dependencies, and two shell scripts to automate the retrieval of evaluation results from a remote compute cluster.
+
+The \mintinline{python}{src} package contains all Python software modules. At its root is the \mintinline{python}{main.py} module, which is the software's intended entry point and contains the implementation's core. The \mintinline{python}{components} package contains modules defining custom TensorFlow functions used as components of the TensorFlow computational graph. Lastly, the \mintinline{python}{utils} package contains a number of modules defining utility functions broadly categorized by functionality. These are not considered in the report, but are available in the supporting documentation.
+
+The code is structured in a procedural manner (as opposed to object-oriented). The rationale for this design choice is based on a number of factors. Firstly, localizing all of the core logic into \mintinline{python}{main.py} improves flexibility in prototyping and experimenting: as most of the core logic is prone to frequent change, bundling it into a single module improves productivity by reducing the amount of time spent looking for particular implementation details. In other words, in a project such as this, \emph{low-level details matter at the high level}, and abstracting them into object-oriented modules is inconvenient. Furthermore, the procedural approach is the convention of the field. Following convention facilitates communication.
+
+
+
+\subsection{System Parameterization}
+Several aspects of the systems are parameterized to provide ease of modification in the prototyping phase. In some cases simple command-line arguments are also supported, simplifying the running of experiments with different training setups. 
+
+The most imporant parameter specifiable via command-line arguments is \mintinline{python}{HPC_TRAIN}, which specifies whether the model is being trained on the HPC cluster or tested during development. In testing mode, the scale of the model and the duration of training are drastically reduced, allowing a rapid test of correct execution of the system. Other parameters specifiable via the command line are the networks' learning rate and the number of training iterations.
+
+\begin{minted}[fontsize=\small]{python}
+# main settings
+# set to true when training on HPC to collect data
+HPC_TRAIN = '-t' not in sys.argv
+LEARN_LEVEL = 2 if '-highlr' in sys.argv else 0 if '-lowlr' in sys.argv else 1
+
+# hyper-parameters
+OUTPUT_SIZE = 8
+MAX_VAL = 65535
+OUTPUT_BITS = 16
+BATCH_SIZE = 2046 if HPC_TRAIN else 10
+LEARNING_RATE = {2: 0.1, 1: 0.02, 0: 0.008}[LEARN_LEVEL]
+GEN_WIDTH = 30 if HPC_TRAIN else 10
+DATA_TYPE = tf.float64
+
+# training settings
+TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
+STEPS = 1000000 if '-long' in sys.argv else 150000 if HPC_TRAIN else 40
+PRE_STEPS = 100 if HPC_TRAIN else 5
+ADV_MULT = 3
+\end{minted}
 
 
 \subsection{Generative Model}
-The generator $G$, known in the code as \mintinline{python}{jerry} or \mintinline{python}{janice}, has the same implementation for both the discriminative and predictive approaches. The model's architecture is defined in TensorFlow as follows:
+The generator $G$ has the same implementation for both the discriminative approach, where it is referred to as \mintinline{python}{jerry}, and the predictive approach, where it is referred to as \mintinline{python}{janice}. The model's architecture is defined in \mintinline{python}{main.py} using TensorFlow as follows:
 
-\begin{minted}{python}
+\begin{minted}[fontsize=\small]{python}
 input_layer = tf.reshape(noise, [-1, 2])
 outputs = fully_connected(input_layer, GEN_WIDTH, activation=leaky_relu)
 outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
@@ -637,19 +740,15 @@ outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
 outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
 outputs = fully_connected(outputs, OUTPUT_SIZE, activation=modulo(MAX_VAL))
 return outputs
-\end{minted} 
+\end{minted}
 
-\mintinline{python}{GEN_WIDTH} parameterizes the number of units in each layer. The \mintinline{python}{reshape} operation is used to cast input tensors to an appropriate size. The second argument specifies the shape to which input tensors are cast, where the first value is the tensor's size in the \textit{batch dimension}, and any following values represent the dimensionality of the input samples. The batch dimension refers to the number of input samples in a single batch. In TensorFlow \mintinline{python}{-1} is a special flag signifying dynamic batch size, which allows the model to process its inputs in batches of any size, rather than a fixed size.
-
-The last fully connected layer's \mintinline{python}{modulo} activation function is detailed in subsection \ref{subsection:custom_ops}.
+\mintinline{python}{GEN_WIDTH} parameterizes the number of units in the hidden layers. The \mintinline{python}{reshape} operation is used to cast input tensors to an appropriate size. The second argument specifies the shape to which input tensors are cast, where the first value is the tensor's size in the \textit{batch dimension}, and any following values represent the dimensionality of the input samples. The batch dimension refers to the number of input samples in a single batch. In TensorFlow \mintinline{python}{-1} is a special flag signifying dynamic batch size, which allows the model to process its inputs in batches of any size, rather than a fixed size. The output layer's \mintinline{python}{modulo} activation function is detailed in subsection \ref{subsection:custom_ops}.
 
 
 \subsection{Discriminative and Predictive Models}
-The discriminator $D$, \mintinline{python}{diego}, and the predictor $P$, \mintinline{python}{priya}, share the same architecture with the exception of the width of the input layer (\mintinline{python}{OUTPUT_SIZE} for \mintinline{python}{diego}, \mintinline{python}{OUTPUT_SIZE - 1} for \mintinline{python}{priya}). This is explained in section \ref{section:conceptual_design}.
+The discriminator $D$, \mintinline{python}{diego}, and the predictor $P$, \mintinline{python}{priya}, share the same architecture with the exception of the width of the input layer (\mintinline{python}{OUTPUT_SIZE} for \mintinline{python}{diego}, \mintinline{python}{OUTPUT_SIZE - 1} for \mintinline{python}{priya}). This is explained in section \ref{section:conceptual_design}. The convolutional architecture of the adversaries is implemented in \mintinline{python}{main.py} as follows:
 
-The convolutional architecture of the adversaries is implemented as follows:
-
-\begin{minted}{python}
+\begin{minted}[fontsize=\small]{python}
 input_layer = tf.reshape(inputs, [-1, size])
 outputs = tf.expand_dims(input_layer, 2)
 outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, 
@@ -667,41 +766,142 @@ outputs = fully_connected(outputs, 1, activation=leaky_relu)
 return outputs
 \end{minted}
 
-The operations \mintinline{python}{flatten} and \mintinline{python}{reshape} are used to modify the shape of tensors in order to connect layers with different shapes. Unlike the generator, where a custom activation function is used in order to introduce more non-linearity, all layers in the adversary model use the popular leaky rectified linear unit activation.
+The \mintinline{python}{flatten} and \mintinline{python}{reshape} operations are used to modify the shape of tensors in order to connect layers with different shapes. Unlike the generator, where a custom activation function is used in order to introduce greater non-linearity, all layers in the adversary models use the popular leaky rectified linear unit activation.
+
 
 
 \subsection{Custom Tensor Operations}\label{subsection:custom_ops}
-The \mintinline{python}{models} package contains modules implementing functionality that is not a part of the TensorFlow API, including custom activation functions and tensor operations. A few notable examples are highlighted here.
+The \mintinline{python}{components} package contains modules implementing neural network functionality that is not a part of the TensorFlow API, including the custom activation function \mintinline{python}{modulo}.
 
-\mintinline{python}{drop_last_value(original_size, batch_size)} is a closure returning a callable function \mintinline{python}{layer(x: tf.Tensor)}, which in turn can be used as part of TensorFlow's computational graph. The function defines an operation which drops the last value in a tensor's second dimension, and is used to connect the generator's output layer to the predictor's input layer in the predictive GAN.
-
-\mintinline{python}{modulo(divisor, withActivation=None)} is a closure returning a custom activation function that computes the modulus $\mod{divisor}$ of its input. It is also possible to use it in conjunction with another activation function, which can be passed to the second parameter.
+\mintinline{python}{modulo(divisor, withActivation=None)} is a closure returning a custom tensor function that computes the element-wise modulus $\mod{divisor}$ of its input tensor. Using a closure allows the creation of a function object with the desired parameters, which can then be passed to the TensorFlow API. The \mintinline{python}{modulo} function can additionally wrap another activation function, though this feature is not used.
 
 
 \subsection{Obtaining Training Data}
-TODO: how the utility functions work and how the training data is structured
+Input data for training and evaluating the networks is generated by functions defined in the \mintinline{python}{utils.input} module. This includes two functions for producing a training dataset which return equivalent data structures, with the difference that one returns it as a NumPy array and the other as a TensorFlow tensor. The module also defines a function that produces an input dataset as a NumPy array which is used to evaluate the models.
+
+A training dataset is produced as follows (the NumPy version is identical in structure as the TensorFlow API and NumPy API share many design aspects):
+
+\begin{minted}[fontsize=\small]{python}
+def get_input_tensor(batch_size, max_val) -> tf.Tensor:
+    return tf.transpose(
+        tf.stack(
+            [tf.fill([batch_size], tf.random_uniform(shape=[], minval=0, maxval=max_val)),
+             tf.random_uniform(shape=[batch_size], minval=0, maxval=batch_size)],
+        ))
+\end{minted}
+
+The evaluation dataset is generated as follows:
+
+\begin{minted}[fontsize=\small]{python}
+def get_eval_input_numpy(seed, length, batch_size) -> np.ndarray:
+    data = []
+    offset = 0
+
+    for batch_num in range(length):
+        batch = []
+        for item in range(batch_size):
+            batch.append([seed, offset])
+            offset = offset + 1
+        data.append(batch)
+
+    return np.array(data)
+\end{minted}
+
+Documentation strings were removed for brevity.
 
 
-\subsection{Training Procedure for the Discriminative GAN}\label{subsection:training_disc}
-TODO: the training procedure
 
+\subsection{Defining and Training the Discriminative GAN}\label{subsection:training_disc}
+The discriminative GAN is defined using TensorFlow's \mintinline{python}{tf.contrib.gan} package, which simplifies the implementation of a standard GAN consisting of a generator and discriminator. The GAN is structured as follows:
 
-\subsection{Training Procedure for the Predictive GAN}\label{subsection:training_pred}
-TODO: the training procedure
+\begin{minted}[fontsize=\small]{python}
+# build the GAN model
+discgan = tfgan.gan_model(
+    generator_fn=generator,
+    discriminator_fn=adversary_conv(OUTPUT_SIZE),
+    real_data=tf.random_uniform(shape=[BATCH_SIZE, OUTPUT_SIZE]),
+    generator_inputs=input.get_input_tensor(BATCH_SIZE, MAX_VAL)
+)
 
+# Build the GAN loss.
+discgan_loss = tfgan.gan_loss(
+    discgan,
+    generator_loss_fn=tfgan.losses.least_squares_generator_loss,
+    discriminator_loss_fn=tfgan.losses.least_squares_discriminator_loss)
 
+# Create the train ops, which calculate gradients and apply updates to weights.
+train_ops = tfgan.gan_train_ops(
+    discgan,
+    discgan_loss,
+    generator_optimizer=GEN_OPT,
+    discriminator_optimizer=OPP_OPT)
+\end{minted}
 
-\subsection{Utilities}
-A number of utility modules are defined to abstract the details of auxiliary procedures, such as logging, producing plots of training results, or generating samples of pseudo-random numbers for training the neural networks. An overview of the role of each utility module within the system is given below. A more detailed view of the functionality of these modules can be obtained from the source code and its documentation.
+The core of the main training loop is as follows:
 
-The \mintinline{python}{utils.input_utils.py} module defines functions for the \textbf{generation of training data}. Provided functionality includes generation of a single real-valued pseudo-random scalar, of a one-dimensional list of such scalars, or of matrices of inputs suitable for supervised training of either network in the adversarial models.
+\begin{minted}[fontsize=\small]{python}
+for step in range(STEPS):
+    train_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
 
-The \mintinline[breaklines]{python}{utils.operation_utils.py} module provides \textbf{common operations on tensors or Numpy arrays}. These include element-wise logarithms on tensors in an arbitrary base, flattening multidimensional lists with irregular internal structure, splitting the output of the generator into an $(input, label)$ pair for training the predictor, and setting the trainability of parameters in Keras model.
+    # if performed right number of steps, log
+    if step % LOG_EVERY_N == 0:
+        sess.run([])
+        gen_l = discgan_loss.generator_loss.eval(session=sess)
+        disc_l = discgan_loss.discriminator_loss.eval(session=sess)
 
-The \mintinline{python}{utils.vis_utils.py} module handles the creation and storage of \textbf{graphical visualizations}. This includes primarily drawing plots of training loss or histograms of output distributions, as well as graphs of neural network structures.
+        debug.print_step(step, gen_l, disc_l)
+        losses_jerry.append(gen_l)
+        losses_diego.append(disc_l)
+\end{minted}
 
-The remaining modules provide miscellaneous functionality such as error printing and logging information to text files.
+\subsection{Defining and Training for the Predictive GAN}\label{subsection:training_pred}
+The predictive approach does not fit the standard GAN framework, and thus was not easily implementable with \mintinline{python}{tf.contrib.gan}. It was implemented using more general low-level TensorFlow functionality. The GAN is defined as follows:
 
+\begin{minted}[fontsize=\small]{python}
+# janice tensor graph
+janice_input_t = tf.placeholder(shape=[BATCH_SIZE, 2], dtype=tf.float32)
+janice_output_t = generator(janice_input_t)
+janice_true_t = tf.strided_slice(janice_output_t, [0, -0], [BATCH_SIZE, 1], [1, 1])
+priya_pred_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
+# priya tensor graph
+priya_input_t = tf.placeholder(shape=[BATCH_SIZE, OUTPUT_SIZE - 1], dtype=tf.float32)
+priya_label_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
+priya_output_t = adversary_conv(OUTPUT_SIZE - 1)(priya_input_t)
+
+# losses and optimizers
+priya_loss = tf.losses.absolute_difference(priya_label_t, priya_output_t)
+janice_loss = -tf.losses.absolute_difference(janice_true_t, priya_pred_t)
+janice_optimizer = GEN_OPT.minimize(janice_loss)
+priya_optimizer = OPP_OPT.minimize(priya_loss)
+\end{minted}
+
+The main training loop is as follows:
+
+\begin{minted}[fontsize=\small]{python}
+for step in range(STEPS):
+    batch_inputs = input.get_input_numpy(BATCH_SIZE, MAX_VAL)
+    # generate
+    janice_output_n = sess.run([janice_output_t],
+                               feed_dict={janice_input_t: batch_inputs})
+    priya_input_n, priya_label_n = operations.slice_gen_out(janice_output_n[0])
+    # update priya
+    priya_output_n = None
+    priya_loss_epoch = None
+    for adv in range(ADV_MULT):
+        _, priya_loss_epoch, priya_output_n = sess.run([priya_optimizer, priya_loss, priya_output_t],
+                                                       feed_dict={priya_input_t: priya_input_n,
+                                                                  priya_label_t: priya_label_n})
+    # update janice
+    _, janice_loss_epoch = sess.run([janice_optimizer, janice_loss],
+                                    feed_dict={priya_pred_t: priya_output_n,
+                                               janice_input_t: batch_inputs})
+
+    # log and evaluate
+    if step % LOG_EVERY_N == 0:
+        debug.print_step(step, janice_loss_epoch, priya_loss_epoch)
+        losses_janice.append(janice_loss_epoch)
+        losses_priya.append(priya_loss_epoch)
+\end{minted}
 
 
 
@@ -725,36 +925,152 @@ A total of 20 experiments were carried out. Each experiment entailed training th
 
 \section{Results}
 
-{\rowcolors{3}{green!80!yellow!50}{green!70!yellow!40}
-\begin{tabular}{ |p{3cm}|p{3cm}|p{3cm}|  }
-\hline
-\multicolumn{3}{|c|}{Country List} \\
-\hline
-Country Name     or Area Name& ISO ALPHA 2 Code &ISO ALPHA 3 \\
-\hline
-Afghanistan & AF &AFG \\
-Aland Islands & AX   & ALA \\
-Albania &AL & ALB \\
-Algeria    &DZ & DZA \\
-American Samoa & AS & ASM \\
-Andorra & AD & AND   \\
-Angola & AO & AGO \\
-\hline
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{img/disc9_loss.png}\\
+\caption{gooby}
+\label{figure:discriminator_loss}
+\end{figure}
+
+\begin{table}
+\begin{tabular}{cSSSSSSS} \toprule
+    {$i$}     & {$T$} 	& {$T_I$}	& {$F_I$} 	& {$F_{I\%}$}		& {$F_p$} 	& {$F_T$} 	& {$F_{\%}$} \\ \midrule
+    $D_1$  & 188   	& 1802		& 1800	 	& 99.9				& 188	 		& 188	 		& 100 \\
+    $D_2$  & 188   	& 1802 		& 1791  		& 	99.4				& 188	 		& 188	 		& 100 \\
+    $D_3$  & 188  	& 1802 		& 1798  		& 99.8				& 188	 		& 188	 		& 100 \\
+    $D_4$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $D_5$  & 188   	& 1802 		& 1788   		& 99.2				& 188  		& 188  		& 100 \\
+    $D_6$  & 188  	& 1802 		& 1792  		& 99.4				& 188  		& 188 			& 100 \\
+    $D_7$  & 188   	& 1802 		& 1799  		& 99.8				& 188  		& 188  		& 100 \\
+    $D_8$  & 188   	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\
+    $D_9$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $D_{10}$ & 188  	& 1802 		& 1791  		& 99.4				& 188  		& 188  		& 100 \\ \midrule
+    $P_1$  & 188   	& 1802 		& 1789    	& 99.3				& 188  		& 188  		& 100 \\
+    $P_2$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $P_3$  & 188   	& 1802 		& 1799  		& 99.8				& 188  		& 188  		& 100 \\
+    $P_4$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $P_5$  & 188   	& 1802 		& 1792   		& 99.4				& 188  		& 188  		& 100 \\
+    $P_6$  & 188   	& 1802 		& 1798  		& 99.8				& 188  		& 188  		& 100 \\
+    $P_7$  & 188   	& 1802 		& 1792  		& 99.4				& 188  		& 188  		& 100 \\
+    $P_8$  & 188   	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\
+    $P_9$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $P_{10}$ & 188  	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\ \bottomrule
 \end{tabular}
-}
+
+\caption{Aggregate test results for the generators before training}
+\end{table}
 
 
-\subsection{Discriminative}
+\begin{table}
+\begin{tabular}{cSSSSSSS} \toprule
+    {$i$}     & {$T$} 	& {$T_I$}	& {$F_I$} 	& {$F_{I\%}$}		& {$F_p$} 	& {$F_T$} 	& {$F_{\%}$} \\ \midrule
+    $D_1$  & 188   	& 1802		& 29    	 	& 1.6				    & 3  	 		& 3  	 		& 2 \\
+    $D_2$  & 188   	& 1724 		& 109  		& 	6.3					& 5  	 		& 11	 		& 6 \\
+    $D_3$  & 188  	& 1724 		& 123  		& 	7.1   				& 4  	 		& 11	 		& 6 \\
+    $D_4$  & 188   	& 1828 		& 168  		& 9.2   				& 9      		& 18    		& 10 \\
+    $D_5$  & 188   	& 1854 		& 49   			& 2.7					& 3  		    & 5		  		& 3 \\
+    $D_6$  & 188  	& 1776 		& 30	  		& 1.7					& 5		  		& 5	 			& 3 \\
+    $D_7$  & 188   	& 1854 		& 21	  		& 1.1					& 4		  		& 4		  		& 2 \\
+    $D_8$  & 188   	& 1776 		& 46	  		& 2.6					& 5		 		& 5		  		& 3 \\
+    $D_9$  & 188   	& 1802 		& 25	  		& 1.4					& 3		 		& 3	 			& 2\\
+    $D_{10}$ & 188  	& 1854 		& 14	  		& 0.8					& 2		 		& 4		 		& 2 \\ \midrule
+    $P_1$  & 188   	& 1802 		& 39		 	& 2.2					& 2 				& 4		 		& 2 \\
+    $P_2$  & 188   	& 1828 		& 27	  		& 1.5					& 3		 		& 3		 		& 2 \\
+    $P_3$  & 188   	& 1828 		& 35	  		& 1.9					& 3		 		& 4		 		& 2 \\
+    $P_4$  & 188   	& 1828 		& 100  		& 5.5					& 2		 		& 8		  		& 4 \\
+    $P_5$  & 188   	& 1802 		& 52	   		& 2.9					& 2		 		& 3		 		& 2 \\
+    $P_6$  & 188   	& 1880 		& 111  		& 5.9					& 4		 		& 9		 		& 5 \\
+    $P_7$  & 188   	& 1802 		& 25	  		& 1.4					& 3		 		& 3		 		& 2 \\
+    $P_8$  & 188   	& 1880 		& 96	  		& 5.1					& 2		 		& 4		  		& 2 \\
+    $P_9$  & 188   	& 1854 		& 36	  		& 1.9					& 2		 		& 3 				& 2 \\
+    $P_{10}$ & 188  	& 1802 		& 37  			& 2.1					& 4		 		& 4		 		& 2 \\ \bottomrule
+\end{tabular}
 
-\subsection{Predictive}
+\caption{Aggregate test results for the generators after training}
+\end{table}
 
+
+\begin{table}
+\begin{tabular}{cSSSS} \toprule
+    {$i$}     & {$\Delta F_{I\%}$}	& {$\Delta F_p$} 	& {$\Delta F_T$} 	& {$\Delta F_{\%}$} \\ \midrule
+    $D_1$  & -98.3 							& -185 					& -185    	 				& -98 \\
+    $D_2$  & -93.1 							& -183 					& -177  					& 	-94 \\
+    $D_3$  & -92.7							& -184 					& -177  					& 	-94 \\
+    $D_4$  & -90.8 							& -179 					& -160 					& -90 \\
+    $D_5$  & -96.5 							& -185 					& -183						& -97 \\
+    $D_6$  & -97.7 							& -183 					& -183	  					& -97 \\
+    $D_7$  & -98.7 							& -184 					& -184	  					& -98 \\
+    $D_8$  & -97.3 							& -183 					& -183	  					& -97 \\
+    $D_9$  & -98.6 							& -185 					& -185	  					& -98 \\
+    $D_{10}$ & -98.6 						& -186 					& 	-184	  					& -98 \\ \midrule
+    $P_1$  & -97.1  							& -186 					& -184		 				& -98 \\
+    $P_2$  & -98.5  							& -185 					& -185	  					& -98 \\
+    $P_3$  & -97.9 							& -185 					& -184	  					& -98 \\
+    $P_4$  & -94.5  							& -186 					& -180  					& -96 \\
+    $P_5$  & -96.5 							& -186 					& -187	   					& -98 \\
+    $P_6$  & -93.9  							& -184 					& -179  					& -95 \\
+    $P_7$  & -98.0  							& -185 					& -185	  					& -98 \\
+    $P_8$  & -94.8  							& -186 					& -184	  					& -98 \\
+    $P_9$  & -98.1  							& -186 					& -185	  					& -98 \\
+    $P_{10}$ & -97.8  						& -184 					& -184						& -98 \\ \bottomrule
+\end{tabular}
+
+\caption{Illustrated improvements from before training to after training, for each training instance}
+\end{table}
+
+
+\begin{table}
+\begin{tabular}{cSSSS} \toprule
+    {$i$}     & {$\langle \Delta F_{I\%} \rangle$}	& {$\langle \Delta F_p \rangle$} 	& {$\langle \Delta F_T \rangle$} 	& {$\langle \Delta F_{\%} \rangle$} \\ \midrule
+    $D_{10}$ & -96.2 						& -183.7					& 	-180.1	  					& -96.1 \\ \midrule
+    $P_{10}$ & -96.7  						& -185.3					& -183.6						& -97.5 \\ \bottomrule
+\end{tabular}
+
+\caption{Average performance change for the discriminative and predictive approaches across all tests}
+\end{table}
+
+
+\section{Effect of Training Duration and Generator Dimensions}
+This section considers further tests which were carried out to explore the effect of varying some of the system's parameters, including the number of training iterations and the dimensions of the generator.
 
 \section{Computational Complexity}
 
 
+
+
 \section{Evaluation}\label{subsection:evaluation}
 
+\begin{figure}
+\centering
+\textbf{Output Sample, Before Discriminative Training}
+\includegraphics[width=1\textwidth]{img/discriminative_before}\\
+\caption{Visualization of the generator output as produced in the 9th discriminative training instance, before training. The first 40000 bits are presented as a 200 by 200 grid. The non-randomness of the output is obvious due to the visible patterns.}
+\label{figure:visualize_discriminative_before}
+\end{figure}
 
+\begin{figure}
+\centering
+\textbf{Output Sample, After Discriminative Training}
+\includegraphics[width=1\textwidth]{img/discriminative_after}\\
+\caption{Visualization of the generator output as produced in the 9th discriminative training instance, after 200000 training iterations. The first 40000 bits are presented as a 200 by 200 grid. Clearly the generator neural network has learned to produce more randomness, as no patterns can reasonably be discerned by a human observer.}
+\label{figure:visualize_discriminative_after}
+\end{figure}
+
+\begin{figure}
+\centering
+\textbf{Output Sample, Before Predictive Training}
+\includegraphics[width=1\textwidth]{img/predictive_before}\\
+\caption{Visualization of the generator output as produced in the 9th predictive training instance, before training. The first 40000 bits are presented as a 200 by 200 grid. The non-randomness of the output is obvious due to the visible patterns.}
+\label{figure:visualize_predictive_before}
+\end{figure}
+
+\begin{figure}
+\centering
+\textbf{Output Sample, After Predictive Training}
+\includegraphics[width=1\textwidth]{img/predictive_after}\\
+\caption{Visualization of the generator output as produced in the 9th predictive training instance, after 200000 training iterations. The first 40000 bits are presented as a 200 by 200 grid. As with the discriminative training, no patterns can reasonably be discerned by a human observer; clearly the network has learned some notion of randomness.}
+\label{figure:visualize_predictive_after}
+\end{figure}
 
 
 
@@ -762,7 +1078,14 @@ Angola & AO & AGO \\
 % CONCLUSION
 %----------------------------------------------------------
 \chapter{Conclusion}\label{chapter:conclusion}
-TODO: if generator works, conclude that work backs the conjecture that a discrete uniform distribution can be learned by a neural network. If it doesn't, conclusion should state why. In either case probably more experimentation is required as these experiments were constrained due to a number of reasons.
+Pseudo-random number generators, deterministic algorithms producing sequences of numbers which appear randomly sampled \cite[p. 7]{barker2007recommendation}, are used throughout the field of cryptography and are a fundamental element of many cryptographic systems such as encryption algorithms  \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. As PRNGs are often a single point of failure for such systems, their design and analysis is an important field of investigation \cite[p. 2]{kelsey1998cryptanalytic} \cite{deng2017developments}. 
+
+Machine learning, and in particular deep learning, have been tremendously successful in recent yearsDespite the tremendous successes of machine learning in recent years \cite[p. 24-29]{russel2009artificial}, the literature review carried out prior to this investigation suggests that little serious effort has gone into the application of machine learning methods to the implementation of PRNGs. Some attempts have been made with relatively little success, and the papers are relatively obscure \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}.
+
+The aim of this investigation was to determine whether a deep neural network can be trained to behave as a PRNG, and whether such a PRNG could be used in a cryptographic context. To that end, two different generative adversarial networks were implemented in Python and TensorFlow, trained, and evaluated using the NIST statistical test suite.
+
+In this report, it is demonstrated that 
+
 
 
 
@@ -790,164 +1113,256 @@ TODO: more formal treatment of the problem, such as cryptanalysis if the generat
 % APPENDICES
 %----------------------------------------------------------
 \appendix
-\chapter{Training Data}
-TODO: currently being trained as of draft submission. Data will be outputted to files so can easily be extracted, tabled, graphed, etc.
+\chapter{Glossary}
 
-\chapter{Code Listings}
-\section{Generator}\label{appendix:generator}
-\begin{minted}{python}
-    inputs = Input(shape=(2,))
-    outputs = Dense(GEN_WIDTH)(inputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(GEN_WIDTH)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(GEN_WIDTH)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(GEN_WIDTH)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(OUTPUT_SIZE)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    generator = Model(inputs, outputs, name=name)
-\end{minted} 
 
-\section{Adversary, Convolutional Architecture}\label{appendix:convolutional}
-\begin{minted}{python}
-    inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = MaxPooling1D(2)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Conv1D(filters=4, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = MaxPooling1D(2)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Dense(2)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(1)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    discriminator = Model(inputs, outputs)
+
+\chapter{Statistical Test Result Sample}
+The outputs of the NIST test suite are extensive and cannot be fully reproduced in this appendix. One output report, produced for the 9th training instance of the predictive approach, is provided as an example.
+
+\begin{minted}[fontsize=\footnotesize]{html}
+------------------------------------------------------------------------------
+RESULTS FOR THE UNIFORMITY OF P-VALUES AND THE PROPORTION OF PASSING SEQUENCES
+------------------------------------------------------------------------------
+   generator is <1_janice_dieharder.txt>
+------------------------------------------------------------------------------
+ C1  C2  C3  C4  C5  C6  C7  C8  C9 C10  P-VALUE  PROPORTION  STATISTICAL TEST
+------------------------------------------------------------------------------
+  1   0   0   0   0   1   2   2   1   3  0.350485     10/10      Frequency
+  2   2   0   1   0   0   0   2   2   1  0.534146      9/10      BlockFrequency
+  1   0   0   0   0   2   0   1   2   4  0.066882     10/10      CumulativeSums
+  1   0   0   0   0   2   0   1   0   6  0.000199     10/10      CumulativeSums
+  0   0   0   0   3   0   2   2   2   1  0.213309     10/10      Runs
+  1   0   1   3   0   1   2   0   1   1  0.534146     10/10      LongestRun
+  7   0   1   1   1   0   0   0   0   0  0.000003 *    4/10   *  Rank
+ 10   0   0   0   0   0   0   0   0   0  0.000000 *    0/10   *  FFT
+  0   0   0   2   0   1   2   2   1   2  0.534146     10/10      NonOverlappingTemplate
+  1   1   0   2   1   0   0   1   2   2  0.739918     10/10      NonOverlappingTemplate
+  1   2   2   0   1   1   0   1   1   1  0.911413     10/10      NonOverlappingTemplate
+  0   1   1   2   0   1   2   2   1   0  0.739918     10/10      NonOverlappingTemplate
+  0   1   0   1   2   0   2   1   0   3  0.350485     10/10      NonOverlappingTemplate
+  1   2   0   0   2   1   0   1   2   1  0.739918     10/10      NonOverlappingTemplate
+  0   1   1   0   0   0   2   3   1   2  0.350485     10/10      NonOverlappingTemplate
+  2   1   3   0   0   0   1   0   1   2  0.350485     10/10      NonOverlappingTemplate
+  0   0   0   2   0   3   0   3   0   2  0.066882     10/10      NonOverlappingTemplate
+  2   0   1   1   2   0   1   1   1   1  0.911413     10/10      NonOverlappingTemplate
+  0   0   2   1   1   1   1   1   2   1  0.911413     10/10      NonOverlappingTemplate
+  2   2   2   0   1   1   0   1   1   0  0.739918      9/10      NonOverlappingTemplate
+  1   0   0   1   3   1   1   1   0   2  0.534146     10/10      NonOverlappingTemplate
+  0   1   0   0   1   0   0   2   4   2  0.066882     10/10      NonOverlappingTemplate
+  1   0   2   2   0   0   2   0   1   2  0.534146     10/10      NonOverlappingTemplate
+  0   2   1   1   1   0   1   2   1   1  0.911413     10/10      NonOverlappingTemplate
+  0   0   1   2   0   3   1   1   1   1  0.534146     10/10      NonOverlappingTemplate
+  3   0   2   2   0   0   1   2   0   0  0.213309     10/10      NonOverlappingTemplate
+  1   2   1   1   1   1   1   1   1   0  0.991468     10/10      NonOverlappingTemplate
+  0   2   1   1   0   2   2   1   0   1  0.739918     10/10      NonOverlappingTemplate
+  0   1   3   1   1   0   0   2   2   0  0.350485     10/10      NonOverlappingTemplate
+  1   1   0   1   1   2   1   1   0   2  0.911413     10/10      NonOverlappingTemplate
+  2   2   0   1   2   0   2   1   0   0  0.534146      9/10      NonOverlappingTemplate
+  1   2   2   0   3   0   1   1   0   0  0.350485     10/10      NonOverlappingTemplate
+  1   0   0   0   0   0   1   1   3   4  0.035174     10/10      NonOverlappingTemplate
+  1   2   0   1   0   1   1   0   1   3  0.534146     10/10      NonOverlappingTemplate
+  0   2   3   2   0   0   0   0   1   2  0.213309     10/10      NonOverlappingTemplate
+  3   2   1   0   2   1   0   0   1   0  0.350485     10/10      NonOverlappingTemplate
+  1   0   1   2   1   1   0   2   2   0  0.739918     10/10      NonOverlappingTemplate
+  0   0   2   2   0   2   0   1   2   1  0.534146     10/10      NonOverlappingTemplate
+  0   0   1   0   1   2   3   2   1   0  0.350485     10/10      NonOverlappingTemplate
+  1   0   1   1   1   0   1   2   1   2  0.911413     10/10      NonOverlappingTemplate
+  0   5   0   1   0   0   1   1   0   2  0.008879     10/10      NonOverlappingTemplate
+  1   1   0   1   3   0   0   0   0   4  0.035174     10/10      NonOverlappingTemplate
+  2   2   1   0   0   2   0   1   1   1  0.739918     10/10      NonOverlappingTemplate
+  1   2   1   0   1   2   1   0   2   0  0.739918     10/10      NonOverlappingTemplate
+  1   4   1   0   0   1   3   0   0   0  0.035174      9/10      NonOverlappingTemplate
+  0   0   0   0   3   1   1   2   2   1  0.350485     10/10      NonOverlappingTemplate
+  0   2   1   0   4   2   1   0   0   0  0.066882     10/10      NonOverlappingTemplate
+  1   3   1   1   0   1   0   2   0   1  0.534146     10/10      NonOverlappingTemplate
+  3   0   0   3   1   0   2   1   0   0  0.122325     10/10      NonOverlappingTemplate
+  3   3   1   0   1   0   0   1   0   1  0.213309     10/10      NonOverlappingTemplate
+  2   0   1   2   3   0   0   0   0   2  0.213309      9/10      NonOverlappingTemplate
+  2   1   0   0   2   1   1   1   1   1  0.911413     10/10      NonOverlappingTemplate
+  1   0   0   0   3   2   1   2   1   0  0.350485     10/10      NonOverlappingTemplate
+  0   0   0   1   3   1   0   3   0   2  0.122325     10/10      NonOverlappingTemplate
+  0   1   2   2   0   2   1   0   1   1  0.739918     10/10      NonOverlappingTemplate
+  0   0   1   3   2   2   0   1   0   1  0.350485     10/10      NonOverlappingTemplate
+  2   2   2   1   0   1   1   0   0   1  0.739918      9/10      NonOverlappingTemplate
+  0   1   1   0   0   2   0   2   2   2  0.534146     10/10      NonOverlappingTemplate
+  1   1   1   0   1   1   2   1   1   1  0.991468      9/10      NonOverlappingTemplate
+  1   0   1   0   3   1   0   2   1   1  0.534146     10/10      NonOverlappingTemplate
+  2   1   2   0   2   0   2   0   0   1  0.534146      9/10      NonOverlappingTemplate
+  0   1   0   1   1   0   2   0   3   2  0.350485     10/10      NonOverlappingTemplate
+  0   0   2   2   3   1   0   0   1   1  0.350485     10/10      NonOverlappingTemplate
+  0   0   2   1   0   2   1   2   1   1  0.739918     10/10      NonOverlappingTemplate
+  2   1   3   0   0   1   0   1   2   0  0.350485     10/10      NonOverlappingTemplate
+  2   1   3   1   1   2   0   0   0   0  0.350485     10/10      NonOverlappingTemplate
+  1   1   2   1   0   0   0   2   3   0  0.350485     10/10      NonOverlappingTemplate
+  0   1   0   2   2   1   1   2   1   0  0.739918     10/10      NonOverlappingTemplate
+  0   1   0   1   0   1   2   1   4   0  0.122325     10/10      NonOverlappingTemplate
+  1   1   2   3   0   1   1   0   1   0  0.534146     10/10      NonOverlappingTemplate
+  0   1   1   0   1   1   0   3   0   3  0.213309     10/10      NonOverlappingTemplate
+  0   0   1   1   2   0   0   3   1   2  0.350485     10/10      NonOverlappingTemplate
+  0   1   0   2   2   2   1   0   1   1  0.739918     10/10      NonOverlappingTemplate
+  1   1   0   0   0   1   3   2   1   1  0.534146     10/10      NonOverlappingTemplate
+  0   1   1   0   1   2   3   0   1   1  0.534146     10/10      NonOverlappingTemplate
+  0   1   1   1   1   0   1   3   1   1  0.739918     10/10      NonOverlappingTemplate
+  0   1   2   4   1   0   0   1   1   0  0.122325     10/10      NonOverlappingTemplate
+  1   0   1   1   1   2   1   2   1   0  0.911413     10/10      NonOverlappingTemplate
+  0   1   1   0   2   1   0   2   2   1  0.739918     10/10      NonOverlappingTemplate
+  1   0   1   4   1   1   1   0   1   0  0.213309     10/10      NonOverlappingTemplate
+  3   1   2   2   0   0   0   0   1   1  0.350485     10/10      NonOverlappingTemplate
+  0   1   1   1   1   1   0   2   0   3  0.534146     10/10      NonOverlappingTemplate
+  0   0   0   2   0   1   2   2   1   2  0.534146     10/10      NonOverlappingTemplate
+  0   3   1   1   1   1   1   1   0   1  0.739918     10/10      NonOverlappingTemplate
+  0   1   1   0   1   2   2   0   2   1  0.739918     10/10      NonOverlappingTemplate
+  1   0   4   0   0   0   0   2   1   2  0.066882      9/10      NonOverlappingTemplate
+  2   0   1   0   0   3   2   1   0   1  0.350485      9/10      NonOverlappingTemplate
+  1   2   1   2   0   3   0   1   0   0  0.350485     10/10      NonOverlappingTemplate
+  1   1   0   1   1   3   2   0   1   0  0.534146     10/10      NonOverlappingTemplate
+  1   1   0   0   1   2   2   1   2   0  0.739918     10/10      NonOverlappingTemplate
+  0   1   1   1   0   0   3   0   2   2  0.350485     10/10      NonOverlappingTemplate
+  1   0   1   1   2   2   0   2   0   1  0.739918     10/10      NonOverlappingTemplate
+  1   1   1   1   1   0   1   2   1   1  0.991468     10/10      NonOverlappingTemplate
+  0   0   0   0   0   2   1   3   1   3  0.122325     10/10      NonOverlappingTemplate
+  0   1   0   1   2   1   2   1   2   0  0.739918     10/10      NonOverlappingTemplate
+  0   0   0   2   1   0   2   1   1   3  0.350485     10/10      NonOverlappingTemplate
+  0   0   0   2   1   4   1   0   0   2  0.066882     10/10      NonOverlappingTemplate
+  4   1   0   1   1   0   0   0   2   1  0.122325      9/10      NonOverlappingTemplate
+  0   0   3   0   0   3   0   0   3   1  0.035174     10/10      NonOverlappingTemplate
+  1   0   0   1   2   1   0   3   1   1  0.534146     10/10      NonOverlappingTemplate
+  1   0   0   2   0   3   0   1   2   1  0.350485     10/10      NonOverlappingTemplate
+  1   0   3   0   0   1   2   2   0   1  0.350485     10/10      NonOverlappingTemplate
+  1   1   0   2   0   3   1   2   0   0  0.350485     10/10      NonOverlappingTemplate
+  2   2   0   1   0   0   0   2   1   2  0.534146     10/10      NonOverlappingTemplate
+  0   0   1   2   2   3   1   0   1   0  0.350485     10/10      NonOverlappingTemplate
+  1   0   1   1   1   1   1   2   2   0  0.911413     10/10      NonOverlappingTemplate
+  1   1   1   0   2   0   1   1   0   3  0.534146     10/10      NonOverlappingTemplate
+  0   1   2   2   0   0   1   1   2   1  0.739918     10/10      NonOverlappingTemplate
+  0   0   0   2   0   1   1   4   0   2  0.066882     10/10      NonOverlappingTemplate
+  0   1   1   2   2   1   0   1   1   1  0.911413     10/10      NonOverlappingTemplate
+  1   0   1   0   1   1   0   2   1   3  0.534146     10/10      NonOverlappingTemplate
+  3   1   1   1   0   2   0   1   0   1  0.534146      8/10      NonOverlappingTemplate
+  1   1   0   0   1   2   4   0   1   0  0.122325     10/10      NonOverlappingTemplate
+  1   0   0   2   0   1   1   1   3   1  0.534146     10/10      NonOverlappingTemplate
+  0   1   1   3   1   0   1   1   2   0  0.534146     10/10      NonOverlappingTemplate
+  2   1   0   3   0   2   0   0   1   1  0.350485     10/10      NonOverlappingTemplate
+  1   0   1   1   1   0   2   1   2   1  0.911413     10/10      NonOverlappingTemplate
+  1   0   0   1   0   0   2   0   3   3  0.122325     10/10      NonOverlappingTemplate
+  0   0   0   1   0   2   1   0   3   3  0.122325     10/10      NonOverlappingTemplate
+  1   1   0   0   2   1   1   0   2   2  0.739918     10/10      NonOverlappingTemplate
+  2   0   0   0   0   1   3   1   0   3  0.122325     10/10      NonOverlappingTemplate
+  1   1   1   0   3   2   1   0   0   1  0.534146      9/10      NonOverlappingTemplate
+  0   2   1   2   1   1   0   1   0   2  0.739918     10/10      NonOverlappingTemplate
+  4   0   1   2   0   0   0   2   1   0  0.066882      9/10      NonOverlappingTemplate
+  1   3   0   0   2   3   1   0   0   0  0.122325     10/10      NonOverlappingTemplate
+  0   2   1   1   1   0   2   0   2   1  0.739918     10/10      NonOverlappingTemplate
+  0   3   1   0   2   0   0   2   2   0  0.213309     10/10      NonOverlappingTemplate
+  1   2   1   0   0   1   2   1   1   1  0.911413     10/10      NonOverlappingTemplate
+  0   0   4   1   2   2   0   1   0   0  0.066882     10/10      NonOverlappingTemplate
+  2   1   0   2   0   1   0   1   1   2  0.739918     10/10      NonOverlappingTemplate
+  1   2   1   0   0   1   0   2   0   3  0.350485     10/10      NonOverlappingTemplate
+  1   0   0   1   1   1   0   0   2   4  0.122325     10/10      NonOverlappingTemplate
+  0   1   1   2   1   1   1   1   1   1  0.991468     10/10      NonOverlappingTemplate
+  1   1   6   1   0   0   0   0   1   0  0.000439     10/10      NonOverlappingTemplate
+  0   0   1   1   0   0   2   0   2   4  0.066882     10/10      NonOverlappingTemplate
+  2   1   0   0   2   0   0   3   1   1  0.350485     10/10      NonOverlappingTemplate
+  1   0   0   1   4   1   2   1   0   0  0.122325     10/10      NonOverlappingTemplate
+  0   1   0   2   1   0   3   1   1   1  0.534146     10/10      NonOverlappingTemplate
+  1   2   0   0   0   1   0   3   0   3  0.122325      9/10      NonOverlappingTemplate
+  2   2   0   2   0   1   1   1   0   1  0.739918     10/10      NonOverlappingTemplate
+  1   1   0   0   1   0   2   1   2   2  0.739918     10/10      NonOverlappingTemplate
+  0   0   0   3   2   1   2   1   0   1  0.350485     10/10      NonOverlappingTemplate
+  2   2   1   0   3   1   0   0   0   1  0.350485     10/10      NonOverlappingTemplate
+  0   1   1   0   1   2   1   2   2   0  0.739918     10/10      NonOverlappingTemplate
+  4   2   0   0   0   2   1   0   0   1  0.066882     10/10      NonOverlappingTemplate
+  0   0   1   0   0   3   0   2   2   2  0.213309     10/10      NonOverlappingTemplate
+  3   3   1   0   0   0   0   1   2   0  0.122325     10/10      NonOverlappingTemplate
+  2   0   0   0   2   1   2   1   2   0  0.534146     10/10      NonOverlappingTemplate
+  0   1   0   1   1   1   2   2   0   2  0.739918     10/10      NonOverlappingTemplate
+  1   0   3   1   0   1   1   1   2   0  0.534146      9/10      NonOverlappingTemplate
+  0   4   0   1   2   0   1   1   1   0  0.122325     10/10      NonOverlappingTemplate
+  0   1   2   0   0   1   2   1   0   3  0.350485     10/10      NonOverlappingTemplate
+  0   1   0   0   2   0   2   1   1   3  0.350485     10/10      NonOverlappingTemplate
+  0   1   0   0   1   3   1   1   2   1  0.534146     10/10      NonOverlappingTemplate
+  1   0   0   2   0   2   2   1   1   1  0.739918     10/10      NonOverlappingTemplate
+  0   1   1   1   1   1   0   2   0   3  0.534146     10/10      NonOverlappingTemplate
+  6   0   2   0   0   1   0   1   0   0  0.000199      7/10   *  OverlappingTemplate
+  2   1   2   0   0   1   0   1   1   2  0.739918     10/10      Universal
+  0   0   2   0   1   0   1   0   1   5  0.008879     10/10      ApproximateEntropy
+  1   1   1   1   1   1   0   1   2   0     ----       9/9       RandomExcursions
+  2   1   0   3   0   1   0   0   0   2     ----       9/9       RandomExcursions
+  1   0   0   3   1   0   1   2   1   0     ----       9/9       RandomExcursions
+  3   1   0   0   0   1   0   3   0   1     ----       9/9       RandomExcursions
+  1   1   0   3   1   1   1   0   0   1     ----       9/9       RandomExcursions
+  0   0   2   0   2   1   3   0   0   1     ----       9/9       RandomExcursions
+  0   0   0   1   0   2   1   1   2   2     ----       9/9       RandomExcursions
+  1   1   0   4   0   0   0   2   1   0     ----       9/9       RandomExcursions
+  0   1   0   1   1   1   3   0   0   2     ----       9/9       RandomExcursionsVariant
+  0   0   0   3   0   2   1   2   0   1     ----       9/9       RandomExcursionsVariant
+  0   0   2   0   3   0   1   1   1   1     ----       9/9       RandomExcursionsVariant
+  0   0   1   2   2   1   1   0   1   1     ----       9/9       RandomExcursionsVariant
+  0   0   1   1   3   1   2   1   0   0     ----       9/9       RandomExcursionsVariant
+  0   0   1   3   0   2   0   1   1   1     ----       9/9       RandomExcursionsVariant
+  0   0   2   0   0   2   2   1   2   0     ----       9/9       RandomExcursionsVariant
+  0   1   1   1   0   0   1   1   2   2     ----       9/9       RandomExcursionsVariant
+  1   1   0   0   2   1   0   0   4   0     ----       9/9       RandomExcursionsVariant
+  0   1   1   0   0   1   3   2   0   1     ----       9/9       RandomExcursionsVariant
+  0   1   1   2   0   2   0   1   2   0     ----       9/9       RandomExcursionsVariant
+  0   1   1   1   1   1   2   1   0   1     ----       9/9       RandomExcursionsVariant
+  0   0   3   1   0   1   1   1   0   2     ----       9/9       RandomExcursionsVariant
+  0   2   0   0   1   1   1   1   3   0     ----       9/9       RandomExcursionsVariant
+  1   0   1   0   1   1   0   2   2   1     ----       9/9       RandomExcursionsVariant
+  1   0   1   0   2   0   3   1   0   1     ----       9/9       RandomExcursionsVariant
+  0   0   3   0   0   0   3   1   1   1     ----       9/9       RandomExcursionsVariant
+  0   0   1   0   1   1   2   3   0   1     ----       9/9       RandomExcursionsVariant
+  0   1   1   0   0   1   0   1   1   5  0.017912     10/10      Serial
+  1   0   0   0   0   0   0   1   3   5  0.002043     10/10      Serial
+  1   1   2   1   0   1   0   2   0   2  0.739918     10/10      LinearComplexity
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+The minimum pass rate for each statistical test with the exception of the
+random excursion (variant) test is approximately = 8 for a
+sample size = 10 binary sequences.
+
+The minimum pass rate for the random excursion (variant) test
+is approximately = 8 for a sample size = 9 binary sequences.
+
+For further guidelines construct a probability table using the MAPLE program
+provided in the addendum section of the documentation.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 \end{minted}
 
-\section{Adversary, LSTM Architecture}\label{appendix:lstm}
-\begin{minted}{python}
-    inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Dense(int(input_size / 2))(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(2)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(1)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    discriminator = Model(inputs, outputs)
-    discriminator.compile(optimizer, loss)
+
+\chapter{Summary of Supporting Material}
+This appendix section lists all the material that is available externally to this report, and provides instructions for how to access it.
+
+The software, as well as the results of all performed statistical testing, are available in the supporting documentation submitted. Results are stored in the \mintinline{html}{results} directory. The raw generator outputs are not included in the supporting documentation, since the 5GB of data far exceeds the upload size limit. Instead, the raw output can be accessed at the following link on the author's OneDrive file storage:
+
+https://1drv.ms/f/s!Ah1ayeYeFEuDiI8MpkbBHtsXIactjw
+
+Should the link not work, the author can provide a new link upon request. The link does not allow editing. The link points to a directory tree structured as follows:
+
+\begin{minted}[fontsize=\footnotesize]{html}   
+> results
+    > discriminative
+        > 01
+            > after
+            > before
+            > plots
+            > sequences            
+        > 02
+            ...
+        ...
+    > predictive
+        > 01
+            > after
+            > before
+            > plots
+            > sequences
+        > 02
+            ...
+        ...
 \end{minted}
 
-\section{Adversary, Convolutional LSTM Architecture}\label{appendix:convlstm}
-\begin{minted}{python}
-    inputs = Input((input_size,))
-    outputs = Reshape(target_shape=(input_size, 1))(inputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Conv1D(filters=2, kernel_size=2, strides=1, padding='same')(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Reshape(target_shape=(input_size, 2))(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = LSTM(1, return_sequences=True)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Flatten()(outputs)
-    outputs = Dense(4)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(2)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    outputs = Dense(1)(outputs)
-    outputs = LeakyReLU(ALPHA)(outputs)
-    discriminator = Model(inputs, outputs)
-\end{minted}
-
-\section{Training of Discriminative GAN}\label{appendix:training_discgan}
-\begin{minted}{python}
- # main training procedure
-    jerry_loss, diego_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    try:
-        for epoch in range(EPOCHS):
-            # training data for this epoch
-            seeds, offsets, jerry_labels = get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)
-            jerry_inputs = np.array([seeds, offsets]).transpose()
-
-            for batch in range(BATCHES):
-                # generate batch data
-                jerry_x = extract_batch(jerry_inputs, batch, int(BATCH_SIZE / 2))
-                jerry_y = extract_batch(jerry_labels, batch, int(BATCH_SIZE / 2))
-                diego_x, diego_y = get_sequences(jerry, jerry_x, OUTPUT_SIZE, MAX_VAL)
-
-                # alternate train
-                set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE)
-                for i in range(ADV_MULT):
-                    diego_loss[epoch] += diego.train_on_batch(diego_x, diego_y)
-                set_trainable(diego, DIEGO_OPT, DIEGO_LOSS, RECOMPILE, False)
-                jerry_loss[epoch] += discgan.train_on_batch(jerry_x, jerry_y)
-
-            # log debug info to console
-            diego_loss[epoch] /= (BATCHES * ADV_MULT)
-            jerry_loss[epoch] /= BATCHES
-            if not HPC_TRAIN or epoch % LOG_EVERY_N == 0:
-                print_epoch(epoch, gen_loss=jerry_loss[epoch], opp_loss=diego_loss[epoch])
-            # check for NaNs
-            if math.isnan(jerry_loss[epoch]) or math.isnan(diego_loss[epoch]):
-                raise ValueError()
-
-    except ValueError:
-        traceback.print_exc()
-\end{minted}
-
-\section{Training of Predictive GAN}\label{appendix:training_predgan}
-\begin{minted}{python}
-    # main training procedure
-    janice_loss, priya_loss = np.zeros(EPOCHS), np.zeros(EPOCHS)
-    try:
-      for epoch in range(EPOCHS):
-        # get data for this epoch
-        janice_inputs = np.array(get_inputs(BATCH_SIZE * BATCHES, MAX_VAL)[:-1]).transpose()
-
-        for batch in range(BATCHES):
-          # generate predictions for this batch
-          janice_x = extract_batch(janice_inputs, batch, BATCH_SIZE)
-          priya_x, priya_y = detach_all_last(janice.predict_on_batch(janice_x))
-
-          # train both networks on entire dataset
-          set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE)
-            for i in range(ADV_MULT):
-              priya_loss[epoch] += priya.train_on_batch(priya_x, priya_y)
-            set_trainable(priya, PRIYA_OPT, PRIYA_LOSS, RECOMPILE, False)
-            janice_loss[epoch] += predgan.train_on_batch(janice_x, priya_y)
-
-        # update and log loss value
-        priya_loss[epoch] /= (BATCHES * ADV_MULT)
-        janice_loss[epoch] /= BATCHES
-        if epoch % LOG_EVERY_N == 0:
-          print_epoch(epoch, gen_loss=janice_loss[epoch], opp_loss=priya_loss[epoch])
-        # check for NaNs
-        if math.isnan(janice_loss[epoch]) or math.isnan(priya_loss[epoch]):
-          raise ValueError()
-
-    except ValueError:
-        traceback.print_exc()
-\end{minted}
-
+The numbered folders indicate the experiment. For each experiment, the subdirectories contain the results of statistical testing using NIST from before and after training, the logged training loss values, and the actual output sequences (the sequences with names prefixed by a 0 are generated before training, while the ones prefixed by 1 are generated after training). The same directory structure in included in the supporting documentation submitted directly, with exception of the \mintinline{python}{sequences} subdirectories as these are too large.
 
 \end{document}
