@@ -22,7 +22,9 @@
 \usepackage{dirtytalk}
 \usepackage{minted}
 \usepackage{neuralnetwork}
-\usepackage{svg}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
 
 
 
@@ -119,20 +121,14 @@
 %----------------------------------------------------------
 
 \begin{abstract}
-Abstract comes here!
+    \emph{Pseudo-random number generators} are a fundamental element of many cryptographic systems such as \emph{encryption algorithms}  \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. As PRNGs are often a single point of failure for such systems, their design and analysis is an important field of investigation \cite[p. 2]{kelsey1998cryptanalytic} \cite{deng2017developments}. While \emph{deep neural networks} have been tremendously successful in recent years \cite[p. 24-29]{russel2009artificial}, little effort has gone into their application to the implementation of PRNGs. Some relatively obscure and complicated attempts have been made with little success \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield} \cite{wen2014exponential}.
 
-\textbf{TODO: in this work we achieve state-of-the-art in NN CSPRNG, with good randomness and interesting other properties}
+    This investigation pursues a simple and elegant novel approach to the problem, by proposing the use of \emph{generative adversarial networks} to train a neural network to behave as a cryptographically secure PRNG. This is a natural association, as a GAN closely resembles the adversarial nature of security problems. Furthermore, this work showcases a number of interesting modifications to the standard GAN architecture. The most significant is training the GAN's generator network to produce outputs that the adversary network cannot predict, rather than training the generator to mimic as reference distribution as is standard. Thus the pseudo-randomness property in the generator's output is formulated in terms of unpredictability by an improving opponent.
+
+    Using the NIST statistical test suite to evaluate the performance of the generator network, this work investigates the extent to which training the proposed models improves their performance as a PRNG, and discusses the possibility of using the models in a cryptographic context.
+    
+    This report demonstrates that a generative adversarial network can effectively train the generator to produce pseudo-random number sequences with good statistical properties. At best, the trained generator could pass around 99\% of test instances and 98\% of different tests. As far as the author is aware, this performance matches the current state of the art in neural network PRNGs, though with a much simpler and robust approach compared to previous attempts. While these metrics alone are not sufficient to justify use of the models in a cryptographic setting, there is a strong case for further investigation and improvements to the design.
 \end{abstract}
-
-
-%----------------------------------------------------------
-% ACKNOWLEDGEMENTS
-%----------------------------------------------------------
-\renewcommand{\abstractname}{Acknowledgements}
-\begin{abstract}
-Acknowledgements come here!
-\end{abstract}
-
 
 
 %-------------------------------------------------
@@ -142,11 +138,27 @@ Acknowledgements come here!
 \clearpage
 
 
+\listoffigures
+
 %-------------------------------------------------
 % LIST OF TABLES
 %-------------------------------------------------
 \listoftables
 \clearpage
+
+
+
+%----------------------------------------------------------
+% ACKNOWLEDGEMENTS
+%----------------------------------------------------------
+\renewcommand{\abstractname}{Acknowledgements}
+\begin{abstract}
+I wish to thank the numerous people whose contributions have enabled this work: Prof Pasquale Malacaria and Dr Arman Khouzani for their advice, feedback, and patience; Dr Michael Tautschnig and the School of Electronic Engineering and Computer Science for providing access to large compute resources; Mr Ryan Welch for the fruitful late-night discussions from which much needed inspiration was derived.
+
+Finally, I would like to thank my family, loved ones, and friends for all their love and support.
+\end{abstract}
+
+
 
 %-------------------------------------------------
 % INTRODUCTION
@@ -163,26 +175,21 @@ The precise aim of this research is to \emph{determine whether a neural network 
 
 The motivation for this work is two-fold. On one hand, it presents a significant challenge from the perspective of deep learning. While neural networks have been extremely successful in supervised learning of regression and classification models, as well as in producing new data mimicing an existing dataset \cite{goodfellow2014generative}, attempts to produce seemingly random outputs have shown poor results. Previous research efforts have often resorted to complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}. This work undertakes the task differently; the similarly adversarial nature of generating random numbers for cryptographic use and of training generative adversarial networks results in an approach that is conceptually both simple and elegant.
 
-On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several potentially desirable properties. This includes the ability to perform ad-hoc modifications to the generator by means of further training, the ability to arbitrarily extend the length of generated number sequences without necessarily damaging their unpredictability by increasing the dimensionality of the network's input, as well as the ability to easily recover from state compromise attacks. \todo{check this isn't bs}
+On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several properties that may be desirable. This includes the ability to perform ad-hoc modifications to the generator by means of further training and the ability to arbitrarily extend the length of generated number sequences without necessarily decreasing their unpredictability by increasing the dimensionality of the network's input. Plausibly, these abilities could constitute the basis of strategies for dealing with the kind of non-statistical attacks described by Kelsey et al. in \cite{kelsey1998cryptanalytic}.
+
 
 \section{Approach, Scope, and Assumptions}
-This work unites the two fields of machine learning and computer security by applying a recently formulated deep learning method known as \emph{generative adversarial networks} \cite{goodfellow2014generative} to the generation of pseudo-random numbers for use in cryptosystems. A conceptually simple approach is 
+This work unites the fields of machine learning and computer security by applying a recently formulated deep learning method known as \emph{generative adversarial networks} \cite{goodfellow2014generative} to the generation of pseudo-random numbers for use in cryptosystems. Two conceptually simple approaches are pursued and implemented; the implementations are evaluated for their strength as PRNGs using the NIST statistical test suite.
 
-The scope of this investigation is confined to the statistical requirements of 
+The scope of this investigation is confined to the statistical properties of a PRNG's outputs. Good statistical properties are a minimum requirement for a generator to be considered secure, though do not constitute a sufficient condition \cite[p. 170]{menezes1996handbook}. \emph{Cryptanalysis} of the PRNG is also required \cite[Abstract]{rukhin2001statistical}\cite[p. 3-6]{kelsey1998cryptanalytic}, but this is beyond the scope of the project.
 
-This work hinges on the assumption that a neural network can represent a function bla bla
-
-\section{Findings and Contributions}
-This investigation found that \todo{bla bla}
-
-This work has the following innovations: \todo{"has" wtf}
-
-1. Mapping PRNG vs adversary to GAN
-2. Changing the GAN framework so that a "true" distribution is not needed (predictor)
-3. Using the "modulo" activation function
-4. Using stateless network and representing state as additional input
+This work hinges on the assumption that a neural network can represent a good pseudo-random generator function, and that discovering such a function by gradient descent is tractable.
 
 
+\section{Contributions and Findings} \todo{possibly remove because touches upon complicated concepts}
+This work makes a number of novel contributions to the field by proposing several interesting modifications to the GAN framework. In summary, a simplification to the GAN framework that is applicable to this task is introduced, whereby the GAN does not include a reference dataset which the generator attempts to mimic. Furthermore, the network implementing the generator includes a custom activation function that computes a modulo operation over its outputs, and represents the internal state of a PRNG using a non-random external input. These concepts are explored in depth in section \ref{section:conceptual_design}. 
+
+The overall product of these modifications is a system that is simple, conceptually elegant, and robust. The findings of this report show that the proposed approach is highly successful at training a neural network to behave as a PRNG with good statistical properties, and matches the current state of the art in neural network-based PRNGs. While the results are not strong enough to justify use in a cryptographic setting, this research makes a strong case for further investigation into the topic.
 
 
 %----------------------------------------------------------
@@ -277,16 +284,10 @@ The notion of randomness is crucial in cryptography, because the security guaran
 
 
 \subsection{Cryptographic Applications of Random Numbers}
-
-The \textbf{RSA (Rivest-Shamir-Adleman) algorithm}, as explained by Anderson [p. 171]\cite{anderson2010security}, is the most commonly used algorithm for performing public-key encryption and digital signatures. The RSA algorithm relies on two randomly chosen large prime numbers $p$ and $q$, which act as the private keys used by the two communicating parties. As these values must be kept secret from any third parties, they need to be selected randomly in such a manner than an attacker cannot predict them.
-
-The \textbf{HTTP digest access authentication protocol} \todo{find RFC}
-
-\textbf{Monte Carlo methods} \todo{MCTS}
+As stated earlier, pseudo-random numbers are widely applied to cryptosystems, for example in encryption and decryption algorithms \cite[p. 169]{menezes1996handbook}. For example, the \emph{RSA (Rivest-Shamir-Adleman) algorithm}, as explained by Anderson \cite{anderson2010security}, is the canonical algorithm for performing public-key encryption and digital signatures. The RSA algorithm relies on two randomly chosen large prime numbers $p$ and $q$, which act as the private keys used by the two communicating parties. As these values must be kept secret from any third parties, they need to be selected randomly in such a manner than an attacker cannot predict them \cite[p. 171]{anderson2010security}.
 
 
-
-\subsection{Requirements for Cryptographic Security}\label{subsection:crypto_requirements}
+\subsection{Cryptographically Secure Pseudo-Random Number Generators}\label{subsection:crypto_requirements}
 As the outputs of a PRNG should be practically indistinguishable from truly random sequences, the basis for determining whether a PRNG is suitable for use in cryptographic applications is subjecting its outputs to a number of statistical tests \cite[p. 170]{menezes1996handbook}. From Menezes et al. and Rukhin et al. we obtain the following definitions, formulated in terms of statistical tests.
 
 \begin{definition}
@@ -297,35 +298,37 @@ A \emph{statistical test} is a test which seeks to determine whether a sequences
 A \emph{polynomial-time statistical test} is a test with a time complexity upper bound $O(l^k)$, where $l$ is the length of the sequence being tested and $k$ is a constant \cite[p. 171]{menezes1996handbook}.
 \end{definition}
 
-\todo{definitions from page 171}
+\begin{definition}
+A PRNG passes the \emph{next-bit test} if no polynomial-time algorithm can predict the bit at position $n + 1$ in the output given the first $n$ bits with probability significantly greater than 0.5. Furthermore, a PRNG passes the next-bit test if, and only if, it passes all polynomial-time statistical tests \cite[p. 171]{menezes1996handbook}.
+\end{definition}
 
 \begin{definition}
 A \textit{cryptographically secure pseudo-random number generator} (CSPRNG) is a pseudo-random number generator that passes the next-bit test \cite[p. 171]{menezes1996handbook}.
 \end{definition}
 
-
-\todo{stuff from intro to modern cryptography, page 49 onwards}
+Note that for real-world CSPRNGs, as with cryptosystems in general, security relies on the conjectured intractability of some underlying numerical problem \cite[p. 185]{menezes1996handbook}. As an example, the RSA algorithm relies on the computational complexity of the integer factorization problem \cite[p. 170-173]{anderson2010security}. This theoretical aspect of security is beyond the scope of this investigation and is not considered.
 
 
 
 \subsection{Testing Number Sequences for Randomness}\label{subsection:testing_prngs}
+Rukhin at al. point out that the degree of randomness of a number sequence can be evaluated by means of statical hypothesis testing \cite[s. 1-3]{rukhin2001statistical}.
 
-The \textbf{National Institute of Standards and Technology}, part of the U.S. Department of Commerce, sets out guidelines for the testing of RNGs and PRNGs in its publication 800-22, \textit{A Statistical Test Suite for Random and Psuedorandom Number Generators for Cryptographic Applications}, by Rukhin et al. This work refers to revision 1a of the publication.
+\begin{definition}
+According to Menezes et al., a \emph{statistical hypothesis} is ``an assertion about a distribution of one or more random variables", while a \emph{test} is ``a procedure [...] which leads to the acceptance or rejection of the hypothesis" \cite[p. 179]{menezes1996handbook}. The probability of incorrectly rejecting a statistical hypothesis is known as the \emph{significance level} $\alpha$ of the test \cite[p. 179]{menezes1996handbook}.
+\end{definition}
 
-Rukhin et all point out that, since the properties of random sequences can be described in probabilistic terms, their degree of ``randomness" can be evaluated by various statistical tests, as the likely outcome of such a test is known a priori. These tests search for particular patterns in sequences which would indicate non-randomness. No set of statistical tests can be considered complete, as there is an infinite number of tests \cite[p. 1-2]{rukhin2001statistical}.
-
-Also according to Rukhin et al, statistical tests are formulated to test for the \textbf{null hypothesis} $H_0$ that the sequence under review is random. Each test either accepts the null hypothesis, or rejects the null hypothesis and accepts the \textbf{alternative hypothesis} $H_a$ that the sequence is not random. Under the assumption of randomness, any statistical metric has a theoretical reference distribution which can be determined mathematically \cite[p. 1.3]{rukhin2001statistical}. For example, for a random sequence, the ratio of 1s to 0s has the probability distribution shown in figure \ref{figure:distribution}.
+Rukhin et al explain that, in testing number sequences for randomness, statistical tests are formulated to test the \emph{null hypothesis} $H_0$ that the sequence is random. Under the assumption of randomness, any statistical metric has a theoretical reference distribution \cite[p. 1.3]{rukhin2001statistical}. For this distribution, a \emph{critical value} is determined, which acts as a threshold; if the observed value exceeds the critical value, we reject the null hypothesis. We consider a value above the critical value to be so unlikely to occur under the assumption of randomness, that we can reasonably (though not certainly) reject the randomness hypothesis \cite[p. 1.3]{rukhin2001statistical} (figure \ref{figure:distribution}).
 
 \begin{figure}
-\centering
-\includegraphics[width=1\textwidth]{img/distribution.png}\\
-\caption{The probability distribution of a random variable representing the number of heads in a repeated fair coin-tossing experiment, which is equivalent to repeated random sampling from ${0, 1}$. Image from \cite{terr2009math}.}
-\label{figure:distribution}
+    \centering
+    \includegraphics[width=1\textwidth]{img/distribution.png}\\
+    \caption{The probability distribution of a random variable representing the number of 1s in a truly random binary sequence of length 50. Values at the tails of the distribution, such as 2 and 48, could be chosen as critical values; farther results are so unlikely that, upon observing them, one could justifiably question whether the sequence really is random}
+    \label{figure:distribution}
 \end{figure}
-	
-From such a distribution, a \textbf{critical value} is determined. This value acts as a threshold to which the value of a metric computed on a sequence is compared. If the computed value exceeds the critical value, we assert that the test rejects the null hypothesis. Intuitively, the idea is that we consider a value above the critical value to be so unlikely to occur (though not impossible) under the assumption of randomness, that we can confidently reject the randomness hypothesis \cite[p. 1.3]{rukhin2001statistical}.
 
-The NIST Test Suite is the accepted standard for testing random and pseudo-random bit generators \cite{lavasani2009practical}. It consists of a battery of statistical tests performed on file containing large binary sequences. Each test in the suite either accepts or rejects the null hypothesis \cite{rukhin2001statistical}. The NIST suite was found to be used throughout the majority of papers on PRNGs reviewed at the start of this investigation.
+A simple example of a statistical randomness test, as explained by Menezes et al., is the \emph{frequency test}, which determines the number of 1s and 0s in the sequence. For a truly random sequence, as the length of the sequence tends to infinity the ratio of the two values approaches 1. That is, we expect the two values to be approximately the same \cite[p. 181]{menezes1996handbook}.
+
+The NIST Test Suite is the accepted standard for testing random and pseudo-random bit generators \cite{lavasani2009practical}. It consists of a battery of statistical tests performed on files containing large binary sequences (on the order of $10^6$ bits with standard settings). Each test in the suite either accepts or rejects the null hypothesis \cite{rukhin2001statistical}. The NIST suite was found to be used throughout the majority of reviewed papers on PRNGs, and is accordingly used in this investigation.
 
 
 
@@ -361,12 +364,13 @@ A neural network as a whole, as explained by Russel and Norvig, computes a highl
 \end{gather}
 where $\bm{w_i}$ is the output weight vector for the units computing the function $\bm{f_{w_i}}^{(i)}$ \cite{goodfellow2016deep}.
 
-According to Russel and Norvig, \emph{a neural network of sufficient size can represent any continuous function to an arbitrary degree of accuracy}, and, under certain conditions, can even represent discontinuous functions. However, difficulties arise in determining, for any particular network architecture, the set of functions it can represent \cite[p. 732]{russel2009artificial}. The particular properties of the network are determined by the topology and behavior of its units, which form the basis for the naming and categorization of networks \cite[p. 729]{russel2009artificial}.
+According to Russel and Norvig, \emph{a neural network of sufficient size can represent any continuous function to an arbitrary degree of accuracy}, and, under certain conditions, can even represent discontinuous functions. However, difficulties arise in determining, for any particular network architecture, the set of functions it can represent \cite[p. 732]{russel2009artificial}. The particular properties of the network are determined by the topology and behavior of its units, which form the basis for the naming and categorization of networks \cite[p. 729]{russel2009artificial}. \todo{explain hyperparameter optimization}
+\todo{mention recurrent networks}
 
 
 \subsection{Learning in Neural Networks}
 \begin{definition}
-\emph{Training} an artificial neural network is an optimization problem which entails searching for a combination parameters $\bm{w}$ which results in the network approximating the desired function $f(x)$ as closely as possible \cite[p. 718]{russel2009artificial}. The most important related concepts are \emph{loss functions}, \emph{gradient descent}, and \emph{backpropagation}.
+\emph{Training} an artificial neural network is an optimization problem which entails searching for a combination parameters $\bm{w}$ which results in the network approximating the desired function $f(x)$ as closely as possible \cite[p. 718]{russel2009artificial}. The most important related concepts are \emph{loss functions}, \emph{gradient descent}, and \emph{backpropagation}. todo{epoch and learning rate}
 \end{definition}
 
 \begin{definition}
@@ -514,7 +518,7 @@ Literature review found that few efforts have been made to train neural networks
 
 
 \subsection{Papers on Using Neural Networks as Pseudo-Random Number Generators}
-Overall, the literature review carried out for this investigation showed that little research has been carried out on the implementation of PRNGs using neural networks. A small number of such papers was identified, but all were relatively obscure, possibly due to reliance on complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}.
+Overall, the literature review carried out for this investigation showed that little research has been carried out on the implementation of PRNGs using neural networks. A small number of such papers was identified, but all were relatively obscure, possibly due to reliance on complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield} \cite{wen2014exponential}.
 
 For example, a 2012 paper by Veena Desai et al from the Gogte Institute of Technology, \textit{Pseudo random number generator using time delay neural network}, failed to produce a viable neural network-based PRNG, and identified the computational complexity of training networks with thousands of neurons as one of the key challenges \cite{desai2012pseudo}.
 
@@ -634,14 +638,9 @@ Apart from the input size and the meaning of the output, the discriminator and t
 \section{Implementation Technologies}
 The system was developed using version 3.6 of the Python programming language, which is popular in the machine learning field due to its conciseness and the large ecosystem of software libraries for numerical computing \cite{numpy}. In addition to NumPy, which is ubiquitous in numerical computation using Python \cite{numpy}, the main software librariy used for this project is TensorFlow. The latter is an ``open source library for numerical computation" released by Google, which is commonly used for machine learning \cite{tensorflow}. Most of the code in the implementation deals with abstractions defined in the TensorFlow API.
 
-While Python and the TensorFlow library are popular in the machine learning community, alternatives abound. Programming languages considered for the project included Java and C++, both of which have popular deep learning libraries. Furthermore, TensorFlow is not the only machine learning library available for Python: viable options include Theano, PyTorch, CNTK, and scikit-learn.
+While Python and the TensorFlow library are popular in the machine learning community, alternatives abound. Programming languages considered for the project included Java and C++, both of which have popular deep learning libraries. Furthermore, TensorFlow is not the only machine learning library available for Python: options include Theano, PyTorch, CNTK, and scikit-learn.
 
 Choosing a language, a software library, or a software framework for a particular task is not always straightforward. In this case, Python and TensorFlow were selected due to Python's legibility and simplicity, which supports rapid prototyping, as well as TensorFlow's popularity in the machine learning field, which ensures the availability of abundant documentation, tutorials, and more \cite{bhatia2017why}. The use of these particular technologies is not a critical aspect of this research.
-
-Development of the project was carried out using a mix of free as well as proprietary tools, including the Jetbrains PyCharm integrated development environment and Microsoft's free code editor VSCode. Early tests of the implementation's performance were executed on virtual machines in Google's, Amazon's, and Digital Ocean's cloud services, with a mix of CPU-focused and GPU-focused instance types.
-
-Training of the model was carried out on an HPC cluster, access to which was provided by the School of Electronic Engineering and Computer Science at Queen Mary University of London. The cluster consists of 5 machines, each with 64 CPU cores, 256 GB RAM, and no GPUs. The code was executed within a Docker container.
-
 
 \subsection{Introduction to TensorFlow}
 An introductory guide to the central concepts and functionality of TensorFlow is provided on the software library's website \cite{tensorflow2018intro}. The TensorFlow version used in this project is 1.6.
@@ -655,12 +654,11 @@ The package \mintinline{python}{tf.contrib.gan} in TensorFlow's Python API enabl
 
 
 \subsection{Supporting Technologies}
-- git
-- Pycharm
-- Docker
-- ssh, scp
+Development and deployment required a mix of free as well as proprietary supporting tools. Most notable are the distributed software version control system \mintinline{python}{git} \cite{git2018}, and the popular containerization tool \mintinline{python}{Docker} \cite{docker2018} for deployment.
 
+Software used also includes the Jetbrains PyCharm integrated development environment \cite{jetbrains2018pycharm}, and Microsoft's free code editor VSCode. Early tests of the implementation's performance were executed on virtual machines in Google's, Amazon's, and Digital Ocean's cloud services, with a mix of CPU-focused and GPU-focused instance types.
 
+Training of the model was carried out on an HPC cluster, access to which was provided by the School of Electronic Engineering and Computer Science at Queen Mary University of London. The cluster consists of 5 machines, each with 64 CPU cores, 256 GB RAM, and no GPUs. The code was executed within a \mintinline{python}{Docker} container.
 
 
 \section{Software Design}
@@ -906,53 +904,76 @@ for step in range(STEPS):
 % EXPERIMENTS
 %----------------------------------------------------------
 \chapter{Experiments}\label{chapter:experiments}
-This section outlines the experimentation phase of this investigation, including the experimentation plan, the parameters of the process, the precise procedure followed, and the results of the experiments. In order to evaluate the results, the computational complexity of the system is also considered.
+This section outlines the experimentation phase of the project, including the experimentation plan, the precise procedure followed, the experiment parameters, and the results obtained.
 
 
-\section{Experimental Plan}
-The aim of the experiments carried out was to determine quantitatively the extent to which training the implemented models improves the randomness properties of the generators' outputs. 
+\section{Experimentation Plan}
+The aim of the experiments is to determine quantitatively the extent to which training the implemented GANs improves the randomness properties of the generators' outputs. These are measured by producing large files of generator output values to be analyzed using the NIST statistical test suite, both before and after a generator is trained.
 
+\textbf{Independent variable}: whether the generative adversarial network has been trained or not. In other words, the generator's weight parameters are the independent variable.
 
-\section{Experimental Parameters}
-For both approaches 10 experiments were carried out. 
+\textbf{Dependent variable}: the result produced by the NIST test suite on a file containing a large number sequence produced by the generator on a fixed input.
 
-- how many experiments
-- how many epochs
-- input size
-- output size
-- batch size
-- etc ...
-
-\section{Experimental Procedure}
-The procedure for each experiment is as follows:
-
+\textbf{Controlled variables}: the following variables are unchanged throughout the entire experimental procedure:
 \begin{enumerate}
-\item 
+    \itemsep0em
+    \item Contents of input dataset used to produce the sequences to be evaluated using NIST
+    \item Number of training epochs for the GANs
+    \item Number of adversary epochs per each generator epoch
+    \item Architecture of the generator
+    \item Architecture of the discriminator
+    \item Architecture of the predictor
+    \item Learning rate of the networks
+    \item Range of output values
+    \item Mini-batch size used in processing inputs
 \end{enumerate}
 
-
-- train system 10 times for each approach
-- produce output before and after training
-- run NIST on outputs
+In summary, in each experiment, the randomness properties of the generator's outputs are assessed before and after training; the only changed quantity is the network's paramaters that have been optimized during training.
 
 
+\section{Experimental Procedure}
+The precise procedure for each experiment is as follows:
 
+\begin{enumerate}
+    \itemsep0em
+    \item Start the system on the HPC machine.
+    \item Create the pre-defined and unchanging evaluation dataset.
+    \item Generate output number sequences by giving evaluation dataset as input to generator.
+    \begin{enumerate}
+        \itemsep0em
+        \item Compute output vector for each input vector.
+        \item Round real numbers to nearest integer. If the outputs are randomly distributed over a range $[a,b]$ where $a,b \in \mathbb{R}^+$, then they will also be randomly distributed over the range $[a,b]$ where $a,b \in \mathbb{Z}^+$.
+        \item Store integers as hex strings in a text file prefixed with 0\_. Hex is used to reduce the number of characters in the file.
+    \end{enumerate}
+    \item Train the generative adversarial network. The generator and the adversary are trained in turn, with the adversary performing multiple parameter updates for each update made by the generator.
+    \item Generate output number sequences by giving evaluation dataset as input to generator.
+    \begin{enumerate}
+        \itemsep0em
+        \item Compute output vector for each input vector.
+        \item Round real numbers to nearest integer. If the outputs are randomly distributed over a range $[a,b]$ where $a,b \in \mathbb{R}^+$, then they will also be randomly distributed over the range $[a,b]$ where $a,b \in \mathbb{Z}^+$.
+        \item Store integers as hex strings in a text file prefixed with 1\_. Hex is used to reduce the number of characters in the file.
+    \end{enumerate}
+    \item Retrieve files containing generated number sequences using \mintinline{python}{scp}.
+    \item Convert the text file's contents from hex characters to binary characters using the \mintinline{python}{decode_nist.py} utility.
+    \item Run the NIST test suite on the converted file, performing all tests with default/recommended settings.
+    \item Store the testing result files produced by the NIST test suite.
+\end{enumerate}
 
-A total of 20 experiments were carried out. Each experiment entailed training the generative adversarial network and evaluating the statistical properties of a large generator output.
+For both approaches 10 experiments are carried out. In each experiment the GAN is trained for 200000 epochs, with the adversary being trained 3 times at each epoch (see subsection \ref{subsection:generativeadversarial} for the rationale behind this choice). 
+
+Training is performed with mini-batches of 2046 data points, while the learning rate of the networks is set to 0.02. Both values were manually selected during prototyping as they resulted in good performance. The generator outputs real numbers constrained to the range $[0, 2^{16}-1]$, which are rounded to the nearest integer and converted to unsigned 16-bit integers for evaluation. The evaluation dataset consists of 400 batches of 2046 inputs, for a total of 818400 input samples. The generator produces 8 real numbers for each input, and each real number yields 16 bits for the output sequence. In total, each evaluation output consists of 104755200 bits. 
+
+The NIST test suite is applied with the recommended setting of using 1000000 bits for each test. The test suite includes 188 separate tests, referred to from here onward as a \emph{test}, each repeated 10 times. Each repetition will be referred to as a \emph{test instance}. For each test, NIST reports the number of individual instances that passed, as well as a p-value for the distribution of p-values of the 10 test instances. A test can fail in one of two ways: either the number of passed instances is insufficient, or the p-value for the p-value distribution is below a critical value. See appendix \ref{appendix:sample} for a sample of the test suite's output.
 
 
 \section{Results}
+The statistical test results from the 20 training instances are collated here. Tables \ref{table:before_training} and \ref{table:after_training} shows the performance of the generator neural networks before and after training. Table \ref{table:after_training_avg} shows the average performance after training for the two approaches, while table \ref{table:training_change} shows, for each experiment, the change in performance resulting from training. Lastly, table \ref{table:avg_result} shows the average improvement for the discriminative and predictive approaches, across all 10 experiments.
 
-\begin{figure}
-\centering
-\includegraphics[width=1\textwidth]{img/disc9_loss.png}\\
-\caption{gooby}
-\label{figure:discriminator_loss}
-\end{figure}
+The symbols in the tables have the following meanings: $i$ identifies the experiment, with $D_i$ and $P_i$ referring to discriminative and predictive experiments, respectivey. $T$ refers to the overall number of separate tests carried out by the NIST test suite, while $T_I$ refers to the number of total test instances. $F_I$ and $F_{I\%}$ refers to the number of failed test instances and the percentage of failed test instances, respectively. $F_p$ represents the number of tests failed due to an abnormal distribution of the p-values of the underlying test instances. $F_T$ and $F_{\%}$ refer to the absolute number and percentage of separate tests failed, respectively. In tables \ref{table:after_training_avg\, ref{table:training_change} and \ref{table:avg_result}, the convention followed is that $\Delta$ refers to the change in some quantity, and the angle brackets $\langle \rangle$ refer to tge average value of the enclosed quantity.  
 
-\begin{table}
-\begin{tabular}{cSSSSSSS} \toprule
-    {$i$}     & {$T$} 	& {$T_I$}	& {$F_I$} 	& {$F_{I\%}$}		& {$F_p$} 	& {$F_T$} 	& {$F_{\%}$} \\ \midrule
+\begin{table}[H]
+    \begin{tabularx}{\textwidth}{lXXXXXXX} \toprule
+    {$i$}     & {$T$} 	& {$T_I$}	& {$F_I$} 	& {$F_{I\%} / \%$}		& {$F_p$} 	& {$F_T$} 	& {$F_{\%} / \%$} \\ \midrule
     $D_1$  & 188   	& 1802		& 1800	 	    & 99.9				& 188	 	& 188	 	& 100 \\
     $D_2$  & 188   	& 1802 		& 1791  		& 99.4				& 188	 	& 188	 	& 100 \\
     $D_3$  & 188  	& 1802 		& 1798  		& 99.8				& 188	 	& 188	 	& 100 \\
@@ -973,15 +994,15 @@ A total of 20 experiments were carried out. Each experiment entailed training th
     $P_8$  & 188   	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\
     $P_9$  & 188   	& 1802 		& 1802  		& 100.0			    & 188  		& 188  		& 100 \\
     $P_{10}$ & 188  & 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\ \bottomrule
-\end{tabular}
-
-\caption{Aggregate test results for the generators before training}
+\end{tabularx}
+\caption[Test results for untrained generators]{Test results for untrained generators.}
+\label{table:before_training}
 \end{table}
 
 
-\begin{table}
-\begin{tabular}{cSSSSSSS} \toprule
-    {$i$}  & {$T$} 	& {$T_I$}	& {$F_I$}   	& {$F_{I\%}$}		    & {$F_p$} 	    & {$F_T$} 	    & {$F_{\%}$} \\ \midrule
+\begin{table}[H]
+    \begin{tabularx}{\textwidth}{lXXXXXXX} \toprule
+    {$i$}  & {$T$} 	& {$T_I$}	& {$F_I$}   	& {$F_{I\%} / \%$}		    & {$F_p$} 	    & {$F_T$} 	    & {$F_{\%} / \%$} \\ \midrule
     $D_1$  & 188   	& 1802		& 29    	 	& 1.6				    & 3  	 		& 3  	 		& 2 \\
     $D_2$  & 188   	& 1724 		& 109  		    & 6.3					& 5  	 		& 11	 		& 6 \\
     $D_3$  & 188  	& 1724 		& 123  		    & 7.1   				& 4  	 		& 11	 		& 6 \\
@@ -1002,15 +1023,26 @@ A total of 20 experiments were carried out. Each experiment entailed training th
     $P_8$  & 188   	& 1880 		& 96	  		& 5.1					& 2		 		& 4		  		& 2 \\
     $P_9$  & 188   	& 1854 		& 36	  		& 1.9					& 2		 		& 3 			& 2 \\
     $P_{10}$ & 188  & 1802 		& 37  			& 2.1					& 4		 		& 4		 		& 2 \\ \bottomrule
-\end{tabular}
-
-\caption{Aggregate test results for the generators after training}
+\end{tabularx}
+\caption[Test results for trained generators]{Test results for trained generators.}
+\label{table:after_training}
 \end{table}
 
 
-\begin{table}
-\begin{tabular}{cSSSS} \toprule
-    {$i$}  & {$\Delta F_{I\%}$}	            & {$\Delta F_p$} 	    & {$\Delta F_T$} 	        & {$\Delta F_{\%}$} \\ \midrule
+\begin{table}[H]
+    \begin{tabularx}{\textwidth}{lXXXXXXX} \toprule
+    {$i$}   & {$T$} 	& {$\langle T_I \rangle$}	& {$\langle F_I \rangle$}   	& {$\langle F_{I\%} \rangle / \%$}		    & {$\langle F_p \rangle$} 	    & {$\langle F_T \rangle$} 	    & {$\langle F_{\%} \rangle / \%$} \\ \midrule
+    $D$     & 188  & 1800 		& 61	  		& 3.5					& 4.3		 		& 6.9		 		& 3.9 \\ \midrule
+    $P$     & 188  & 1830 		& 56  			& 3.0					& 2.7		 		& 4.5		 		& 2.5 \\ \bottomrule
+\end{tabularx}
+\caption[Average test results for trained generators]{Average test results for trained generators.}
+\label{table:after_training_avg}
+\end{table}
+
+
+\begin{table}[H]
+    \begin{tabularx}{\textwidth}{lXXXX} \toprule
+    {$i$}  & {$\Delta F_{I\%} / \%$}	            & {$\Delta F_p$} 	    & {$\Delta F_T$} 	        & {$\Delta F_{\%} / \%$} \\ \midrule
     $D_1$  & -98.3 							& -185 					& -185    	 				& -98 \\
     $D_2$  & -93.1 							& -183 					& -177  					& -94 \\
     $D_3$  & -92.7							& -184 					& -177  					& -94 \\
@@ -1031,65 +1063,67 @@ A total of 20 experiments were carried out. Each experiment entailed training th
     $P_8$  & -94.8  						& -186 					& -184	  					& -98 \\
     $P_9$  & -98.1  						& -186 					& -185	  					& -98 \\
     $P_{10}$ & -97.8  						& -184 					& -184						& -98 \\ \bottomrule
-\end{tabular}
-
-\caption{Illustrated improvements from before training to after training, for each training instance}
+\end{tabularx}
+\caption[Result improvement from before to after training]{Improvements in the measured quantities as a result of training the networks.}
+\label{table:training_change}
 \end{table}
 
 
-\begin{table}
-\begin{tabular}{cSSSS} \toprule
-    {$i$}     & {$\langle \Delta F_{I\%} \rangle$}	& {$\langle \Delta F_p \rangle$} 	& {$\langle \Delta F_T \rangle$} 	& {$\langle \Delta F_{\%} \rangle$} \\ \midrule
-    $D_{10}$ & -96.2 						& -183.7					& 	-180.1	  					& -96.1 \\ \midrule
-    $P_{10}$ & -96.7  						& -185.3					& -183.6						& -97.5 \\ \bottomrule
-\end{tabular}
-
-\caption{Average performance change for the discriminative and predictive approaches across all tests}
+\begin{table}[H]
+    \begin{tabularx}{\textwidth}{lXXXX} \toprule
+    {$i$}     & {$\langle \Delta F_{I\%} \rangle / \%$}	& {$\langle \Delta F_p \rangle$} 	& {$\langle \Delta F_T \rangle$} 	& {$\langle \Delta F_{\%} \rangle / \%$} \\ \midrule
+    $D$ & -96.2 						& -183.7					& 	-180.1	  					& -96.1 \\ \midrule
+    $P$ & -96.7  						& -185.3					& -183.6						& -97.5 \\ \bottomrule
+\end{tabularx}
+\caption[Average performance change across all experiments]{Average performance change for the discriminative and predictive approaches across all tests.}
+\label{table:avg_result}
 \end{table}
-
-
-\section{Computational Complexity}
-
-
 
 
 \section{Evaluation}\label{subsection:evaluation}
+The results show that, prior to training, the parameters of the function represented by the generator network are not suitable for the production of pseudo-random numbers. As seen in table \ref{table:before_training}, the generator's outputs fail to pass any tests, with a 100\% rate of failure in every experiment. A visualization of the generator's outputs before training (figures \ref{figure:visualize_discriminative_before} and \ref{figure:visualize_predictive_before}) shows that the output of the network follows extremely predictable patterns.
+
+As seen in table \ref{table:after_training}, both the discriminatively and predictively trained generators show very strong performance on the test suite, consistently achieving below 10\% failure rate in all but one experiment. Furthermore, the vast majority of experiments resulted in a failure rate below 5\%. As seen in figures \ref{figure:visualize_discriminative_after} and \ref{figure:visualize_predictive_after}, the patternicity of the generator's output is no longer visible.
+
+Table \ref{table:training_change} more legibly quantifies the change in performance achieved in each experiment. In most experiments the absolute change in failure percentage points was greater than 95\%. 
+
+Table \ref{table:avg_result} averages the values for the discriminative and predictive approaches across the 10 experiments performed. On average, the predictive approach performed slightly better in terms of passed test instances. A more noticeable 
+- on average predictive approach had slightly larger improvements
+
+- loss landscape looks weird af
 
 \begin{figure}
-\centering
-\textbf{Output Sample, Before Discriminative Training}
-\includegraphics[width=1\textwidth]{img/discriminative_before}\\
-\caption{Visualization of the generator output as produced in the 9th discriminative training instance, before training. The first 40000 bits are presented as a 200 by 200 grid. The non-randomness of the output is obvious due to the visible patterns.}
-\label{figure:visualize_discriminative_before}
-\end{figure}
+    \centering
+    \textbf{Output Sample, Before Discriminative Training}
+    \includegraphics[width=0.85\textwidth]{img/discriminative_before}\\
+    \caption{Visualization of the generator output as produced in the 9th discriminative training instance, before training. The first 40000 bits are presented as a 200 by 200 grid. The non-randomness of the output is obvious due to the visible patterns.}
+    \label{figure:visualize_discriminative_before}
+    \end{figure}
+    
+    \begin{figure}
+    \centering
+    \textbf{Output Sample, After Discriminative Training}
+    \includegraphics[width=0.85\textwidth]{img/discriminative_after}\\
+    \caption{Visualization of the generator output as produced in the 9th discriminative training instance, after 200000 training iterations. The first 40000 bits are presented as a 200 by 200 grid. Clearly the generator neural network has learned to produce more randomness, as no patterns can reasonably be discerned by a human observer.}
+    \label{figure:visualize_discriminative_after}
+    \end{figure}
+    
+    \begin{figure}
+    \centering
+    \textbf{Output Sample, Before Predictive Training}
+    \includegraphics[width=0.85\textwidth]{img/predictive_before}\\
+    \caption{Visualization of the generator output as produced in the 9th predictive training instance, before training. The first 40000 bits are presented as a 200 by 200 grid. The non-randomness of the output is obvious due to the visible patterns.}
+    \label{figure:visualize_predictive_before}
+    \end{figure}
+    
+    \begin{figure}
+    \centering
+    \textbf{Output Sample, After Predictive Training}
+    \includegraphics[width=0.85\textwidth]{img/predictive_after}\\
+    \caption{Visualization of the generator output as produced in the 9th predictive training instance, after 200000 training iterations. The first 40000 bits are presented as a 200 by 200 grid. As with the discriminative training, no patterns can reasonably be discerned by a human observer; clearly the network has learned some notion of randomness.}
+    \label{figure:visualize_predictive_after}
+    \end{figure}
 
-\begin{figure}
-\centering
-\textbf{Output Sample, After Discriminative Training}
-\includegraphics[width=1\textwidth]{img/discriminative_after}\\
-\caption{Visualization of the generator output as produced in the 9th discriminative training instance, after 200000 training iterations. The first 40000 bits are presented as a 200 by 200 grid. Clearly the generator neural network has learned to produce more randomness, as no patterns can reasonably be discerned by a human observer.}
-\label{figure:visualize_discriminative_after}
-\end{figure}
-
-\begin{figure}
-\centering
-\textbf{Output Sample, Before Predictive Training}
-\includegraphics[width=1\textwidth]{img/predictive_before}\\
-\caption{Visualization of the generator output as produced in the 9th predictive training instance, before training. The first 40000 bits are presented as a 200 by 200 grid. The non-randomness of the output is obvious due to the visible patterns.}
-\label{figure:visualize_predictive_before}
-\end{figure}
-
-\begin{figure}
-\centering
-\textbf{Output Sample, After Predictive Training}
-\includegraphics[width=1\textwidth]{img/predictive_after}\\
-\caption{Visualization of the generator output as produced in the 9th predictive training instance, after 200000 training iterations. The first 40000 bits are presented as a 200 by 200 grid. As with the discriminative training, no patterns can reasonably be discerned by a human observer; clearly the network has learned some notion of randomness.}
-\label{figure:visualize_predictive_after}
-\end{figure}
-
-
-\section{Effect of Training Duration and Generator Dimensions}
-Additional tests beyond the original scope of the research were carried out after the initial investigation results showed that the GAN approach is viable \todo{to determine impact of variables}
 
 
 %----------------------------------------------------------
@@ -1098,13 +1132,23 @@ Additional tests beyond the original scope of the research were carried out afte
 \chapter{Conclusion}\label{chapter:conclusion}
 Pseudo-random number generators, deterministic algorithms producing sequences of numbers which appear randomly sampled \cite[p. 7]{barker2007recommendation}, are used throughout the field of cryptography and are a fundamental element of many cryptographic systems such as encryption algorithms  \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. As PRNGs are often a single point of failure for such systems, their design and analysis is an important field of investigation \cite[p. 2]{kelsey1998cryptanalytic} \cite{deng2017developments}. 
 
-Machine learning, and in particular deep learning, have been tremendously successful in recent yearsDespite the tremendous successes of machine learning in recent years \cite[p. 24-29]{russel2009artificial}, the literature review carried out prior to this investigation suggests that little serious effort has gone into the application of machine learning methods to the implementation of PRNGs. Some attempts have been made with relatively little success, and the papers are relatively obscure \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}.
+Machine learning, and in particular optimizeable parametric representations of non-linear functions called deep neural networks, has been tremendously successful in recent years \cite[p. 24-29]{russel2009artificial}. Despite this, the literature review carried out prior to this investigation suggests that little effort has gone into the application of machine learning methods to the implementation of PRNGs. Some attempts have been made with little success, and the papers are relatively obscure \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}.
 
-The aim of this investigation was to determine whether a deep neural network can be trained to behave as a PRNG, and whether such a PRNG could be used in a cryptographic context. To that end, two different generative adversarial networks were implemented in Python and TensorFlow, trained, and evaluated using the NIST statistical test suite.
+The aim of this investigation was to determine whether a deep neural network can be trained to behave as a PRNG, and whether such a PRNG could be used in a cryptographic context. The scope of the investigation was limited to the statistical properties of a PRNG's output, and did not include cryptanalysis of the implementation. This work relies on the assumption that a neural network can represent a good pseudo-random function, and that discovering such a function by means of gradient descent is tractable. 
 
-In this report, it is demonstrated that 
+To accomplish the project aims, this project explored a novel approach, presenting two generative adversarial network (GAN) models designed to train a neural network to generate pseudo-random numbers. This avenue of investigation was motivated by the observation that the adversarial nature of GANs closely matches the roles of a PRNG and an adversary in a cryptographic context: the PRNG seeks to produce numbers that are unpredictable to the adversary, who attempts to predict future outputs. 
 
+The design is based on three innovations. Firstly, the standard GAN approach is modified: one of the two approaches, termed the predictive approach, eliminates the need for a reference distribution, relying  solely on the interaction between the generator network and a convolutional predictor network trying to predict the generator's future outputs. This is contrasted with the classic discriminative approach, where a discriminator classifies input sequences as either belonging to the reference distribution, or as produced by the generator. The predictive approach is conceptually simpler and more efficient.
 
+Furthermore, the deep neural network representing the generator uses a custom activation function at its output layer which computes a modulo operation on the network's outputs. This has a dramatic impact on the performance of the generator, presumably ``shuffling'' many of the patterns that may otherwise be discernible in the output.
+
+Lastly, previous research in the field has used recurrent neural networks to model the statefulness of PRNGs, leading to complex systems that may be difficult to train. This work sidesteps these difficulties by implementing the generator as a simple stateless fully connected feed-forward network, where the state of the PRNG is modeled by additional non-random inputs to the model.
+
+These design innovations resulted in a system that is elegant, conceptually simple, and robust. It is elegant in the sense that there is a close analogy between the structure of generative adversarial networks and the real-world security scenario involving a PRNG and a malicious agent. The system's simplicity and robustness are a result of the novel simplifications to the GAN architecture as well as the simple architecture of their constituent neural networks (in particular the generator).
+
+This report has demonstrated that a generative adversarial network with the illustrated modifications can train the generator in such a manner as to produce pseudo-random number sequences with good statistical properties. In every experiment, the generator's performance on the NIST test suite improved from passing no tests to passing the majority of tests. At best, the generator could pass around 99\% of test instances, and around 98\% of unique tests. This metric alone does not justify use of the model in a cryptographic context, where a thorough cryptanalysis of the generator would be required, in addition to failing none of NIST's statistical tests.
+
+As far as the author is aware, this novel research has matched, though not surpassed, the current state of the art in the generation of pseudo-random numbers using neural networks. Crucially, it has done so with a system that is much simpler and more robust than previous attempts, which have often been complicated even by their own authors' admission. Thanks to its simplicity, the approach considered in this work is easy to understand and modify. A number of obvious improvements to the system could be made, possibly producing even better results and warranting futher investigation.
 
 
 
@@ -1113,7 +1157,18 @@ In this report, it is demonstrated that
 % FURTHER INVESTIGATION
 %----------------------------------------------------------
 \chapter{Further Investigation}
-TODO: more formal treatment of the problem, such as cryptanalysis if the generator works, or an in-depth analysis of failure if it doesn't. Further attempts with better training procedure, i.e. hyperparameter optimization, cross-validation of architectures, etc? There are quite many training improvements that could be implemented, list them.
+The strong PRNG performance of the proposed generative adversarial networks, combined with the simplicity and robustness of the approach, suggest that the topic merits further investigation.
+Additional tests beyond the scope of this investigation were carried out to determine whether increasing the generator's size or input dimensionality would improve performance. However, the analysis of these experiments could not be included in this report. A number of suggestions for further research include:
+
+\textbf{Architectural Cross-Validation}. The architecture of the neural networks was chosen by intuition as well as by trial-and-error. Systematic cross-validation of different architectures could improve performance. Especially the network structure, the input and output dimensions, the loss functions, and the gradient descent variant almost certainly have room for improvement.
+
+\textbf{Hyperparameter Optimization}. The models' hyperparameters were also chosen by trial-and-error. Systematic hyperparameter search to fine-tune the model could improve performance. In particular, important hyperparameters such as learning rate and mini-batch size should be optimized \cite[Neural Networks Part 3: Learning and Ealuation]{karpathy2017cs231n}.
+
+\textbf{Recurrent Neural Networks}. The use of recurrent networks may add further capabilities to the networks \cite[chap. 10]{goodfellow2016deep}.
+
+\textbf{Cryptanalysis}. Formal cryptanalysis of the implementation should be performed to determine whether a GAN-based PRNG can truly be cryptographically secure \cite[Abstract]{rukhin2001statistical}. 
+
+\textbf{Potential Applications}. Potential applications of the system should also be considered. This could include existing public-key encryption algorithms that make use of random numbers, such as RSA. It could also include entirely new algorithms. For example, a hypothetical symmetric-key encryption/decryption algorithm could entail two communicating entities using synchronized neural network CSPRNGs. The two networks could independently and secretly generate the same encryption/decryption key for each message being transmitted. Initial synchronization could be performed by transmitting a truly random seed and a truly random sequence offset, using a key exchange protocol like Diffie-Hellman key exchange \cite[p. 174-177]{anderson2010security}.
 
 
 
@@ -1135,7 +1190,7 @@ TODO: more formal treatment of the problem, such as cryptanalysis if the generat
 
 
 
-\chapter{Statistical Test Result Sample}
+\chapter{Statistical Test Result Sample}\label{appendix:sample}
 The outputs of the NIST test suite are extensive and cannot be fully reproduced in this appendix. One output report, produced for the 9th training instance of the predictive approach, is provided as an example.
 
 \begin{minted}[fontsize=\footnotesize]{html}
@@ -1353,9 +1408,9 @@ provided in the addendum section of the documentation.
 \chapter{Summary of Supporting Material}
 This appendix section lists all the material that is available externally to this report, and provides instructions for how to access it.
 
-The software, as well as the results of all performed statistical testing, are available in the supporting documentation submitted. Results are stored in the \mintinline{html}{results} directory. The raw generator outputs are not included in the supporting documentation, since the 5GB of data far exceeds the upload size limit. Instead, the raw output can be accessed at the following link on the author's OneDrive file storage:
+The software, as well as the results of all performed statistical testing, are available in the supporting documentation submitted. Instructions for executing the software are in the readme submitted as part of the supporting documentation. Results are stored in the \mintinline{html}{results} directory. The raw generator outputs are not included in the supporting documentation, since the 5GB of data far exceeds the upload size limit. Instead, the raw output can be accessed at the following link on the author's OneDrive file storage:
 
-https://1drv.ms/f/s!Ah1ayeYeFEuDiI8MpkbBHtsXIactjw
+https://1drv.ms/f/s!Ah1ayeYeFEuDiJVILSrGN5x\_iiKSsw
 
 Should the link not work, the author can provide a new link upon request. The link does not allow editing. The link points to a directory tree structured as follows:
 
