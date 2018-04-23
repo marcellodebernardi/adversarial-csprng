@@ -156,34 +156,31 @@ Acknowledgements come here!
 
 A \emph{random number} may informally be defined as a variable whose value is unpredictable, by virtue of the fact that all possible values are equally likely to appear \cite[p. 7]{barker2007recommendation}. This notion of unpredictability, or \emph{randomness}, is crucial to computer security, as it is a fundamental element of many cryptographic systems such as encryption algorithms, where security guarantees often rely on an adversary not knowing the value of some internal parameter \cite[p. 169]{menezes1996handbook} \cite[p. 1]{kelsey1998cryptanalytic}. The task of obtaining unpredictable values for use in such applications is handled by systems known as \emph{random number generators}, which may be implemented either as specialized hardware, software, or as a combination of both \cite[p. 196, 172]{menezes1996handbook}. If the implementation is fundamentally deterministic, we refer to the system as a \emph{pseudo-random number generator} \cite[p. 169]{menezes1996handbook}. In many cryptographic systems, this ``randomness source" is a single point of failure, making the generator's implementation a critical aspect of the overall design \cite[p. 2]{kelsey1998cryptanalytic}. Indeed, how to implement a good generator is a question considered by several books, from Donald Knuth's seminal \textit{The Art of Computer Programming, Volume II: Seminumerical Algorithms} \cite{donald1998art} to textbooks such as Katz and Lindell's \textit{Introduction to Modern Cryptography} \cite{katz2014introduction}, as well as an active area of research.
 
-Recent years have seen machine learning methods achieve a tremendous amount of success throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with \emph{deep neural networks}, a parametric representation of a mathematical function consisting of computational units called \emph{neurons} or \emph{units}, usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high (figure \ref{figure:googletrends_dl}) \cite{forbes2016short}.
-
-\textbf{TODO: more on machine learning but without the public interest crap}
-
-
-\begin{figure}
-\centering
-\includegraphics[width=0.95\textwidth]{img/google_trends_dl.png}\\
-\caption{Search interest for ``deep learning" as a simple metric of public interest in machine learning. Data source: Google Trends (www.google.com/trends) \cite{google2018trends}}
-\label{figure:googletrends_dl}
-\end{figure}
-
+Recent years have seen machine learning methods achieve a tremendous amount of success throughout all fields of human endeavor, including business, science, and engineering \cite[p. 24-29]{russel2009artificial}. This is particularly the case with \emph{deep neural networks}, a parametric representation of a mathematical function consisting of computational units called \emph{neurons} or \emph{units}, usually arranged into layers \cite[p. 731-732]{russel2009artificial}. Major technology companies such as Google, Amazon, and Microsoft now provide plug-and-play machine learning solutions as part of their cloud platforms \cite{google2018automl} \cite{amazon2018aws} \cite{microsoft2018azure}, and courses in machine learning are available at a vast number of universities as well as online. Indeed, public interest in machine learning is at an all-time high \cite{forbes2016short}. However, applications of machine learning to security have so far been limited \cite{abadi2016learning}.
 
 \section{Aims and Motivation}\label{subsection:aims}
 The precise aim of this research is to \emph{determine whether a neural network can be trained to output sequences of numbers which appear to be randomly generated}, and, by extension, whether \emph{such a neural network could be used as a pseudo-random number generator in a cryptographic context}. 
 
 The motivation for this work is two-fold. On one hand, it presents a significant challenge from the perspective of deep learning. While neural networks have been extremely successful in supervised learning of regression and classification models, as well as in producing new data mimicing an existing dataset \cite{goodfellow2014generative}, attempts to produce seemingly random outputs have shown poor results. Previous research efforts have often resorted to complex neural network architectures and contrived training procedures in an attempt to encourage chaotic behavior \cite{desai2011pseudo} \cite{desai2012pseudo} \cite{tirdad2010hopfield}. This work undertakes the task differently; the similarly adversarial nature of generating random numbers for cryptographic use and of training generative adversarial networks results in an approach that is conceptually both simple and elegant.
 
-On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several desirable properties. This includes the ability to perform ad-hoc modifications to the generator by means of training, the ability to arbitrarily extend the length of generated number sequences without necessarily damaging their unpredictability by increasing the dimensionality of the network's input, as well as the ability to easily recover from state compromise attacks.
-
-\textbf{TODO: elaborate on potential advantages of NN CSPRNG}
-
+On the other hand, this investigation is also motivated by the needs of computer security. A hypothetical neural-network-based pseudo-random number generator would have several potentially desirable properties. This includes the ability to perform ad-hoc modifications to the generator by means of further training, the ability to arbitrarily extend the length of generated number sequences without necessarily damaging their unpredictability by increasing the dimensionality of the network's input, as well as the ability to easily recover from state compromise attacks. \todo{check this isn't bs}
 
 \section{Approach, Scope, and Assumptions}
-This work unites the two fields by applying a recently formulated deep learning method known as \emph{generative adversarial networks} to the generation of pseudo-random numbers for use in cryptosystems.
+This work unites the two fields of machine learning and computer security by applying a recently formulated deep learning method known as \emph{generative adversarial networks} \cite{goodfellow2014generative} to the generation of pseudo-random numbers for use in cryptosystems. A conceptually simple approach is 
 
+The scope of this investigation is confined to the statistical requirements of 
+
+This work hinges on the assumption that a neural network can represent a function bla bla
 
 \section{Findings and Contributions}
+This investigation found that \todo{bla bla}
+
+This work has the following innovations: \todo{"has" wtf}
+
+1. Mapping PRNG vs adversary to GAN
+2. Changing the GAN framework so that a "true" distribution is not needed (predictor)
+3. Using the "modulo" activation function
+4. Using stateless network and representing state as additional input
 
 
 
@@ -909,18 +906,39 @@ for step in range(STEPS):
 % EXPERIMENTS
 %----------------------------------------------------------
 \chapter{Experiments}\label{chapter:experiments}
-This section outlines the training and statistical testing procedures followed, presents the test results, and considers the computational complexity of the system. An overall evaluation of the results, and the extent to which the aims of the investigation have been achieved, is given in subsection \ref{subsection:evaluation}.
+This section outlines the experimentation phase of this investigation, including the experimentation plan, the parameters of the process, the precise procedure followed, and the results of the experiments. In order to evaluate the results, the computational complexity of the system is also considered.
 
-The randomness requirements of cryptographically secure PRNGs, as well as the theory behind the evaluation of their properties, were outlined in subsections \ref{subsection:crypto_requirements} and \ref{subsection:testing_prngs}. The implementation of the training procedure was discussed in subsections \ref{subsection:training_disc} and \ref{subsection:training_pred}. This investigation uses the NIST statistical test suite to evaluate the randomness of the generator's outputs.
 
+\section{Experimental Plan}
+The aim of the experiments carried out was to determine quantitatively the extent to which training the implemented models improves the randomness properties of the generators' outputs. 
+
+
+\section{Experimental Parameters}
+For both approaches 10 experiments were carried out. 
+
+- how many experiments
+- how many epochs
+- input size
+- output size
+- batch size
+- etc ...
 
 \section{Experimental Procedure}
-A total of 20 experiments were carried out. Each experiment entailed training the generative adversarial network, and evaluating the statistical properties of a large generator output.
+The procedure for each experiment is as follows:
+
+\begin{enumerate}
+\item 
+\end{enumerate}
 
 
-\subsection{Training}
+- train system 10 times for each approach
+- produce output before and after training
+- run NIST on outputs
 
-\subsection{Statistical Testing}
+
+
+
+A total of 20 experiments were carried out. Each experiment entailed training the generative adversarial network and evaluating the statistical properties of a large generator output.
 
 
 \section{Results}
@@ -935,26 +953,26 @@ A total of 20 experiments were carried out. Each experiment entailed training th
 \begin{table}
 \begin{tabular}{cSSSSSSS} \toprule
     {$i$}     & {$T$} 	& {$T_I$}	& {$F_I$} 	& {$F_{I\%}$}		& {$F_p$} 	& {$F_T$} 	& {$F_{\%}$} \\ \midrule
-    $D_1$  & 188   	& 1802		& 1800	 	& 99.9				& 188	 		& 188	 		& 100 \\
-    $D_2$  & 188   	& 1802 		& 1791  		& 	99.4				& 188	 		& 188	 		& 100 \\
-    $D_3$  & 188  	& 1802 		& 1798  		& 99.8				& 188	 		& 188	 		& 100 \\
-    $D_4$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $D_1$  & 188   	& 1802		& 1800	 	    & 99.9				& 188	 	& 188	 	& 100 \\
+    $D_2$  & 188   	& 1802 		& 1791  		& 99.4				& 188	 	& 188	 	& 100 \\
+    $D_3$  & 188  	& 1802 		& 1798  		& 99.8				& 188	 	& 188	 	& 100 \\
+    $D_4$  & 188   	& 1802 		& 1802  		& 100.0			    & 188  		& 188  		& 100 \\
     $D_5$  & 188   	& 1802 		& 1788   		& 99.2				& 188  		& 188  		& 100 \\
-    $D_6$  & 188  	& 1802 		& 1792  		& 99.4				& 188  		& 188 			& 100 \\
+    $D_6$  & 188  	& 1802 		& 1792  		& 99.4				& 188  		& 188 		& 100 \\
     $D_7$  & 188   	& 1802 		& 1799  		& 99.8				& 188  		& 188  		& 100 \\
     $D_8$  & 188   	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\
-    $D_9$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
-    $D_{10}$ & 188  	& 1802 		& 1791  		& 99.4				& 188  		& 188  		& 100 \\ \midrule
-    $P_1$  & 188   	& 1802 		& 1789    	& 99.3				& 188  		& 188  		& 100 \\
-    $P_2$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $D_9$  & 188   	& 1802 		& 1802  		& 100.0			    & 188  		& 188  		& 100 \\
+    $D_{10}$ & 188  & 1802 		& 1791  		& 99.4				& 188  		& 188  		& 100 \\ \midrule
+    $P_1$  & 188   	& 1802 		& 1789    	    & 99.3				& 188  		& 188  		& 100 \\
+    $P_2$  & 188   	& 1802 		& 1802  		& 100.0			    & 188  		& 188  		& 100 \\
     $P_3$  & 188   	& 1802 		& 1799  		& 99.8				& 188  		& 188  		& 100 \\
-    $P_4$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
+    $P_4$  & 188   	& 1802 		& 1802  		& 100.0			    & 188  		& 188  		& 100 \\
     $P_5$  & 188   	& 1802 		& 1792   		& 99.4				& 188  		& 188  		& 100 \\
     $P_6$  & 188   	& 1802 		& 1798  		& 99.8				& 188  		& 188  		& 100 \\
     $P_7$  & 188   	& 1802 		& 1792  		& 99.4				& 188  		& 188  		& 100 \\
     $P_8$  & 188   	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\
-    $P_9$  & 188   	& 1802 		& 1802  		& 100.0			& 188  		& 188  		& 100 \\
-    $P_{10}$ & 188  	& 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\ \bottomrule
+    $P_9$  & 188   	& 1802 		& 1802  		& 100.0			    & 188  		& 188  		& 100 \\
+    $P_{10}$ & 188  & 1802 		& 1801  		& 99.9				& 188  		& 188  		& 100 \\ \bottomrule
 \end{tabular}
 
 \caption{Aggregate test results for the generators before training}
@@ -963,27 +981,27 @@ A total of 20 experiments were carried out. Each experiment entailed training th
 
 \begin{table}
 \begin{tabular}{cSSSSSSS} \toprule
-    {$i$}     & {$T$} 	& {$T_I$}	& {$F_I$} 	& {$F_{I\%}$}		& {$F_p$} 	& {$F_T$} 	& {$F_{\%}$} \\ \midrule
+    {$i$}  & {$T$} 	& {$T_I$}	& {$F_I$}   	& {$F_{I\%}$}		    & {$F_p$} 	    & {$F_T$} 	    & {$F_{\%}$} \\ \midrule
     $D_1$  & 188   	& 1802		& 29    	 	& 1.6				    & 3  	 		& 3  	 		& 2 \\
-    $D_2$  & 188   	& 1724 		& 109  		& 	6.3					& 5  	 		& 11	 		& 6 \\
-    $D_3$  & 188  	& 1724 		& 123  		& 	7.1   				& 4  	 		& 11	 		& 6 \\
-    $D_4$  & 188   	& 1828 		& 168  		& 9.2   				& 9      		& 18    		& 10 \\
+    $D_2$  & 188   	& 1724 		& 109  		    & 6.3					& 5  	 		& 11	 		& 6 \\
+    $D_3$  & 188  	& 1724 		& 123  		    & 7.1   				& 4  	 		& 11	 		& 6 \\
+    $D_4$  & 188   	& 1828 		& 168  		    & 9.2   				& 9      		& 18    		& 10 \\
     $D_5$  & 188   	& 1854 		& 49   			& 2.7					& 3  		    & 5		  		& 3 \\
     $D_6$  & 188  	& 1776 		& 30	  		& 1.7					& 5		  		& 5	 			& 3 \\
     $D_7$  & 188   	& 1854 		& 21	  		& 1.1					& 4		  		& 4		  		& 2 \\
     $D_8$  & 188   	& 1776 		& 46	  		& 2.6					& 5		 		& 5		  		& 3 \\
     $D_9$  & 188   	& 1802 		& 25	  		& 1.4					& 3		 		& 3	 			& 2\\
-    $D_{10}$ & 188  	& 1854 		& 14	  		& 0.8					& 2		 		& 4		 		& 2 \\ \midrule
-    $P_1$  & 188   	& 1802 		& 39		 	& 2.2					& 2 				& 4		 		& 2 \\
+    $D_{10}$ & 188  & 1854 		& 14	  		& 0.8					& 2		 		& 4		 		& 2 \\ \midrule
+    $P_1$  & 188   	& 1802 		& 39		 	& 2.2					& 2 			& 4		 		& 2 \\
     $P_2$  & 188   	& 1828 		& 27	  		& 1.5					& 3		 		& 3		 		& 2 \\
     $P_3$  & 188   	& 1828 		& 35	  		& 1.9					& 3		 		& 4		 		& 2 \\
-    $P_4$  & 188   	& 1828 		& 100  		& 5.5					& 2		 		& 8		  		& 4 \\
+    $P_4$  & 188   	& 1828 		& 100  		    & 5.5					& 2		 		& 8		  		& 4 \\
     $P_5$  & 188   	& 1802 		& 52	   		& 2.9					& 2		 		& 3		 		& 2 \\
-    $P_6$  & 188   	& 1880 		& 111  		& 5.9					& 4		 		& 9		 		& 5 \\
+    $P_6$  & 188   	& 1880 		& 111  		    & 5.9					& 4		 		& 9		 		& 5 \\
     $P_7$  & 188   	& 1802 		& 25	  		& 1.4					& 3		 		& 3		 		& 2 \\
     $P_8$  & 188   	& 1880 		& 96	  		& 5.1					& 2		 		& 4		  		& 2 \\
-    $P_9$  & 188   	& 1854 		& 36	  		& 1.9					& 2		 		& 3 				& 2 \\
-    $P_{10}$ & 188  	& 1802 		& 37  			& 2.1					& 4		 		& 4		 		& 2 \\ \bottomrule
+    $P_9$  & 188   	& 1854 		& 36	  		& 1.9					& 2		 		& 3 			& 2 \\
+    $P_{10}$ & 188  & 1802 		& 37  			& 2.1					& 4		 		& 4		 		& 2 \\ \bottomrule
 \end{tabular}
 
 \caption{Aggregate test results for the generators after training}
@@ -992,26 +1010,26 @@ A total of 20 experiments were carried out. Each experiment entailed training th
 
 \begin{table}
 \begin{tabular}{cSSSS} \toprule
-    {$i$}     & {$\Delta F_{I\%}$}	& {$\Delta F_p$} 	& {$\Delta F_T$} 	& {$\Delta F_{\%}$} \\ \midrule
+    {$i$}  & {$\Delta F_{I\%}$}	            & {$\Delta F_p$} 	    & {$\Delta F_T$} 	        & {$\Delta F_{\%}$} \\ \midrule
     $D_1$  & -98.3 							& -185 					& -185    	 				& -98 \\
-    $D_2$  & -93.1 							& -183 					& -177  					& 	-94 \\
-    $D_3$  & -92.7							& -184 					& -177  					& 	-94 \\
-    $D_4$  & -90.8 							& -179 					& -160 					& -90 \\
+    $D_2$  & -93.1 							& -183 					& -177  					& -94 \\
+    $D_3$  & -92.7							& -184 					& -177  					& -94 \\
+    $D_4$  & -90.8 							& -179 					& -160 					    & -90 \\
     $D_5$  & -96.5 							& -185 					& -183						& -97 \\
     $D_6$  & -97.7 							& -183 					& -183	  					& -97 \\
     $D_7$  & -98.7 							& -184 					& -184	  					& -98 \\
     $D_8$  & -97.3 							& -183 					& -183	  					& -97 \\
     $D_9$  & -98.6 							& -185 					& -185	  					& -98 \\
-    $D_{10}$ & -98.6 						& -186 					& 	-184	  					& -98 \\ \midrule
-    $P_1$  & -97.1  							& -186 					& -184		 				& -98 \\
-    $P_2$  & -98.5  							& -185 					& -185	  					& -98 \\
+    $D_{10}$ & -98.6 						& -186 					& -184	  					& -98 \\ \midrule
+    $P_1$  & -97.1  						& -186 					& -184		 				& -98 \\
+    $P_2$  & -98.5  						& -185 					& -185	  					& -98 \\
     $P_3$  & -97.9 							& -185 					& -184	  					& -98 \\
-    $P_4$  & -94.5  							& -186 					& -180  					& -96 \\
+    $P_4$  & -94.5  						& -186 					& -180  					& -96 \\
     $P_5$  & -96.5 							& -186 					& -187	   					& -98 \\
-    $P_6$  & -93.9  							& -184 					& -179  					& -95 \\
-    $P_7$  & -98.0  							& -185 					& -185	  					& -98 \\
-    $P_8$  & -94.8  							& -186 					& -184	  					& -98 \\
-    $P_9$  & -98.1  							& -186 					& -185	  					& -98 \\
+    $P_6$  & -93.9  						& -184 					& -179  					& -95 \\
+    $P_7$  & -98.0  						& -185 					& -185	  					& -98 \\
+    $P_8$  & -94.8  						& -186 					& -184	  					& -98 \\
+    $P_9$  & -98.1  						& -186 					& -185	  					& -98 \\
     $P_{10}$ & -97.8  						& -184 					& -184						& -98 \\ \bottomrule
 \end{tabular}
 
@@ -1029,9 +1047,6 @@ A total of 20 experiments were carried out. Each experiment entailed training th
 \caption{Average performance change for the discriminative and predictive approaches across all tests}
 \end{table}
 
-
-\section{Effect of Training Duration and Generator Dimensions}
-This section considers further tests which were carried out to explore the effect of varying some of the system's parameters, including the number of training iterations and the dimensions of the generator.
 
 \section{Computational Complexity}
 
@@ -1072,6 +1087,9 @@ This section considers further tests which were carried out to explore the effec
 \label{figure:visualize_predictive_after}
 \end{figure}
 
+
+\section{Effect of Training Duration and Generator Dimensions}
+Additional tests beyond the original scope of the research were carried out after the initial investigation results showed that the GAN approach is viable \todo{to determine impact of variables}
 
 
 %----------------------------------------------------------

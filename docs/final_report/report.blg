@@ -11,45 +11,45 @@ Warning--to sort, need author or key in bhatia2017why
 Warning--to sort, need author or key in tensorflow2018intro
 Warning--to sort, need author or key in tensorflow2018graphs
 Warning--to sort, need author or key in tensorflow2018tutorials
-You've used 40 entries,
+You've used 39 entries,
             2118 wiz_defined-function locations,
-            693 strings with 10362 characters,
-and the built_in function-call counts, 11040 in all, are:
-= -- 1063
-> -- 505
+            690 strings with 10294 characters,
+and the built_in function-call counts, 10827 in all, are:
+= -- 1042
+> -- 498
 < -- 5
-+ -- 208
-- -- 164
-* -- 587
-:= -- 1800
-add.period$ -- 131
-call.type$ -- 40
-change.case$ -- 194
++ -- 205
+- -- 162
+* -- 582
+:= -- 1764
+add.period$ -- 127
+call.type$ -- 39
+change.case$ -- 190
 chr.to.int$ -- 0
-cite$ -- 47
-duplicate$ -- 430
-empty$ -- 957
-format.name$ -- 164
-if$ -- 2386
+cite$ -- 46
+duplicate$ -- 423
+empty$ -- 935
+format.name$ -- 162
+if$ -- 2339
 int.to.chr$ -- 0
-int.to.str$ -- 40
+int.to.str$ -- 39
 missing$ -- 30
-newline$ -- 210
-num.names$ -- 66
-pop$ -- 340
+newline$ -- 204
+num.names$ -- 64
+pop$ -- 330
 preamble$ -- 1
-purify$ -- 160
+purify$ -- 157
 quote$ -- 0
-skip$ -- 310
+skip$ -- 305
 stack$ -- 0
-substring$ -- 412
-swap$ -- 87
+substring$ -- 407
+swap$ -- 86
 text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 144
+type$ -- 140
 warning$ -- 7
-while$ -- 87
-width$ -- 42
-write$ -- 418
+while$ -- 85
+width$ -- 41
+write$ -- 407
 (There were 8 warnings)

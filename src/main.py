@@ -38,6 +38,7 @@ Available command line arguments:
 -nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
 -long           LONG TRAINING: trains for 1,000,000 epochs
+-short          SHORT TRAINING: trains for 10,000 epochs
 -highlr         HIGH LEARNING RATE: increases the learning rate from default
 -lowlr          LOW LEARNING RATE: decreases the learning rate from default
 """
@@ -73,7 +74,7 @@ OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
 
 # training settings
 TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
-STEPS = 1000000 if '-long' in sys.argv else 150000 if HPC_TRAIN else 40
+STEPS = 1000000 if '-long' in sys.argv else 10000 if '-short' in sys.argv else 150000 if HPC_TRAIN else 40
 PRE_STEPS = 100 if HPC_TRAIN else 5
 ADV_MULT = 3
 
