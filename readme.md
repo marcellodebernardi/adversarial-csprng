@@ -6,30 +6,31 @@ work on bootstrapping encryption schemes using GANs: [Learning to Protect Commun
 with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 
 
-## 1 - Setup
-The easiest way to run the project is to build the Docker image using
-the provided Dockerfile. To do so, install Docker on your system, ensure the
-Docker daemon is running, and execute the command
+## 1 - Setup and Executable
+The easiest way to run the project is to pull the project's Docker image from
+Docker Hub. This is because the project has software dependencies that are not
+necessarily straightforward to setup, depending on the user's system. The pre-built
+Docker image is plug-and-play, and only requires the user install Docker. Check
+https://docs.docker.com/install/ for instructions on how to do this on your platform. 
 
-`docker build -t your_name/container_name:main .`
+Once Docker is correctly installed, execute the command
 
-from the `adversarial-csprng` directory. Run the image using the command
+`docker run -i -t --rm marcellodebernardi/adversarial-csprng:main /bin/bash`
 
-`sudo docker run -i -t --rm your_name/container_name:main /bin/bash`
+This will pull the Docker image from Docker Hub, start it in a new container, and
+drop the user into an interactive shell inside the container. Refer to section 2
+for what to do next. **It is strongly recommended to follow this approach.**
 
-which starts the image in a container and drops you into an interactive 
-shell inside the container. This approach is the easiest as the Dockerfile 
-handles the setup of all required dependencies.
-
-It is also possible to execute the system directly. In order to do so, Python
-version `3.6` or higher is required. You can `pip install -r requirements.txt`
-to obtain the project's Python dependencies. Additional dependencies are listed
-in the Dockerfile. In general, the setup procedure is the same as that performed
-in the Dockerfile. 
+It is also possible to execute the system without Docker, but this requires manually
+setting up the project dependencies. In order to do so, Python version `3.6` or 
+higher is required. You can `pip install -r requirements.txt` to obtain the project's 
+Python dependencies. Additional binaries (outside Python) on which the software depends
+are listed in the Dockerfile. In general, the manual setup procedure is more or less
+the same as that performed by Docker. 
 
 
-## 2 - Running and Tweaking the Model
-Once inside the running Docker container run `python3 main.py` to train and 
+## 2 - Training and Tweaking the Model
+Once inside the running Docker container, run `python3 main.py` to train and 
 evaluate the models. Parameters can be tweaked in the constants section at the 
 top of the script, and some command-line options are supported. 
 
@@ -39,14 +40,17 @@ Available command line arguments:
 -nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
 -long           LONG TRAINING: trains for 1,000,000 epochs
+-short          SHORT TRAINING: trains for 10,000 epochs
 -highlr         HIGH LEARNING RATE: increases the learning rate from default
 -lowlr          LOW LEARNING RATE: decreases the learning rate from default
 ```
 
 The system will not stop you from inputting contradictory cli arguments, such as
-`python3 main.py -highlr -lowlr`. The use of common sense is allowed. In general,
+`python3 main.py -highlr -lowlr`. Common sense applies. In general,
 **it is recommended to only train one of the models at once**, i.e. you should
-add either the `-nopred` or `-nodisc` argument when executing the program.
+add either the `-nopred` or `-nodisc` argument when executing the program. There
+are currently some unresolved issues with the TensorFlow computational graph 
+when training both models at the same time.
 
 
 ## 3 - Approaches to the Problem
