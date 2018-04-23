@@ -9,8 +9,10 @@ with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 ## 1 - Setup and Executable
 The easiest way to run the project is to pull the project's Docker image from
 Docker Hub. This is because the project has software dependencies that are not
-necessarily straightforward to setup, depending on the user's system. The pre-built
-Docker image is plug-and-play, and only requires the user install Docker. Check
+necessarily straightforward to setup, depending on the user's system. Furthermore,
+the total size of the source code plus its dependencies far exceeds 50MB, so 
+submitting everything via QMPlus is not possible. The pre-built Docker image is 
+plug-and-play, and only requires the user install Docker. Check 
 https://docs.docker.com/install/ for instructions on how to do this on your platform. 
 
 Once Docker is correctly installed, execute the command
