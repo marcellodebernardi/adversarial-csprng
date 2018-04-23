@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  23 APR 2018 19:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2018.3.1)  23 APR 2018 19:54
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -2602,17 +2602,41 @@ line 970.
 LaTeX Warning: Reference `table:avg_result' on page 32 undefined on input line 
 970.
 
-Runaway argument?
-{table:after_training_avg\, ref{table:training_change} and \ref {tabl\ETC.
+
+LaTeX Warning: Reference `table:after_training_avg' on page 32 undefined on inp
+ut line 972.
+
 c:/Users/marce/PycharmProjects/adversarial-csprng/docs/final_report/report.tex:
-973: Paragraph ended before \ref was complete.
-<to be read again> 
-                   \par 
-l.973 
-      
-I suspect you've forgotten a `}', causing me to apply this
-control sequence to too much text. How can we recover?
-My plan is to forget the whole thing and hope for the best.
+972: Missing $ inserted.
+<inserted text> 
+                $
+l.972 ...:after_training_avg}, ref{table:training_
+                                                  change} and \ref{table:avg...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+c:/Users/marce/PycharmProjects/adversarial-csprng/docs/final_report/report.tex:
+972: Extra }, or forgotten $.
+l.972 ...training_avg}, ref{table:training_change}
+                                                   and \ref{table:avg_result...
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+
+LaTeX Warning: Reference `table:avg_result' on page 32 undefined on input line 
+972.
+
+c:/Users/marce/PycharmProjects/adversarial-csprng/docs/final_report/report.tex:
+972: Missing $ inserted.
+<inserted text> 
+                $
+l.972 ..., the convention followed is that $\Delta
+                                                  $ refers to the change in ...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
 [32] [33]
 
@@ -2774,36 +2798,40 @@ LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 runsystem(del report.pyg)...executed.
 
- ) 
+ )
+(\end occurred inside a group at level 1)
+
+### simple group (level 1) entered at line 972 ({)
+### bottom level 
 Here is how much of TeX's memory you used:
  31165 strings out of 492982
  664067 string characters out of 6136226
- 796728 words of memory out of 5000000
+ 796843 words of memory out of 5000000
  34055 multiletter control sequences out of 15000+600000
  545790 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  62i,16n,76p,10443b,668s stack positions out of 5000i,500n,10000p,200000b,80000s
-<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/tex
-live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><c:/texlive/201
-7/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2017/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmitt10.pfb><c:/texlive/2017/texmf-dist/font
-s/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmmi6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmmi8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-mib10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib
-6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pf
-b><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texl
-ive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2017/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/texlive/2017/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2017/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmr8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmsy10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmsy6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texli
-ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><c:/texlive/2017/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2017/texmf-dist
-/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on report.pdf (52 pages, 1642937 bytes).
+<c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx
+12.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><
+c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texliv
+e/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb><c:/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2017/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2017/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmmib10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts
+/cmextra/cmmib6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cme
+xtra/cmmib8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr1
+0.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/
+texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><c:/texlive/20
+17/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2017/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2017/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2017/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy6.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmsy8.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12
+.pfb><c:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><c:/
+texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2
+017/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on report.pdf (52 pages, 1643737 bytes).
 PDF statistics:
  299 PDF objects out of 1000 (max. 8388607)
  187 compressed objects within 2 object streams
