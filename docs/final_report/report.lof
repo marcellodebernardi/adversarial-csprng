@@ -1,0 +1,31 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Discrete uniform distribution}}{5}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces High-level PRNG operation}}{7}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Uniform probability distribution}}{10}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Neural network unit}}{11}
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Typical loss over time}}{13}
+\contentsline {figure}{\numberline {2.6}{\ignorespaces ReLU and LeakyRelu activations}}{14}
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Fully connected feed-forward architecture}}{14}
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Convolutional layer connection topology}}{15}
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Convolutional neural network structure}}{16}
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Generative adversarial network conceptual structure}}{17}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces PRNG black box vs. neural network PRNG black box}}{20}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Discriminative approach and predictive approach}}{21}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Example of a modulus function}}{21}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Generator architecture}}{22}
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Discriminator architecture}}{23}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Predictor architecture}}{23}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Training loss, discriminative experiment 9}}{37}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Training loss, predictive experiment 9}}{37}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Visualization of output randomness before training, D9}}{39}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Visualization of output randomness after training, D9}}{39}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Visualization of output randomness before training, P9}}{40}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Visualization of output randomness after training, P9}}{40}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

@@ -50,9 +50,9 @@ from tensorflow.python.layers.core import fully_connected, flatten
 from tensorflow.python.layers.pooling import max_pooling1d
 from tensorflow.python.layers.convolutional import conv1d
 from tensorflow.python.ops.nn import leaky_relu
-from components.activations import modulo
-from components.operations import slice_gen_out
-from components.inputs import get_input_tensor, get_input_numpy, get_eval_input_numpy
+from activations import modulo
+from operations import slice_gen_out
+from inputs import get_input_tensor, get_input_numpy, get_eval_input_numpy
 from utils import files, debug
 
 # main settings
