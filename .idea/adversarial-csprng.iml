@@ -3,10 +3,10 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/components" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/tensorflow/components" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/oracles" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.6 (1)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.6 (adversarial-csprng)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

@@ -1,0 +1,22 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c}{\PYGZsh{} build the GAN model}
+\PYG{n}{discgan} \PYG{o}{=} \PYG{n}{tfgan}\PYG{o}{.}\PYG{n}{gan\PYGZus{}model}\PYG{p}{(}
+    \PYG{n}{generator\PYGZus{}fn}\PYG{o}{=}\PYG{n}{generator}\PYG{p}{,}
+    \PYG{n}{discriminator\PYGZus{}fn}\PYG{o}{=}\PYG{n}{adversary\PYGZus{}conv}\PYG{p}{(}\PYG{n}{OUTPUT\PYGZus{}SIZE}\PYG{p}{),}
+    \PYG{n}{real\PYGZus{}data}\PYG{o}{=}\PYG{n}{tf}\PYG{o}{.}\PYG{n}{random\PYGZus{}uniform}\PYG{p}{(}\PYG{n}{shape}\PYG{o}{=}\PYG{p}{[}\PYG{n}{BATCH\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{OUTPUT\PYGZus{}SIZE}\PYG{p}{]),}
+    \PYG{n}{generator\PYGZus{}inputs}\PYG{o}{=}\PYG{n+nb}{input}\PYG{o}{.}\PYG{n}{get\PYGZus{}input\PYGZus{}tensor}\PYG{p}{(}\PYG{n}{BATCH\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{MAX\PYGZus{}VAL}\PYG{p}{)}
+\PYG{p}{)}
+
+\PYG{c}{\PYGZsh{} Build the GAN loss.}
+\PYG{n}{discgan\PYGZus{}loss} \PYG{o}{=} \PYG{n}{tfgan}\PYG{o}{.}\PYG{n}{gan\PYGZus{}loss}\PYG{p}{(}
+    \PYG{n}{discgan}\PYG{p}{,}
+    \PYG{n}{generator\PYGZus{}loss\PYGZus{}fn}\PYG{o}{=}\PYG{n}{tfgan}\PYG{o}{.}\PYG{n}{losses}\PYG{o}{.}\PYG{n}{least\PYGZus{}squares\PYGZus{}generator\PYGZus{}loss}\PYG{p}{,}
+    \PYG{n}{discriminator\PYGZus{}loss\PYGZus{}fn}\PYG{o}{=}\PYG{n}{tfgan}\PYG{o}{.}\PYG{n}{losses}\PYG{o}{.}\PYG{n}{least\PYGZus{}squares\PYGZus{}discriminator\PYGZus{}loss}\PYG{p}{)}
+
+\PYG{c}{\PYGZsh{} Create the train ops, which calculate gradients and apply updates to weights.}
+\PYG{n}{train\PYGZus{}ops} \PYG{o}{=} \PYG{n}{tfgan}\PYG{o}{.}\PYG{n}{gan\PYGZus{}train\PYGZus{}ops}\PYG{p}{(}
+    \PYG{n}{discgan}\PYG{p}{,}
+    \PYG{n}{discgan\PYGZus{}loss}\PYG{p}{,}
+    \PYG{n}{generator\PYGZus{}optimizer}\PYG{o}{=}\PYG{n}{GEN\PYGZus{}OPT}\PYG{p}{,}
+    \PYG{n}{discriminator\PYGZus{}optimizer}\PYG{o}{=}\PYG{n}{OPP\PYGZus{}OPT}\PYG{p}{)}
+\end{Verbatim}
