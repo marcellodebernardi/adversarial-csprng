@@ -1,4 +1,4 @@
-# Cryptographically Strong Pseudo Random Number Generation using Generative Adversarial Networks
+# Pseudo Random Number Generation using Generative Adversarial Networks
 This **exploratory** project seeks to assess the viability of generative 
 adversarial networks (GANs) for the implementation of a cryptographically 
 secure pseudo random number generator (CSPRNG). It draws inspiration from recent 
