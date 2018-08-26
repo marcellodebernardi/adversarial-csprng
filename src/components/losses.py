@@ -34,3 +34,17 @@ def discriminator_classification_loss(true: tf.Tensor, pred: tf.Tensor) -> tf.Te
     words, we have L(1, 0) = 1, L(0, 1) = 1, L(0, 0) = 0, and L(1, 1) = 0
     """
     return tf.abs(tf.subtract(true, pred))
+
+
+def build_generator_regression_loss(max_value):
+    def generator_regression_loss(true: tf.Tensor, pred: tf.Tensor) -> tf.Tensor:
+        return tf.subtract(
+            tf.ones(shape=tf.shape(true), dtype=true.dtype),
+            tf.divide(tf.abs(tf.subtract(true, pred)), max_value))
+    return generator_regression_loss
+
+
+def build_predictor_regression_loss(max_value):
+    def predictor_regression_loss(true: tf.Tensor, pred: tf.Tensor) -> tf.Tensor:
+        return tf.divide(tf.abs(tf.subtract(true, pred)), max_value)
+    return predictor_regression_loss

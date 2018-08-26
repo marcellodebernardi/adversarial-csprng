@@ -18,7 +18,7 @@ adversarial networks involved in the paper.
 
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Conv1D, MaxPool1D, Flatten, Reshape
-from components.operations import combine_generated_and_reference_tf
+from components.operations import combine_generated_and_reference_tf, slice_gen_out_tf
 from components.activations import scaled_sigmoid
 from tqdm import tqdm
 
@@ -95,31 +95,66 @@ class GAN:
 class PredGAN:
     """ A predictive GAN model, consisting of a generator and a predictor. """
 
-    def __init__(self, adv_mult=3):
-        self.generator = generator()
-        self.predictor = adversary()
-        self.adv_mult = adv_mult
+    def __init__(self, input_width=2, gen_width=10, gen_out_width=8, max_val=65535, pred_width=10, adv_multiplier=3):
+        # models
+        self.generator = generator(input_width, gen_width, gen_out_width, max_val)
+        self.predictor = adversary(gen_out_width - 1, 1, max_val)
+        # data sources
+        self.noise_prior = None
+        # optimization
+        self.optimizers = dict.fromkeys(['generator', 'predictor'])
+        self.loss_functions = dict.fromkeys(['generator', 'predictor'])
+        self.losses = {
+            'generator': [],
+            'predictor': []
+        }
+        # other parameters
+        self.input_width = input_width
+        self.gen_out_width = gen_out_width
+        self.max_val = max_val
+        self.adv_multiplier = adv_multiplier
 
-    def compile_generator(self, optimizer, loss, metrics) -> 'PredGAN':
-        self.generator.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+    def with_distributions(self, noise_prior) -> 'PredGAN':
+        self.noise_prior = noise_prior
         return self
 
-    def compile_predictor(self, optimizer, loss, metrics) -> 'PredGAN':
-        self.predictor.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+    def with_optimizers(self, gen_optimizer: tf.train.Optimizer, pred_optimizer: tf.train.Optimizer) -> 'PredGAN':
+        self.optimizers['generator'] = gen_optimizer
+        self.optimizers['predictor'] = pred_optimizer
         return self
 
-    def train(self, x, batch_size, epochs=1):
-        """ Train the PredGAN for specified number of epochs using the provided input
-        data. Computation is done in batches of the specified size. """
-        x = tf.reshape(x, [-1, batch_size, tf.shape(x)[1]])
+    def with_loss_functions(self, gen_loss_fn, pred_loss_fn) -> 'PredGAN':
+        self.loss_functions['generator'] = gen_loss_fn
+        self.loss_functions['predictor'] = pred_loss_fn
+        return self
 
-        for epoch in range(epochs):
-            for batch in range(tf.shape(x)[0]):
-                pass
+    def train(self, batch_size, steps):
+        for _ in tqdm(range(steps)):
+            loss = {'pred': [], 'gen': []}
+            # update predictor
+            for _ in range(self.adv_multiplier):
+                gen_samples = self.generator(self.noise_prior(int(batch_size), self.input_width, self.max_val))
+                pred_x, pred_y = slice_gen_out_tf(gen_samples)
+                with tf.GradientTape() as tape:
+                    loss['pred'] = self.loss_functions['predictor'](pred_y, self.predictor(pred_x))
+                    pred_gradients = tape.gradient(loss['pred'], self.predictor.variables)
+                    self.optimizers['predictor'].apply_gradients(zip(pred_gradients, self.predictor.variables))
+            # update generator
+            with tf.GradientTape() as tape:
+                gen_samples = self.generator(self.noise_prior(int(batch_size), self.input_width, self.max_val))
+                pred_x, pred_y = slice_gen_out_tf(gen_samples)
+                disc_out = self.predictor(pred_x)
+                loss['gen'] = self.loss_functions['generator'](pred_y, disc_out)  # todo
+                gen_gradients = tape.gradient(loss['gen'], self.generator.variables)
+                self.optimizers['generator'].apply_gradients(zip(gen_gradients, self.generator.variables))
+            self.losses['predictor'].append(loss['pred'])
+            self.losses['generator'].append(loss['gen'])
 
-    def predict(self, x, batch_size) -> tf.Tensor:
-        """ Return generator outputs for all inputs x. """
+    def predict(self, x, batch_size):
         return self.generator.predict(x, batch_size)
+
+    def get_recorded_losses(self) -> dict:
+        return self.losses
 
 
 def generator(input_width, hidden_width, output_width, max_val) -> tf.keras.Model:
