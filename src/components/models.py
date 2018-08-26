@@ -37,15 +37,15 @@ class GAN:
         # optimization
         self.optimizers = dict.fromkeys(['generator', 'discriminator'])
         self.loss_functions = dict.fromkeys(['generator', 'discriminator'])
+        self.losses = {
+            'generator': [],
+            'discriminator': []
+        }
         # other parameters
         self.input_width = input_width
         self.gen_out_width = gen_out_width
         self.max_val = max_val
         self.adv_multiplier = adv_multiplier
-        self.losses = {
-            'generator': [],
-            'discriminator': []
-        }
 
     def with_distributions(self, noise_prior, reference_distribution) -> 'GAN':
         self.noise_prior = noise_prior
@@ -63,31 +63,27 @@ class GAN:
         return self
 
     def train(self, batch_size, steps):
-        for step in tqdm(range(steps)):
-            disc_loss = 0
-            gen_loss = 0
+        for _ in tqdm(range(steps)):
+            loss = {'disc': [], 'gen': []}
+            # update discriminator
             for _ in range(self.adv_multiplier):
-                # sample from reference distribution and from generator
-                real = self.reference_distribution(int(batch_size / 2), self.gen_out_width, self.max_val)
-                gen_output = self.generator(self.noise_prior(int(batch_size / 2), self.input_width, self.max_val))
-                # combine real sample and generator output
-                disc_in, disc_labels = combine_generated_and_reference_tf(gen_output, real)
-                # update discriminator
+                gen_samples = self.generator(self.noise_prior(int(batch_size / 2), self.input_width, self.max_val))
+                real_samples = self.reference_distribution(int(batch_size / 2), self.gen_out_width, self.max_val)
+                disc_x, disc_y = combine_generated_and_reference_tf(gen_samples, real_samples)
                 with tf.GradientTape() as tape:
-                    disc_out = self.discriminator(disc_in)
-                    disc_loss = self.loss_functions['discriminator'](disc_labels, disc_out)
-                    disc_gradients = tape.gradient(disc_loss, self.discriminator.variables)
+                    loss['disc'] = self.loss_functions['discriminator'](disc_y, self.discriminator(disc_x))
+                    disc_gradients = tape.gradient(loss['disc'], self.discriminator.variables)
                     self.optimizers['discriminator'].apply_gradients(
                         zip(disc_gradients, self.discriminator.variables))
             # update generator
             with tf.GradientTape() as tape:
-                gen_output = self.generator(self.noise_prior(int(batch_size), self.input_width, self.max_val))
-                disc_out = self.discriminator(gen_output)
-                gen_loss = self.loss_functions['generator'](tf.zeros(shape=(batch_size,)), disc_out)
-                gen_gradients = tape.gradient(gen_loss, self.generator.variables)
+                gen_samples = self.generator(self.noise_prior(int(batch_size), self.input_width, self.max_val))
+                disc_out = self.discriminator(gen_samples)
+                loss['gen'] = self.loss_functions['generator'](tf.zeros(shape=(batch_size,)), disc_out)
+                gen_gradients = tape.gradient(loss['gen'], self.generator.variables)
                 self.optimizers['generator'].apply_gradients(zip(gen_gradients, self.generator.variables))
-            self.losses['discriminator'].append(disc_loss)
-            self.losses['generator'].append(gen_loss)
+            self.losses['discriminator'].append(loss['disc'])
+            self.losses['generator'].append(loss['gen'])
 
     def predict(self, x, batch_size):
         return self.generator.predict(x, batch_size)
