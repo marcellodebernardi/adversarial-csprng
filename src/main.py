@@ -37,10 +37,6 @@ Available command line arguments:
 -t              TEST MODE: runs model with reduced size and few iterations
 -nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
 -nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
--long           LONG TRAINING: trains for 1,000,000 epochs
--short          SHORT TRAINING: trains for 10,000 epochs
--highlr         HIGH LEARNING RATE: increases the learning rate from default
--lowlr          LOW LEARNING RATE: decreases the learning rate from default
 """
 
 import sys
@@ -88,11 +84,11 @@ def main():
     """
     # train discriminative GAN
     if TRAIN[0]:
-        print('# DISCGAN - batch size: ', BATCH_SIZE)
+        print('# GAN - batch size: ', BATCH_SIZE)
         run_discgan()
     # train predictive GAN
     if TRAIN[1]:
-        print('# PREDGAN - batch size: ', BATCH_SIZE)
+        print('# PredGAN - batch size: ', BATCH_SIZE)
         run_predgan()
 
     # print used settings for convenience
@@ -127,7 +123,24 @@ def run_discgan():
 
 def run_predgan():
     """ Constructs, trains and evaluates the predictive GAN. """
-    pass
+    predgan = PredGAN(input_width=2, gen_width=30, gen_out_width=8, disc_width=30, adv_multiplier=3) \
+        .with_distributions(inputs.noise_prior_tf) \
+        .with_optimizers(GEN_OPT, OPP_OPT) \
+        .with_loss_functions(losses.build_generator_regression_loss(MAX_VAL),
+                             losses.build_predictor_regression_loss(MAX_VAL))
+
+    for i in range(10):
+        print('GAN: training section ' + str(i) + ' -----')
+        try:
+            predgan.train(BATCH_SIZE, 100)
+            eval_out = predgan.predict(EVAL_DATA, BATCH_SIZE)
+            files.write_output_file(eval_out, SEQN_DIR + str(i) + '_' + 'predgan.txt')
+        except KeyboardInterrupt:
+            print('[INTERRUPTED BY USER]')
+
+        # produce output
+        files.write_to_file(predgan.get_recorded_losses()['generator'], PLOT_DIR + '/generator_loss.txt')
+        files.write_to_file(predgan.get_recorded_losses()['discriminator'], PLOT_DIR + '/discriminator_loss.txt')
 
     # janice_input_t = tf.placeholder(shape=[BATCH_SIZE, 2], dtype=tf.float32)
     # janice_output_t = generator(janice_input_t)
