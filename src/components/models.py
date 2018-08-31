@@ -63,7 +63,7 @@ class GAN:
         return self
 
     def train(self, batch_size, steps):
-        for _ in tqdm(range(steps)):
+        for _ in range(steps):
             loss = {'disc': [], 'gen': []}
             # update discriminator
             for _ in range(self.adv_multiplier):
@@ -129,7 +129,7 @@ class PredGAN:
         return self
 
     def train(self, batch_size, steps):
-        for _ in tqdm(range(steps)):
+        for _ in range(steps):
             loss = {'pred': [], 'gen': []}
             # update predictor
             for _ in range(self.adv_multiplier):
@@ -185,7 +185,7 @@ def adversary(input_width, output_width, max_val) -> tf.keras.Model:
     :return:
     """
     model = tf.keras.Sequential([
-        Reshape(target_shape=(8, 1)),
+        Reshape(target_shape=(input_width, 1)),
         Conv1D(4, 2, 1, 'same', activation=scaled_sigmoid(max_val), name='conv_1'),
         Conv1D(4, 2, 1, 'same', activation=scaled_sigmoid(max_val), name='conv_2'),
         Conv1D(4, 2, 1, 'same', activation=scaled_sigmoid(max_val), name='conv_3'),

@@ -22,7 +22,7 @@ from tqdm import tqdm
 from utils import operations
 
 
-def write_output_file(values, filename: str):
+def write_numbers_to_ascii_file(values, filename: str):
     """ Produces an ASCII output text file containing hexadecimal representations
         of each number produces by the generator.
 

@@ -45,18 +45,6 @@ def noise_prior_tf(batch_size, seq_length, max_val) -> tf.Tensor:
     return get_input_batch_tf(batch_size, max_val, False)
 
 
-def get_input_dataset(batch_size, num_of_batches, max_val, random_offsets=False) -> tf.data.Dataset:
-    """ Returns a Dataset representing an entire training dataset. """
-    batches = []
-    # generate batches
-    for batch in range(num_of_batches):
-        batches.append(get_input_batch_tf(batch_size, max_val, random_offsets))
-    # stack batches into single tensor
-    data = tf.stack(batches)
-    # create dataset of batches
-    return tf.data.Dataset.from_tensor_slices(data)
-
-
 def get_input_batch_tf(batch_size, max_val, random_offsets=False) -> tf.Tensor:
     """ Returns a Tensor representing a single batch of generator
     input noise. The array is a 2D array of input samples, where each
@@ -107,24 +95,24 @@ def get_input_batch_np(batch_size, max_val, random_offsets=False) -> np.ndarray:
     return np.transpose(np.stack([seeds, offsets]))
 
 
-def get_eval_input_numpy(seed, length, batch_size) -> np.ndarray:
+def get_eval_input_numpy(seed, num_of_elements, input_size) -> np.ndarray:
     """ Returns an input dataset that can be used to produce a full output
         sequence using a trained generator. This method returns a 2D numpy array
         where each inner array is an (seed, offset) pair. The seed remains
         fixed, while the offset is incremented by 1 at each position.
 
         :param seed: pre-generated seed for the evaluation input
-        :param length: number of batches in evaluation input
-        :param batch_size: number of inputs in each batch
+        :param num_of_elements: data points
+        :param input_size: dimensionality of each input
     """
+    # todo need better scheme for offsets
     data = []
-    offset = 0
+    offsets = [0 for _ in range(input_size - 1)]
 
-    for batch_num in range(length):
-        batch = []
-        for item in range(batch_size):
-            batch.append([seed, offset])
-            offset = offset + 1
-        data.append(batch)
+    for element in range(int(num_of_elements)):
+        item = [seed]
+        item.extend(offsets)
+        data.append(item)
+        offsets = [offsets[i] + 1 for i in range(len(offsets))]
 
     return np.array(data)
