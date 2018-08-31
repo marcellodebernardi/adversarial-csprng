@@ -25,11 +25,10 @@ def slice_gen_out_tf(generator_output: tf.Tensor) -> (tf.Tensor, tf.Tensor):
         array is an array of real numbers, splits all the inner array into two, such that
         the first resulting array contains all elements of the original inner array minus
         n_to_predict items, and the second contains the last n_to_predict items.
-
         :param generator_output: numpy array holding the generator's output vector
     """
     data = generator_output
-    return data[:, :-1], np.reshape(data[:, -1], [tf.shape(generator_output)[0], 1])
+    return data[:, :-1], data[:, -1]
 
 
 def combine_generated_and_reference_tf(generated: tf.Tensor, reference: tf.Tensor) -> (tf.Tensor, tf.Tensor):

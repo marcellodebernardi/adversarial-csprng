@@ -30,12 +30,12 @@ def modulo(divisor, with_activation=None):
     :param with_activation: optional activation function to wrap
     """
 
-    def closure(input_value: tf.Tensor) -> tf.Tensor:
+    def modulo_activation(input_value: tf.Tensor) -> tf.Tensor:
         if with_activation is not None:
             input_value = with_activation(input_value)
         return tf.mod(input_value, divisor)
 
-    return closure
+    return modulo_activation
 
 
 def scaled_sigmoid(max_value):
@@ -47,7 +47,7 @@ def scaled_sigmoid(max_value):
     :return: activation function
     """
 
-    def closure(input_value: tf.Tensor) -> tf.Tensor:
+    def scaled_sigmoid_activation(input_value: tf.Tensor) -> tf.Tensor:
         return tf.scalar_mul(max_value, tf.sigmoid(input_value))
 
-    return closure
+    return scaled_sigmoid_activation
