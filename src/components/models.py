@@ -91,6 +91,12 @@ class GAN:
     def get_recorded_losses(self) -> dict:
         return self.losses
 
+    def get_generator_model(self) -> tf.keras.Model:
+        return self.generator
+
+    def get_discriminator_model(self) -> tf.keras.Model:
+        return self.discriminator
+
 
 class PredGAN:
     """ A predictive GAN model, consisting of a generator and a predictor. """
@@ -155,6 +161,12 @@ class PredGAN:
 
     def get_recorded_losses(self) -> dict:
         return self.losses
+
+    def get_generator_model(self) -> tf.keras.Model:
+        return self.generator
+
+    def get_predictor_model(self) -> tf.keras.Model:
+        return self.predictor
 
 
 def generator(input_width, hidden_width, output_width, max_val) -> tf.keras.Model:
