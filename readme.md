@@ -1,9 +1,12 @@
 # Pseudo Random Number Generation using Generative Adversarial Networks
 This **exploratory** project seeks to assess the viability of generative 
-adversarial networks (GANs) for the implementation of a cryptographically 
-secure pseudo random number generator (CSPRNG). It draws inspiration from recent 
+adversarial networks (GANs) for the implementation of a
+pseudo random number generator (CSPRNG). It draws inspiration from 2016 
 work on bootstrapping encryption schemes using GANs: [Learning to Protect Communications
 with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
+
+A short paper detailing the research, published at iWAISE 2018 (Dublin), is available on arXiv:
+[Pseudo-Random Number Generation Using Generative Adversarial Networks](https://arxiv.org/abs/1810.00378)
 
 
 ## 1 - Setup and Executable
