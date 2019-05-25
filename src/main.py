@@ -1,4 +1,4 @@
-# Marcello De Bernardi, Queen Mary University of London
+# Marcello De Bernardi, University of Oxford
 #
 # An exploratory proof-of-concept implementation of a CSPRNG
 # (cryptographically secure pseudorandom number generator) using
@@ -35,271 +35,114 @@ The main function defines these networks and trains them.
 
 Available command line arguments:
 -t              TEST MODE: runs model with reduced size and few iterations
--nodisc         SKIP DISCRIMINATIVE GAN: does not train discriminative GAN
--nopred         SKIP PREDICTIVE GAN: does not train predictive GAN
--long           LONG TRAINING: trains for 1,000,000 epochs
--short          SHORT TRAINING: trains for 10,000 epochs
--highlr         HIGH LEARNING RATE: increases the learning rate from default
--lowlr          LOW LEARNING RATE: decreases the learning rate from default
 """
 
 import sys
+import math
 import tensorflow as tf
-import tensorflow.contrib.gan as tfgan
-from tensorflow.python.layers.core import fully_connected, flatten
-from tensorflow.python.layers.pooling import max_pooling1d
-from tensorflow.python.layers.convolutional import conv1d
-from tensorflow.python.ops.nn import leaky_relu
-from components.activations import modulo
-from components.operations import slice_gen_out
-from components.inputs import get_input_tensor, get_input_numpy, get_eval_input_numpy
-from utils import files, debug
-
-# main settings
-HPC_TRAIN = '-t' not in sys.argv  # set to true when training on HPC to collect data
-LEARN_LEVEL = 2 if '-highlr' in sys.argv else 0 if '-lowlr' in sys.argv else 1
-
-# hyper-parameters
-OUTPUT_SIZE = 8
-MAX_VAL = 65535
-OUTPUT_BITS = 16
-BATCH_SIZE = 2046 if HPC_TRAIN else 10
-LEARNING_RATE = {2: 0.1, 1: 0.02, 0: 0.008}[LEARN_LEVEL]
-GEN_WIDTH = 30 if HPC_TRAIN else 10
-DATA_TYPE = tf.float64
-
-# optimizers
-GEN_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
-OPP_OPT = tf.train.AdamOptimizer(LEARNING_RATE, beta1=0.9999, beta2=0.9999)
+from experiment import Experiment, ExperimentFunction
+from components.models import GAN, PredGAN
+from components import inputs, losses
+from utils import files
 
 # training settings
-TRAIN = ['-nodisc' not in sys.argv, '-nopred' not in sys.argv]
-STEPS = 1000000 if '-long' in sys.argv else 10000 if '-short' in sys.argv else 200000 if HPC_TRAIN else 40
-PRE_STEPS = 100 if HPC_TRAIN else 5
-ADV_MULT = 3
-
-# logging and evaluation
-EVAL_BATCHES = 400 if HPC_TRAIN else 10
-EVAL_DATA = get_eval_input_numpy(10, EVAL_BATCHES, BATCH_SIZE)
-LOG_EVERY_N = 10 if HPC_TRAIN else 1
+STEPS = [10, 100, 1000, 10000, 100000]
+EXPERIMENT_REPETITIONS = 10
+EVAL_MILESTONES = 5
+EVAL_SEED = 10
 PLOT_DIR = '../output/plots/'
 DATA_DIR = '../output/data/'
 SEQN_DIR = '../output/sequences/'
-GRAPH_DIR = '../output/model_graphs/'
+GRAPH_DIR = '../output/tensor_board/'
 
 
 def main():
-    """ Constructs the neural networks, trains them, and logs
-        all relevant information.
-    """
-    # train discriminative GAN
-    if TRAIN[0]:
-        print('# DISCGAN - batch size: ', BATCH_SIZE)
-        run_discgan()
-    # train predictive GAN
-    if TRAIN[1]:
-        print('# PREDGAN - batch size: ', BATCH_SIZE)
-        run_predgan()
+    """ Constructs the neural networks, trains them, and logs all relevant information. """
 
-    # print used settings for convenience
-    print('\n[COMPLETE] (DISCGAN: ' + str(TRAIN[0]) + ', PREDGAN: ' + str(TRAIN[1]) + ')')
+    if sys.argv[1] == 'gan':
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS).perform(STEPS[0])
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS, 'input_size').perform(STEPS[0])
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS, 'gen_width').perform(STEPS[0])
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS, 'output_size').perform(STEPS[0])
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS, 'max_val').perform(STEPS[0])
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS, 'batch_size').perform(STEPS[0])
+        Experiment(DiscganExperimentFunction(), EXPERIMENT_REPETITIONS, 'learning_rate').perform(STEPS[0])
+    elif sys.argv[1] == 'predgan':
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS).perform(STEPS[0])
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS, 'input_size').perform(STEPS[0])
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS, 'gen_width').perform(STEPS[0])
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS, 'output_size').perform(STEPS[0])
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS, 'max_val').perform(STEPS[0])
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS, 'batch_size').perform(STEPS[0])
+        Experiment(PredganExperimentFunction(), EXPERIMENT_REPETITIONS, 'learning_rate').perform(STEPS[0])
 
 
-def run_discgan():
-    """ Constructs and trains the discriminative GAN consisting of
-        Jerry and Diego.
-    """
-    # code follows the examples from
-    # https://github.com/tensorflow/models/blob/master/research/gan/tutorial.ipynb
+class DiscganExperimentFunction(ExperimentFunction):
+    def run_function(self, input_size, gen_width, output_size, max_val, batch_size, learning_rate, adv_mul, steps,
+                     eval_data, folder):
+        """ Constructs, trains and evaluates the discriminative GAN with the provided experiment parameters.
+        :param input_size: the dimensionality of the generator input
+        :param gen_width: the width of the generator's hidden layers
+        :param output_size: the dimensionality of the generator output
+        :param max_val: the upper bound for the values produced by the generator
+        :param batch_size: size of batches on which gradient update is performed
+        :param learning_rate: optimizer learning rate
+        :param adv_mul: the gradient update multiplier for the adversary
+        :param steps: number of times the generator/discriminator pair are updated
+        :param eval_data: evaluation dataset used for the generator
+        :param folder: subdirectory for experiment run with current parameters """
 
-    # build the GAN model
-    discgan = tfgan.gan_model(
-        generator_fn=generator,
-        discriminator_fn=adversary_conv(OUTPUT_SIZE),
-        real_data=tf.random_uniform(shape=[BATCH_SIZE, OUTPUT_SIZE]),
-        generator_inputs=get_input_tensor(BATCH_SIZE, MAX_VAL)
-    )
-    # Build the GAN loss
-    discgan_loss = tfgan.gan_loss(
-        discgan,
-        generator_loss_fn=tfgan.losses.least_squares_generator_loss,
-        discriminator_loss_fn=tfgan.losses.least_squares_discriminator_loss
-    )
-    # Create the train ops, which calculate gradients and apply updates to weights.
-    train_ops = tfgan.gan_train_ops(
-        discgan,
-        discgan_loss,
-        generator_optimizer=GEN_OPT,
-        discriminator_optimizer=OPP_OPT
-    )
-    # start TensorFlow session
-    with tf.train.SingularMonitoredSession() as sess:
-        pretrain_steps_fn = tfgan.get_sequential_train_steps(tfgan.GANTrainSteps(0, PRE_STEPS))
-        train_steps_fn = tfgan.get_sequential_train_steps(tfgan.GANTrainSteps(1, ADV_MULT))
-        global_step = tf.train.get_or_create_global_step()
+        gan = GAN(input_size, gen_width, output_size, max_val, gen_width, adv_mul) \
+            .with_distributions(inputs.noise_prior_tf, inputs.reference_distribution_tf) \
+            .with_optimizers(tf.train.AdamOptimizer(learning_rate, 0.9999, 0.9999),
+                             tf.train.AdamOptimizer(learning_rate, 0.9999, 0.9999)) \
+            .with_loss_functions(losses.generator_classification_loss, losses.discriminator_classification_loss)
 
-        # pretrain discriminator
-        print('\n\nPretraining ... ', end="", flush=True)
-        try:
-            pretrain_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
-        except KeyboardInterrupt:
-            pass
-        print('[DONE]\n\n')
-
-        # train both models
-        losses_jerry = []
-        losses_diego = []
-        try:
-            evaluate(sess, discgan.generated_data, discgan.generator_inputs, 0, 'jerry')
-
-            for step in range(STEPS):
-                train_steps_fn(sess, train_ops, global_step, train_step_kwargs={})
-
-                # if performed right number of steps, log
-                if step % LOG_EVERY_N == 0:
-                    sess.run([])
-                    gen_l = discgan_loss.generator_loss.eval(session=sess)
-                    disc_l = discgan_loss.discriminator_loss.eval(session=sess)
-
-                    debug.print_step(step, gen_l, disc_l)
-                    losses_jerry.append(gen_l)
-                    losses_diego.append(disc_l)
-
-        except KeyboardInterrupt:
-            print('[INTERRUPTED BY USER] -- evaluating')
-
+        for j in range(EVAL_MILESTONES):
+            gan.train(batch_size, steps)
+            eval_out = gan.predict(eval_data, batch_size)
+            files.write_numbers_to_ascii_file(eval_out,
+                                              SEQN_DIR + 'discriminative/' + folder
+                                              + 'steps-' + str(steps)
+                                              + '-mile-' + str(j)
+                                              + '-gan.txt')
         # produce output
-        files.write_to_file(losses_jerry, PLOT_DIR + '/jerry_loss.txt')
-        files.write_to_file(losses_diego, PLOT_DIR + '/diego_loss.txt')
-        evaluate(sess, discgan.generated_data, discgan.generator_inputs, 1, 'jerry')
+        files.write_to_file(gan.get_recorded_losses()['generator'], PLOT_DIR + '/generator_loss.txt')
+        files.write_to_file(gan.get_recorded_losses()['discriminator'], PLOT_DIR + '/discriminator_loss.txt')
 
 
-def run_predgan():
-    """ Constructs, trains and evaluates the predictive GAN consisting
-        of Janice and Priya.
-    """
-    # tensor graphs for janice and priya are separated so that optimizers
-    # only work on intended nodes. Values are passed between janice and
-    # priya at runtime using fetches and feeds.
+class PredganExperimentFunction(ExperimentFunction):
+    def run_function(self, input_size, gen_width, output_size, max_val, batch_size, learning_rate, adv_mul, steps,
+                     eval_data, folder):
+        """ Constructs, trains and evaluates the predictive GAN with the provided experiment parameters.
+        :param input_size: the dimensionality of the generator input
+        :param gen_width: the width of the generator's hidden layers
+        :param output_size: the dimensionality of the generator output
+        :param max_val: the upper bound for the values produced by the generator
+        :param batch_size: size of batches on which gradient update is performed
+        :param learning_rate: optimizer learning rate
+        :param adv_mul: the gradient update multiplier for the adversary
+        :param steps: number of times the generator/predictor pair are updated
+        :param eval_data: evaluation dataset used for the generator
+        :param folder: subdirectory for experiment run with current parameters """
 
-    # Variables suffixed with _t are tensors and form part of the computational
-    # graph. Variables suffixed with _n hold numpy arrays and are used at runtime
-    # with fetch and feed operations to pass values between the generator and
-    # the predictor
-
-    # janice tensor graph
-    janice_input_t = tf.placeholder(shape=[BATCH_SIZE, 2], dtype=tf.float32)
-    janice_output_t = generator(janice_input_t)
-    janice_true_t = tf.strided_slice(janice_output_t, [0, -0], [BATCH_SIZE, 1], [1, 1])
-    priya_pred_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
-    # priya tensor graph
-    priya_input_t = tf.placeholder(shape=[BATCH_SIZE, OUTPUT_SIZE - 1], dtype=tf.float32)
-    priya_label_t = tf.placeholder(shape=[BATCH_SIZE, 1], dtype=tf.float32)
-    priya_output_t = adversary_conv(OUTPUT_SIZE - 1)(priya_input_t)
-    # losses and optimizers
-    priya_loss_t = tf.losses.absolute_difference(priya_label_t, priya_output_t)
-    janice_loss_t = -tf.losses.absolute_difference(janice_true_t, priya_pred_t)
-    janice_optimizer = GEN_OPT.minimize(janice_loss_t)
-    priya_optimizer = OPP_OPT.minimize(priya_loss_t)
-
-    # run TensorFlow session
-    with tf.train.SingularMonitoredSession() as sess:
-        losses_janice = []
-        losses_priya = []
-        # train - the training loop is broken into sections that
-        # are connected by fetches and feeds
-        try:
-            evaluate(sess, janice_output_t, janice_input_t, 0, 'janice')
-
-            for step in range(STEPS):
-                batch_inputs = get_input_numpy(BATCH_SIZE, MAX_VAL)
-                # generate outputs
-                janice_output_n = sess.run([janice_output_t],
-                                           feed_dict={janice_input_t: batch_inputs})
-                priya_input_n, priya_label_n = slice_gen_out(janice_output_n[0])
-                # compute priya loss and update parameters
-                priya_output_n = None
-                priya_loss_epoch = None
-                for adv in range(ADV_MULT):
-                    _, priya_loss_epoch, priya_output_n = sess.run([priya_optimizer, priya_loss_t, priya_output_t],
-                                                                   feed_dict={priya_input_t: priya_input_n,
-                                                                              priya_label_t: priya_label_n})
-                # compute janice loss and update parameters
-                _, janice_loss_epoch = sess.run([janice_optimizer, janice_loss_t],
-                                                feed_dict={priya_pred_t: priya_output_n,
-                                                           janice_input_t: batch_inputs})
-
-                # log and evaluate
-                if step % LOG_EVERY_N == 0:
-                    debug.print_step(step, janice_loss_epoch, priya_loss_epoch)
-                    losses_janice.append(janice_loss_epoch)
-                    losses_priya.append(priya_loss_epoch)
-
-        except KeyboardInterrupt:
-            print('[INTERRUPTED BY USER] -- evaluating')
-
+        predgan = PredGAN(input_size, gen_width, output_size, max_val, gen_width, adv_mul) \
+            .with_distributions(inputs.noise_prior_tf) \
+            .with_optimizers(tf.train.AdamOptimizer(learning_rate, 0.9999, 0.9999),
+                             tf.train.AdamOptimizer(learning_rate, 0.9999, 0.9999)) \
+            .with_loss_functions(losses.build_generator_regression_loss(max_val),
+                                 losses.build_predictor_regression_loss(max_val))
+        for j in range(EVAL_MILESTONES):
+            predgan.train(batch_size, steps)
+            eval_out = predgan.predict(eval_data, batch_size)
+            files.write_numbers_to_ascii_file(eval_out,
+                                              SEQN_DIR + 'predictive/' + folder
+                                              + 'steps-' + str(steps)
+                                              + '-mile-' + str(j)
+                                              + '-predgan.txt')
         # produce output
-        files.write_to_file(losses_janice, PLOT_DIR + '/janice_loss.txt')
-        files.write_to_file(losses_priya, PLOT_DIR + '/priya_loss.txt')
-        evaluate(sess, janice_output_t, janice_input_t, 1, 'janice')
-
-
-def generator(noise) -> tf.Tensor:
-    """ Symbolic tensor operations representing the generator neural network.
-
-        :param noise: generator input tensor with arbitrary distribution
-    """
-    inputs = tf.reshape(noise, [-1, 2])
-    outputs = fully_connected(inputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = fully_connected(outputs, GEN_WIDTH, activation=leaky_relu)
-    outputs = fully_connected(outputs, OUTPUT_SIZE, activation=modulo(MAX_VAL))
-    return outputs
-
-
-def adversary_conv(size: int):
-    """ Returns a function representing the symbolic Tensor operations computed
-        by the convolutional opponent architecture, where the input layer of the
-        network is given as an argument.
-
-        :param size: the size of the adversary's input layer
-    """
-
-    def closure(inputs, unused_conditioning=None, weight_decay=2.5e-5, is_training=True) -> tf.Tensor:
-        input_layer = tf.reshape(inputs, [-1, size])
-        outputs = tf.expand_dims(input_layer, 2)
-        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-        outputs = conv1d(outputs, filters=4, kernel_size=2, strides=1, padding='same', activation=leaky_relu)
-        outputs = max_pooling1d(outputs, pool_size=2, strides=1)
-        outputs = flatten(outputs)
-        outputs = fully_connected(outputs, 4, activation=leaky_relu)
-        outputs = fully_connected(outputs, 1, activation=leaky_relu)
-        return outputs
-
-    return closure
-
-
-def evaluate(sess: tf.Session, gen_output, gen_input, iteration: int, name: str):
-    """ Evaluates the model by running it on the evaluation input and producing
-        a file of the outputs.
-
-        :param sess: running TensorFlow session
-        :param gen_output: tensor node in computational graph holding generator outputs
-        :param gen_input: tensor node in computational graph holding generator inputs
-        :param iteration: current training iteration, used for logging
-        :param name: name of the generator being evaluated
-    """
-    print('\n----------\n' + 'Running evaluation ...\n')
-    output = []
-
-    for batch in range(EVAL_BATCHES):
-        gen_out_vals = sess.run(gen_output, {gen_input: EVAL_DATA[batch]})
-        output.extend(gen_out_vals)
-    files.write_output_file(output, SEQN_DIR + str(iteration) + '_' + name + '.txt')
-    print('[DONE]\n' + '----------\n\n')
+        files.write_to_file(predgan.get_recorded_losses()['generator'], PLOT_DIR + '/generator_loss.txt')
+        files.write_to_file(predgan.get_recorded_losses()['discriminator'], PLOT_DIR + '/discriminator_loss.txt')
 
 
 if __name__ == '__main__':

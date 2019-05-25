@@ -1,4 +1,4 @@
-# Marcello De Bernardi, Queen Mary University of London
+# Marcello De Bernardi, University of Oxford
 #
 # An exploratory proof-of-concept implementation of a CSPRNG
 # (cryptographically secure pseudorandom number generator) using
@@ -22,7 +22,7 @@ from tqdm import tqdm
 from utils import operations
 
 
-def write_output_file(values, filename: str):
+def write_numbers_to_ascii_file(values, filename: str):
     """ Produces an ASCII output text file containing hexadecimal representations
         of each number produces by the generator.
 
