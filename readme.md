@@ -102,7 +102,7 @@ a provision, the licence bundled with this repository shall apply.
 
 If using this code, please cite:
 ````
-@inproceedings{de2018pseudo,
+@inproceedings{debernardi2018pseudo,
   title={Pseudo-Random Number Generation using Generative Adversarial Networks},
   author={De Bernardi, Marcello and Khouzani, MHR and Malacaria, Pasquale},
   booktitle={Joint European Conference on Machine Learning and Knowledge Discovery in Databases},
