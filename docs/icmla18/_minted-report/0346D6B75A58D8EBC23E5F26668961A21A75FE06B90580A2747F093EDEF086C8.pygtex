@@ -1,5 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-  while True:
-    weights\PYGZus{}grad = evaluate\PYGZus{}gradient(loss\PYGZus{}fun, data, weights)
-    weights += \PYGZhy{} step\PYGZus{}size * weights\PYGZus{}grad  \PYGZsh{} parameter update
-\end{Verbatim}

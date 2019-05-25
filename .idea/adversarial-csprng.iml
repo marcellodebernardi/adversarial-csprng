@@ -6,7 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/tensorflow/components" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/oracles" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.6 (adversarial-csprng)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.6" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

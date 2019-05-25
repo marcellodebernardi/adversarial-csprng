@@ -1,3 +1,4 @@
-./output/
-./docs/
-./env/
+out/
+output/
+docs/
+env/

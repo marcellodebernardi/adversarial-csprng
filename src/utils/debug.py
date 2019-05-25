@@ -1,4 +1,4 @@
-# Marcello De Bernardi, Queen Mary University of London
+# Marcello De Bernardi, University of Oxford
 #
 # An exploratory proof-of-concept implementation of a CSPRNG
 # (cryptographically secure pseudorandom number generator) using
