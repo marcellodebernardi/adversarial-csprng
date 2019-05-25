@@ -1,9 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-    for i in range(training\PYGZus{}iterations):
-      for k in range(steps):
-        sample mini\PYGZhy{}batch from data distribution
-        sample mini\PYGZhy{}batch from generator
-        update discriminator by gradient descent
-      sample mini\PYGZhy{}batch of noise from noise distribution
-      update generator by gradient descent
-\end{Verbatim}

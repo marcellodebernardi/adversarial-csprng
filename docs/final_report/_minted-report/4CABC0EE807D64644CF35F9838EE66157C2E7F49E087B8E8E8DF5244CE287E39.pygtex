@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{modulo}\PYG{p}{(}\PYG{n}{divisor}\PYG{p}{,} \PYG{n}{withActivation}\PYG{o}{=}\PYG{n+nb+bp}{None}\PYG{p}{)}
-\end{Verbatim}
