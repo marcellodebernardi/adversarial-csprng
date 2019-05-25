@@ -6,7 +6,18 @@ work on bootstrapping encryption schemes using GANs: [Learning to Protect Commun
 with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918).
 
 A short paper detailing the research, published at iWAISE 2018 (Dublin), is available on arXiv:
-[Pseudo-Random Number Generation Using Generative Adversarial Networks](https://arxiv.org/abs/1810.00378)
+[Pseudo-Random Number Generation Using Generative Adversarial Networks](https://arxiv.org/abs/1810.00378). To use this work, please cite:
+
+````
+@inproceedings{debernardi2018pseudo,
+  title={Pseudo-Random Number Generation using Generative Adversarial Networks},
+  author={De Bernardi, Marcello and Khouzani, MHR and Malacaria, Pasquale},
+  booktitle={Joint European Conference on Machine Learning and Knowledge Discovery in Databases},
+  pages={191--200},
+  year={2018},
+  organization={Springer}
+}
+````
 
 
 ## 1 - Setup and Executable
@@ -100,14 +111,4 @@ to Queen Mary's policy on intellectual property of work carried out towards a de
 Wherever this policy does not apply, or in any instance such that the policy does not make
 a provision, the licence bundled with this repository shall apply.
 
-If using this code, please cite:
-````
-@inproceedings{debernardi2018pseudo,
-  title={Pseudo-Random Number Generation using Generative Adversarial Networks},
-  author={De Bernardi, Marcello and Khouzani, MHR and Malacaria, Pasquale},
-  booktitle={Joint European Conference on Machine Learning and Knowledge Discovery in Databases},
-  pages={191--200},
-  year={2018},
-  organization={Springer}
-}
-````
+To use any of the code or documentation in this repository, please cite the workshop proceedings paper tied to this work. A BibTex entry is provided at the start of the readme.
