@@ -100,4 +100,14 @@ to Queen Mary's policy on intellectual property of work carried out towards a de
 Wherever this policy does not apply, or in any instance such that the policy does not make
 a provision, the licence bundled with this repository shall apply.
 
-The author would appreciate attribution for this work, if used anywhere.
+If using this code, please cite:
+````
+@inproceedings{de2018pseudo,
+  title={Pseudo-Random Number Generation using Generative Adversarial Networks},
+  author={De Bernardi, Marcello and Khouzani, MHR and Malacaria, Pasquale},
+  booktitle={Joint European Conference on Machine Learning and Knowledge Discovery in Databases},
+  pages={191--200},
+  year={2018},
+  organization={Springer}
+}
+````
