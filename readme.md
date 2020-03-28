@@ -1,4 +1,7 @@
 # Pseudo Random Number Generation using Generative Adversarial Networks
+
+**NOTE: This repository is no longer being maintained.**
+
 This **exploratory** project seeks to assess the viability of generative 
 adversarial networks (GANs) for the implementation of a
 pseudo random number generator (CSPRNG). It draws inspiration from 2016 
