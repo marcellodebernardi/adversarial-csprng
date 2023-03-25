@@ -1,7 +1,7 @@
 matplotlib
 pydot
 pandas
-tensorflow==1.9.0
+tensorflow==2.11.1
 numpy
 keras
 tqdm
